@@ -5,7 +5,8 @@
 #include <iostream>
 #include <optional>
 
-#include "oly/config.h"
+#include "oly/config.hpp"
+#include "oly/log.hpp"
 
 using fs = std::filesystem
 
