@@ -1,7 +1,10 @@
-#include <string>
 #include <iostream>
+#include <string>
+#include <limits>
+#include <print>
+#include <cstdlib>
 
-#include <oly/log.hpp>
+#include "oly/log.hpp"
 
 inline logopt operator|(logopt a, logopt b) {
     return static_cast<logopt>(
@@ -27,33 +30,37 @@ inline const char* severity_color(severity lvl) {
         case severity::DEBUG:    return "\033[0;35m";     // magenta
         case severity::TRACE:    return "\033[0;90m";     // gray
     }
-    return "\033[0m"; // reset
 }
+constexpr const char* COLOR_RESET = "\033[0m";
 
-void Log(severity level, const std::string& message, logopt opts = logopt::NONE) {
-    std::ostream& out = has_option(opts, logopt::TO_STDERR) ? std::cerr : std::cout;
+void Log(severity level, const std::string& message,
+         logopt opts = logopt::NONE, const std::string& cmd = "") {
+    const char* sev_names[] = {
+        "CRITICAL", "ERROR", "WARNING", "INFO", "HINT", "DEBUG", "TRACE"
+    };
 
-    // Apply severity color if prefix is printed
-    if (!has_option(opts, logopt::NO_PREFIX)) {
-        static const char* sev_names[] = {
-            "CRITICAL", "ERROR", "WARNING", "INFO", "HINT", "DEBUG", "TRACE"
-        };
-        out << severity_color(level)
-            << "[" << sev_names[static_cast<int>(level)] << "] "
-            << "\033[0m"; // reset color
+    const char* sev_str = sev_names[static_cast<int>(level)];
+    std::println(std::cerr, "{}{}{}: {}", severity_color(level),
+                 sev_str, COLOR_RESET, message);
+
+    if (has_option(opts, logopt::HELP)) {
+        std::println(std::cerr, "{:{}}{}", "", std::strlen(sev_str) + 2,
+                     "use oly --help for more information");
     }
 
-    // Message in uppercase if requested
-    if (has_option(opts, logopt::UPPERCASE)) {
-        for (char c : message) out << static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
-    } else {
-        out << message;
+    if (has_option(opts, logopt::CMD_HELP)) {
+        std::string cmd_str = cmd.empty() ? "<cmd>" : cmd;
+        std::println(std::cerr, "{:{}}use oly {} --help for more information",
+                     "", std::strlen(sev_str) + 2, cmd_str);
     }
-    out << "\n";
 
     if (has_option(opts, logopt::WAIT)) {
-        out << "\033[0;90mPress Enter to continue...\033[0m";
-        out.flush();
+        std::print(std::cerr, "\033[0;90mPress Enter to continue...\033[0m");
+        std::cerr.flush();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    if (level == severity::CRITICAL) {
+        std::exit(EXIT_FAILURE);
     }
 }
