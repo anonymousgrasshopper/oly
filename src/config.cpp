@@ -39,14 +39,11 @@ void edit_config() {
 
 void create_default_config() {
     std::filesystem::create_directories(config_file.parent_path());
-
+inline constexpr char DEFAULT_CONFIG_BYTES[] = {
+#embed "../assets/default_config.yaml"
+};
     std::ofstream out(config_path);
-    out << R"(#
-default_author: Your Name
-default_tags: [olympiad, unsorted]
-pdf_viewer: zathura
-output_dir: /tmp
-)";
+    out << DEFAULT_CONFIG_BYTES;
     out.close();
 }
 
