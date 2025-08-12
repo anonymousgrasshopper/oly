@@ -47,6 +47,6 @@ int main(int argc, char* argv[]) {
     args.erase(args.begin());
 
   cmd->parse(args);
-  cmd->load_config();
+  cmd->load_config_file();
   return cmd->execute();
 }
