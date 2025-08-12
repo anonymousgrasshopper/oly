@@ -1,10 +1,10 @@
-#include <yaml-cpp/yaml.h>
 #include <filesystem>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <optional>
 
+#include "yaml-cpp/yaml.h"
 #include "oly/config.hpp"
 #include "oly/log.hpp"
 
@@ -59,7 +59,7 @@ std::optional<YAML::Node> parse_config() {
   return std::nullopt;
 }
 
-void load_config(std::string config_file_path = "") {
+YAML::Node load_config(std::string config_file_path = "") {
   if (config_file_path != "") {
     config_file = config_file_path
   } else {
@@ -76,5 +76,5 @@ void load_config(std::string config_file_path = "") {
     edit_config();
     config = parse_config();
   }
-  return config;
+  return config.value();
 }
