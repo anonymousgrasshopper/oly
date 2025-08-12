@@ -32,8 +32,12 @@ int main(int argc, char* argv[]) {
     return -1;
   } else if (args[0] == "add") {
     cmd = Add{};
-  } else if (args[0] == "preview") {
-    cmd = Preview{};
+  } else if (args[0] == "edit") {
+    cmd = Edit{};
+  } else if (args[0] == "show") {
+    cmd = Show{};
+  } else if (args[0] == "gen") {
+    cmd = Generate{};
   } else if (args[0] == "search") {
     cmd = Search{};
   } else if (args[0].starts_with("-") {
