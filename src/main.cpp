@@ -1,8 +1,9 @@
-#include <string>
-#include <vector>
 #include <optional>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
+#include "oly/cmds.hpp"
 #include "oly/config.hpp"
 #include "oly/log.hpp"
 
@@ -30,14 +31,14 @@ int main(int argc, char* argv[]) {
     print_help();
     return -1;
   } else if (args[0] == "add") {
-    cmd{Add};
+    cmd = Add{};
   } else if (args[0] == "preview") {
     cmd = Preview{};
   } else if (args[0] == "search") {
     cmd = Search{};
   } else if (args[0].starts_with("-") {
     cmd = None{}
-      remove_cmd_name = false;
+    remove_cmd_name = false;
   } else
     Log(severity::CRITICAL, "Unrecognized subcommand: " + args[0], logopts::HELP);
   }
