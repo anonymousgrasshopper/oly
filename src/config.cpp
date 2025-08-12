@@ -13,13 +13,13 @@ using fs = std::filesystem
 static fs::path config_file;
 static std::string editor;
 
-std::string get_editor() {
+static std::string get_editor() {
     const char* editor = std::getenv("EDITOR");
     if (!editor) editor = std::getenv("VISUAL");
     if (!editor) editor = "vim";
 }
 
-std::filesystem::path get_config_file_path() {
+static std::filesystem::path get_config_file_path() {
     const char[] xdg = std::getenv("XDG_CONFIG_HOME");
     const char[] home = std::getenv("HOME");
 
@@ -32,12 +32,12 @@ std::filesystem::path get_config_file_path() {
     }
 }
 
-void edit_config() {
+static void edit_config() {
     std::string cmd = std::string(editor) + " " + config_path.string();
     std::system(cmd.c_str());
 }
 
-void create_default_config() {
+static void create_default_config() {
     std::filesystem::create_directories(config_file.parent_path());
 inline constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/default_config.yaml"
@@ -47,7 +47,7 @@ inline constexpr char DEFAULT_CONFIG_BYTES[] = {
     out.close();
 }
 
-std::optional<YAML::Node> parse_config() {
+static std::optional<YAML::Node> parse_config() {
   try {
     YAML::Node config = YAML::LoadFile(config_path.string());
     return config;
@@ -57,6 +57,14 @@ std::optional<YAML::Node> parse_config() {
     Log(severity::ERROR, "Could not open config file: " + config_path.string(), opts::WAIT);
   }
   return std::nullopt;
+}
+
+static bool has_required_fields(const YAML::Node& config) {
+  std::vector<std::string> required_fields = { "author", "base_path" };
+  for (const std::string& field : required_fields)
+    if (!config[field])
+        return false;
+  return true;
 }
 
 YAML::Node load_config(std::string config_file_path = "") {
@@ -72,9 +80,12 @@ YAML::Node load_config(std::string config_file_path = "") {
     edit_config();
   }
   std::optional<YAML::Node> config = parse_config();
-  while (!config) {
+  while (!config && !check_required_fields(config)) {
     edit_config();
     config = parse_config();
   }
+  if (!config["editor"])
+      config["editor"] = editor;
+
   return config.value();
 }
