@@ -16,11 +16,11 @@ inline logopt& operator|=(logopt& a, logopt b) {
     return a;
 }
 
-inline bool has_option(logopt opts, logopt flag) {
+static bool has_option(logopt opts, logopt flag) {
     return (static_cast<unsigned>(opts) & static_cast<unsigned>(flag)) != 0;
 }
 
-inline const char* severity_color(severity lvl) {
+static const char* severity_color(severity lvl) {
     switch (lvl) {
         case severity::CRITICAL: return "\033[1;41;97m"; // white on red bg
         case severity::ERROR:    return "\033[1;31m";     // bright red
@@ -31,7 +31,7 @@ inline const char* severity_color(severity lvl) {
         case severity::TRACE:    return "\033[0;90m";     // gray
     }
 }
-constexpr const char* COLOR_RESET = "\033[0m";
+static constexpr const char* COLOR_RESET = "\033[0m";
 
 void Log(severity level, const std::string& message,
          logopt opts = logopt::NONE, const std::string& cmd = "") {
