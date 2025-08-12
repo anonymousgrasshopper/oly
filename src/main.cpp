@@ -11,7 +11,9 @@ static void print_help() {
     std::println("usage: oly <cmd> [arg [...]].\n");
     std::println(R"(Available subcommands:
     add                          - add a problem to the database
-    preview                      - generate a pdf file for a problem and open it
+    edit                         - edit an entry in the database
+    show                         - generate a pdf file for a problem and open it
+    gen                          - generate a LaTeX or PDF file from a problem
     search                       - search problems by tag, difficulty, contest...
     Run oly <cmd> --help for more information regarding a specific subcommand
     )");
