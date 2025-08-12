@@ -1,0 +1,8 @@
+# This is oly's configuration file
+# please edit the following values to your liking
+
+# The author's name in the LaTeX preview
+author: "Leonhard Euler"
+
+# The base path where solutions are stored
+base_path: "~/Mathematics/Solutions"
