@@ -35,6 +35,8 @@ public:
 
     void set(const std::string& flag, std::variant<bool, std::string> val);
 
+    void parse(std::vector<std::string> args);
+
     void load_config_file();
 
     void print_help() const;
