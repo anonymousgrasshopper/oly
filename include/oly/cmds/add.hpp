@@ -2,6 +2,6 @@
 
 class Add : public Command {
 public:
-  AddOptions();
+  Add();
   int execute() override;
 };
