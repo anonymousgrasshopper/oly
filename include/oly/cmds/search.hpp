@@ -1,4 +1,4 @@
-#include "oly/commands.hpp"
+#include "oly/cmds/cmds.hpp"
 
 class Search : public Command {
 public:
