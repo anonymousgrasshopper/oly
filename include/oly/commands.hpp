@@ -39,3 +39,8 @@ public:
 
     void print_help() const;
 };
+
+#include "oly/cmds/add.hpp"
+#include "oly/cmds/preview.hpp"
+#include "oly/cmds/search.hpp"
+#include "oly/cmds/default.hpp"
