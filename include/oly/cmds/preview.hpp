@@ -2,6 +2,6 @@
 
 class Preview : public Command {
 public:
-  AddOptions();
+  Preview();
   int execute() override;
 };
