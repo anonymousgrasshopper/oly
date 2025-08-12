@@ -43,19 +43,19 @@ static void create_default_config() {
     inline constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/default_config.yaml"
     };
-    std::ofstream out(config_path);
+    std::ofstream out(config_file);
     out << DEFAULT_CONFIG_BYTES;
     out.close();
 }
 
 static std::optional<YAML::Node> parse_config() {
   try {
-    YAML::Node config = YAML::LoadFile(config_path.string());
+    YAML::Node config = YAML::LoadFile(config_file.string());
     return config;
   } catch (const YAML::ParserException& e) {
     Log(severity::ERROR, "YAML syntax error in config file: " + e.what(), opts::WAIT);
   } catch (const YAML::BadFile& e) {
-    Log(severity::ERROR, "Could not open config file: " + config_path.string(), opts::WAIT);
+    Log(severity::ERROR, "Could not open config file: " + config_file.string(), opts::WAIT);
   }
   return std::nullopt;
 }
