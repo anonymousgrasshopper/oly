@@ -6,6 +6,29 @@
 
 #include "oly/log.hpp"
 
+enum class severity {
+    CRITICAL, ERROR, WARNING, INFO, HINT, DEBUG, TRACE
+};
+
+inline bool operator<(severity a, severity b) {
+    return static_cast<unsigned>(a) < static_cast<unsigned>(b)
+}
+inline bool operator>(severity a, severity b) {
+    return static_cast<unsigned>(a) > static_cast<unsigned>(b)
+}
+inline bool operator<=(severity a, severity b) {
+    return static_cast<unsigned>(a) <= static_cast<unsigned>(b)
+}
+inline bool operator>=(severity a, severity b) {
+    return static_cast<unsigned>(a) >= static_cast<unsigned>(b)
+}
+
+enum class logopt : unsigned; {
+    NONE       = 0,
+    WAIT       = 1 << 0, // Wait for user input
+    HELP       = 1 << 1, // Advise to use oly --help
+    CMD_HELP   = 1 << 2, // Advise to use oly <cmd> --help
+};
 inline logopt operator|(logopt a, logopt b) {
     return static_cast<logopt>(
         static_cast<unsigned>(a) | static_cast<unsigned>(b)
@@ -20,6 +43,17 @@ static bool has_option(logopt opts, logopt flag) {
     return (static_cast<unsigned>(opts) & static_cast<unsigned>(flag)) != 0;
 }
 
+static const char* severity_name(severity lvl) {
+    switch (lvl) {
+        case severity::CRITICAL: return "CRITICAL";
+        case severity::ERROR:    return "ERROR";
+        case severity::WARNING:  return "WARNING";
+        case severity::INFO:     return "INFO";
+        case severity::HINT:     return "HINT";
+        case severity::DEBUG:    return "DEBUG";
+        case severity::TRACE:    return "TRACE";
+    }
+}
 static const char* severity_color(severity lvl) {
     switch (lvl) {
         case severity::CRITICAL: return "\033[1;41;97m"; // white on red bg
@@ -33,15 +67,14 @@ static const char* severity_color(severity lvl) {
 }
 static constexpr const char* COLOR_RESET = "\033[0m";
 
+namespace Log {
+inline severity log_level = severity::INFO;
+
 void Log(severity level, const std::string& message,
          logopt opts = logopt::NONE, const std::string& cmd = "") {
-    const char* sev_names[] = {
-        "CRITICAL", "ERROR", "WARNING", "INFO", "HINT", "DEBUG", "TRACE"
-    };
-
-    const char* sev_str = sev_names[static_cast<int>(level)];
+    if (lev
     std::println(std::cerr, "{}{}{}: {}", severity_color(level),
-                 sev_str, COLOR_RESET, message);
+                 severity_name(level), COLOR_RESET, message);
 
     if (has_option(opts, logopt::HELP)) {
         std::println(std::cerr, "{:{}}{}", "", std::strlen(sev_str) + 2,
@@ -63,4 +96,5 @@ void Log(severity level, const std::string& message,
     if (level == severity::CRITICAL) {
         std::exit(EXIT_FAILURE);
     }
+}
 }
