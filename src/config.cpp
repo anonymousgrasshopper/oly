@@ -17,6 +17,7 @@ static std::string get_editor() {
     const char* editor = std::getenv("EDITOR");
     if (!editor) editor = std::getenv("VISUAL");
     if (!editor) editor = "vim";
+    return editor;
 }
 
 static std::filesystem::path get_config_file_path() {
@@ -33,15 +34,15 @@ static std::filesystem::path get_config_file_path() {
 }
 
 static void edit_config() {
-    std::string cmd = std::string(editor) + " " + config_path.string();
+    std::string cmd = editor + " " + config_file.string();
     std::system(cmd.c_str());
 }
 
 static void create_default_config() {
     std::filesystem::create_directories(config_file.parent_path());
-inline constexpr char DEFAULT_CONFIG_BYTES[] = {
+    inline constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/default_config.yaml"
-};
+    };
     std::ofstream out(config_path);
     out << DEFAULT_CONFIG_BYTES;
     out.close();
