@@ -65,7 +65,7 @@ static const char* severity_color(severity lvl) {
         case severity::TRACE:    return "\033[0;90m";     // gray
     }
 }
-static constexpr const char* COLOR_RESET = "\033[0m";
+constexpr const char* COLOR_RESET = "\033[0m";
 
 namespace Log {
 inline severity log_level = severity::INFO;
