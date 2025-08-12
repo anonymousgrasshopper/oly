@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "oly/cmds.hpp"
+#include "oly/commands.hpp"
 #include "oly/config.hpp"
 #include "oly/log.hpp"
 
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   } else if (args[0] == "search") {
     cmd = Search{};
   } else if (args[0].starts_with("-") {
-    cmd = None{}
+    cmd = Default{}
     remove_cmd_name = false;
   } else
     Log(severity::CRITICAL, "Unrecognized subcommand: " + args[0], logopts::HELP);
