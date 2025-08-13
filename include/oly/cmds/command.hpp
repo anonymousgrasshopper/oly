@@ -25,6 +25,8 @@ protected:
 	YAML::Node config;
 
 public:
+	virtual ~Command();
+
 	virtual int execute();
 
 	template <typename... Aliases>

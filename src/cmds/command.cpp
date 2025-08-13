@@ -12,6 +12,11 @@ Option::Option(std::string desc, std::variant<bool, std::string> value)
     : desc(std::move(desc)), value(std::move(value)),
       requires_arg(std::holds_alternative<std::string>(this->value)) {}
 
+Command::~Command() = default;
+int Command::execute() {
+	return 0;
+}
+
 template <typename... Aliases>
 void Command::add(std::string primary_flag, Aliases... aliases, std::string desc,
                   std::variant<bool, std::string> default_value) {

@@ -14,12 +14,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(yaml-cpp)
 
-# Gather all source files
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/cmds/*.cpp)
-
 # Create executable
-add_executable(oly ${SOURCES})
+add_executable(oly
+	src/main.cpp
+	src/log.cpp
+	src/config.cpp
+	src/utils.cpp
+	src/cmds/add.cpp
+	src/cmds/command.cpp
+	src/cmds/default.cpp
+	src/cmds/edit.cpp
+	src/cmds/generate.cpp
+	src/cmds/search.cpp
+	src/cmds/show.cpp
+)
 
 # Require C++23 for oly target
 target_compile_features(oly PRIVATE cxx_std_23)

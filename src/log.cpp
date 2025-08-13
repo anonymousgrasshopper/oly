@@ -73,7 +73,7 @@ namespace Log {
 inline severity log_level = severity::INFO;
 
 void Log(severity level, const std::string& message, logopt opts = logopt::NONE,
-         const std::string& cmd = "") {
+         const std::string& cmd) {
 	if (level < log_level)
 		return;
 	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level), COLOR_RESET,

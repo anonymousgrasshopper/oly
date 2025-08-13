@@ -71,7 +71,7 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	return true;
 }
 
-YAML::Node load_config(std::string config_file_path = "") {
+YAML::Node load_config(std::string config_file_path) {
 	if (config_file_path != "") {
 		config_file = config_file_path;
 	} else {
