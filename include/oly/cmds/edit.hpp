@@ -4,6 +4,6 @@
 
 class Edit : public Command {
 public:
-  Edit();
-  int execute() override;
+	Edit();
+	int execute() override;
 };

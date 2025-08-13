@@ -1,5 +1,5 @@
 #include <filesystem>
-using fs = std::filesystem;
+namespace fs = std::filesystem;
 
 fs::path parse_pb_name(const std::string& pb_name);
 

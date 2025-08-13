@@ -2,8 +2,8 @@
 
 #include "oly/cmds/cmds.hpp"
 
-class Show: public Command {
+class Show : public Command {
 public:
-  Show();
-  int execute() override;
+	Show();
+	int execute() override;
 };

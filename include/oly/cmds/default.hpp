@@ -2,8 +2,8 @@
 
 #include "oly/cmds/cmds.hpp"
 
-class Default: public Command {
+class Default : public Command {
 public:
-  Default();
-  int execute() override;
+	Default();
+	int execute() override;
 };

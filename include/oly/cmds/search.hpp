@@ -4,6 +4,6 @@
 
 class Search : public Command {
 public:
-  Search();
-  int execute() override;
+	Search();
+	int execute() override;
 };

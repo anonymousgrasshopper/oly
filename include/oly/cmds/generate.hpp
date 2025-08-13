@@ -2,8 +2,8 @@
 
 #include "oly/cmds/cmds.hpp"
 
-class Generate: public Command {
+class Generate : public Command {
 public:
-  Generate();
-  int execute() override;
+	Generate();
+	int execute() override;
 };
