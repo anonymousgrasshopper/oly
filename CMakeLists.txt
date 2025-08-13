@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(yaml-cpp)
 
 # Gather all source files
 file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/src/cmds/*.cpp)
 
 # Create executable
 add_executable(oly ${SOURCES})

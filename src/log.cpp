@@ -20,8 +20,7 @@ inline bool operator>=(severity a, severity b) {
 }
 
 inline logopt operator|(logopt a, logopt b) {
-	return static_cast<logopt>(
-			static_cast<unsigned>(a) | static_cast<unsigned>(b));
+	return static_cast<logopt>(static_cast<unsigned>(a) | static_cast<unsigned>(b));
 }
 inline logopt& operator|=(logopt& a, logopt b) {
 	a = a | b;
@@ -73,22 +72,22 @@ constexpr const char* COLOR_RESET = "\033[0m";
 namespace Log {
 inline severity log_level = severity::INFO;
 
-void Log(severity level, const std::string& message,
-				 logopt opts = logopt::NONE, const std::string& cmd = "") {
+void Log(severity level, const std::string& message, logopt opts = logopt::NONE,
+         const std::string& cmd = "") {
 	if (level < log_level)
 		return;
-	std::println(std::cerr, "{}{}{}: {}", severity_color(level),
-							 severity_name(level), COLOR_RESET, message);
+	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level), COLOR_RESET,
+	             message);
 
 	if (has_option(opts, logopt::HELP)) {
 		std::println(std::cerr, "{:{}}{}", "", severity_name(level) + 2,
-								 "use oly --help for more information");
+		             "use oly --help for more information");
 	}
 
 	if (has_option(opts, logopt::CMD_HELP)) {
 		std::string cmd_str = cmd.empty() ? "<cmd>" : cmd;
-		std::println(std::cerr, "{:{}}use oly {} --help for more information",
-								 "", severity_name(level) + 2, cmd_str);
+		std::println(std::cerr, "{:{}}use oly {} --help for more information", "",
+		             severity_name(level) + 2, cmd_str);
 	}
 
 	if (has_option(opts, logopt::WAIT)) {

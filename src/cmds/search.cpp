@@ -1,1 +1,7 @@
-#include "oly/cmds/search.cpp"
+#include "oly/cmds/search.hpp"
+
+Search::Search() {}
+
+int Search::execute() {
+	return 0;
+}

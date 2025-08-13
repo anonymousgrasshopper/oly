@@ -17,19 +17,21 @@ struct Option {
 
 class Command {
 protected:
+	static inline const std::string cmd_name;
+
 	std::vector<std::shared_ptr<Option>> storage;
 	std::unordered_map<std::string, std::shared_ptr<Option>> lookup;
+	std::vector<std::string> positional_args;
 	YAML::Node config;
 
 public:
 	virtual int execute();
 
 	template <typename... Aliases>
-	void add(std::string primary_flag, Aliases... aliases,
-					 std::string desc, std::variant<bool, std::string> default_value);
+	void add(std::string primary_flag, Aliases... aliases, std::string desc,
+	         std::variant<bool, std::string> default_value);
 
-	template <typename T>
-	T get(const std::string& flag) const;
+	template <typename T> T get(const std::string& flag) const;
 
 	bool has(const std::string& flag) const;
 

@@ -54,7 +54,9 @@ static std::optional<YAML::Node> parse_config() {
 		YAML::Node config = YAML::LoadFile(config_file.string());
 		return config;
 	} catch (const YAML::ParserException& e) {
-		Log::Log(severity::ERROR, "YAML syntax error in config file: " + static_cast<std::string>(e.what()), logopt::WAIT);
+		Log::Log(severity::ERROR,
+		         "YAML syntax error in config file: " + static_cast<std::string>(e.what()),
+		         logopt::WAIT);
 	} catch (const YAML::BadFile& e) {
 		Log::Log(severity::ERROR, "Could not open config file: " + config_file.string(), logopt::WAIT);
 	}

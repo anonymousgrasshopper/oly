@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "oly/cmds/generate.hpp"
+#include "oly/cmds/show.hpp"
 #include "oly/commands.hpp"
 #include "oly/log.hpp"
 
@@ -25,20 +27,21 @@ static void print_help() {
 int main(int argc, char* argv[]) {
 	std::vector<std::string> args{argv + 1, argv + argc};
 
-	Command* cmd = nullptr;
+	Command* cmd{nullptr};
 	bool remove_cmd_name{true};
+
 	if (args.empty()) {
 		print_help();
 		return -1;
-	} else if (args[0] == "add") {
+	} else if (args[0] == Add::cmd_name) {
 		*cmd = Add{};
-	} else if (args[0] == "edit") {
+	} else if (args[0] == Edit::cmd_name) {
 		*cmd = Edit{};
-	} else if (args[0] == "show") {
+	} else if (args[0] == Show::cmd_name) {
 		*cmd = Show{};
-	} else if (args[0] == "gen") {
+	} else if (args[0] == Generate::cmd_name) {
 		*cmd = Generate{};
-	} else if (args[0] == "search") {
+	} else if (args[0] == Search::cmd_name) {
 		*cmd = Search{};
 	} else if (args[0].starts_with("-")) {
 		*cmd = Default{};
@@ -50,7 +53,7 @@ int main(int argc, char* argv[]) {
 	if (remove_cmd_name)
 		args.erase(args.begin());
 
-	// cmd->parse(args);
-	// cmd->load_config_file();
-	// return cmd->execute();
+	cmd->parse(args);
+	cmd->load_config_file();
+	return cmd->execute();
 }
