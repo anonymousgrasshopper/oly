@@ -5,6 +5,8 @@
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
+
 #include "yaml-cpp/yaml.h"
 
 namespace fs = std::filesystem;
@@ -30,7 +32,7 @@ static std::filesystem::path get_config_file_path() {
 	} else if (home) {
 		return std::filesystem::path(home) / ".config" / "oly" / "config.yaml";
 	} else {
-		Log::Log(severity::CRITICAL, "Nor $XDG_CONFIG_HOME nor $HOME are set.", logopt::WAIT);
+		Log::Log(severity::CRITICAL, "Nor $XDG_CONFIG_HOME nor $HOME are set.");
 	}
 }
 
@@ -66,14 +68,17 @@ static std::optional<YAML::Node> parse_config() {
 static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	std::vector<std::string> required_fields = {"author", "base_path"};
 	for (const std::string& field : required_fields)
-		if (!config.value()[field])
+		if (!config.value()[field]) {
+			Log::Log(severity::ERROR, "the " + field + " field must be configured in config.yaml",
+			         logopt::WAIT);
 			return false;
+		}
 	return true;
 }
 
 YAML::Node load_config(std::string config_file_path) {
 	if (config_file_path != "") {
-		config_file = config_file_path;
+		config_file = expand_env_vars(config_file_path);
 	} else {
 		config_file = get_config_file_path();
 	}
@@ -83,13 +88,15 @@ YAML::Node load_config(std::string config_file_path) {
 		create_default_config();
 		edit_config();
 	}
+
 	std::optional<YAML::Node> config = parse_config();
-	while (!config && !has_required_fields(config)) {
+	while (!config || !has_required_fields(config)) {
 		edit_config();
 		config = parse_config();
 	}
 	if (!config.value()["editor"])
-		config.value()["editor"] = editor;
+		config.value()["editor"] = editor; // yaml-cpp sometimes parses an incorrect file successfully,
+		                                   // resulting in BIG TROUBLE
 
 	return config.value();
 }

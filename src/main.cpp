@@ -1,4 +1,4 @@
-#include <print>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -6,45 +6,29 @@
 #include "oly/cmds/show.hpp"
 #include "oly/commands.hpp"
 #include "oly/log.hpp"
-
-static void print_help() {
-	std::println("usage: oly <cmd> [arg [...]].\n");
-	std::println(R"(Available subcommands:
-    add                          - add a problem to the database
-    edit                         - edit an entry in the database
-    show                         - generate a pdf file for a problem and open it
-    gen                          - generate a LaTeX or PDF file from a problem
-    search                       - search problems by tag, difficulty, contest...
-    Run oly <cmd> --help for more information regarding a specific subcommand
-    )");
-	std::println(R"(Arguments:
-    --help              -h       - Show this help message
-    --config FILE       -c FILE  - Specify config file to use
-    --verify-config              - Check wether the config has any errors
-    --version           -v       - Print this binary's version)");
-}
+#include "oly/utils.hpp"
 
 int main(int argc, char* argv[]) {
 	std::vector<std::string> args{argv + 1, argv + argc};
 
-	Command* cmd{nullptr};
+	std::unique_ptr<Command> cmd;
 	bool remove_cmd_name{true};
 
 	if (args.empty()) {
 		print_help();
 		return -1;
 	} else if (args[0] == Add::cmd_name) {
-		*cmd = Add{};
+		cmd = std::make_unique<Add>();
 	} else if (args[0] == Edit::cmd_name) {
-		*cmd = Edit{};
+		cmd = std::make_unique<Edit>();
 	} else if (args[0] == Show::cmd_name) {
-		*cmd = Show{};
+		cmd = std::make_unique<Show>();
 	} else if (args[0] == Generate::cmd_name) {
-		*cmd = Generate{};
+		cmd = std::make_unique<Generate>();
 	} else if (args[0] == Search::cmd_name) {
-		*cmd = Search{};
+		cmd = std::make_unique<Search>();
 	} else if (args[0].starts_with("-")) {
-		*cmd = Default{};
+		cmd = std::make_unique<Default>();
 		remove_cmd_name = false;
 	} else {
 		Log::Log(severity::CRITICAL, "Unrecognized subcommand: " + args[0], logopt::HELP);

@@ -2,7 +2,15 @@
 
 #include <string>
 
-enum class severity { CRITICAL, ERROR, WARNING, INFO, HINT, DEBUG, TRACE };
+enum class severity {
+	TRACE,
+	DEBUG,
+	HINT,
+	INFO,
+	WARNING,
+	ERROR,
+	CRITICAL,
+};
 
 inline bool operator<(severity a, severity b);
 inline bool operator>(severity a, severity b);
@@ -21,5 +29,6 @@ inline logopt& operator|=(logopt& a, logopt b);
 
 namespace Log {
 extern inline severity log_level;
-void Log(severity level, const std::string& message, logopt opts, const std::string& cmd = "");
+void Log(severity level, const std::string& message, logopt opts = logopt::NONE,
+         const std::string& cmd = "");
 } // namespace Log

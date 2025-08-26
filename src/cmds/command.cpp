@@ -1,33 +1,67 @@
+#include "dbg.h"
 #include "oly/cmds/command.hpp"
 #include "oly/config.hpp"
 #include "oly/log.hpp"
 
+#include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <memory>
+#include <ostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
-Option::Option(std::string desc, std::variant<bool, std::string> value)
-    : desc(std::move(desc)), value(std::move(value)),
-      requires_arg(std::holds_alternative<std::string>(this->value)) {}
+Command::Command() {
+	add("--config-file,-c", "Specify config file to use", "~/.config/oly/config.yaml");
+	// add("--help",
+	//     "-h"
+	//     "Show help",
+	//     &Command::print_help);
+}
 
 Command::~Command() = default;
+
 int Command::execute() {
 	return 0;
 }
 
-template <typename... Aliases>
-void Command::add(std::string primary_flag, Aliases... aliases, std::string desc,
-                  std::variant<bool, std::string> default_value) {
-	auto opt = std::make_shared<Option>(std::move(desc), std::move(default_value));
-	opt->names.push_back(primary_flag);
-	(opt->names.push_back(aliases), ...);
+template <typename T>
+  requires((std::same_as<std::remove_cvref_t<T>, bool> ||
+            std::constructible_from<std::string, T &&>) &&
+           (!std::invocable<T>))
+void Command::add(std::string flags, std::string desc, T&& default_value) {
+	using CleanT = std::remove_cvref_t<T>;
+	using ValueType = std::conditional_t<std::same_as<CleanT, bool>, bool, std::string>;
 
-	storage.push_back(opt);
+	ValueType v = std::forward<T>(default_value);
+	auto opt =
+	    std::make_shared<Option>(std::move(desc), std::variant<bool, std::string>{std::move(v)});
 
-	lookup.emplace(primary_flag, opt);
-	(lookup.emplace(aliases, opt), ...);
+	std::stringstream ss(flags);
+	std::string flag;
+	while (std::getline(ss, flag, ',')) {
+		opt->names.push_back(flag);
+	}
+	for (auto& n : opt->names)
+		lookup[n] = opt;
+	storage.push_back(std::move(opt));
+}
+
+template <typename F>
+  requires(std::invocable<F>)
+void Command::add(std::string flags, std::string desc, F&& callback) {
+	auto opt =
+	    std::make_shared<Option>(std::move(desc), std::function<void()>{std::forward<F>(callback)});
+
+	std::stringstream ss(flags);
+	std::string flag;
+	while (std::getline(ss, flag, ',')) {
+		opt->names.push_back(flag);
+	}
+	for (auto& n : opt->names)
+		lookup[n] = opt;
+	storage.push_back(std::move(opt));
 }
 
 template <typename T> T Command::get(const std::string& flag) const {

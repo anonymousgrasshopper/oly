@@ -31,7 +31,7 @@ static bool has_option(logopt opts, logopt flag) {
 	return (static_cast<unsigned>(opts) & static_cast<unsigned>(flag)) != 0;
 }
 
-static const char* severity_name(severity lvl) {
+static constexpr const std::string severity_name(severity lvl) {
 	switch (lvl) {
 	case severity::CRITICAL:
 		return "CRITICAL";
@@ -49,45 +49,45 @@ static const char* severity_name(severity lvl) {
 		return "TRACE";
 	}
 }
-static const char* severity_color(severity lvl) {
+static constexpr const std::string severity_color(severity lvl) {
 	switch (lvl) {
 	case severity::CRITICAL:
-		return "\033[1;41;97m"; // white on red bg
+		return "\x1b[38;2;0;0;0m\x1b[48;2;232;36;36m";
 	case severity::ERROR:
-		return "\033[1;31m"; // bright red
+		return "\x1b[38;2;232;36;36m";
 	case severity::WARNING:
-		return "\033[1;33m"; // bright yellow
+		return "\x1b[38;2;255;158;59m";
 	case severity::INFO:
-		return "\033[1;36m"; // bright cyan
+		return "\x1b[38;2;106;149;137m";
 	case severity::HINT:
-		return "\033[0;36m"; // cyan
+		return "\x1b[38;2;101;133;148m";
 	case severity::DEBUG:
-		return "\033[0;35m"; // magenta
+		return "\x1b[38;2;113;124;124m";
 	case severity::TRACE:
-		return "\033[0;90m"; // gray
+		return "\x1b[38;2;220;215;186m";
 	}
 }
-constexpr const char* COLOR_RESET = "\033[0m";
+constexpr const std::string COLOR_RESET = "\x1b[0m";
 
 namespace Log {
 inline severity log_level = severity::INFO;
 
-void Log(severity level, const std::string& message, logopt opts = logopt::NONE,
-         const std::string& cmd) {
+void Log(severity level, const std::string& message, logopt opts, const std::string& cmd) {
 	if (level < log_level)
 		return;
+
 	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level), COLOR_RESET,
 	             message);
 
 	if (has_option(opts, logopt::HELP)) {
-		std::println(std::cerr, "{:{}}{}", "", severity_name(level) + 2,
+		std::println(std::cerr, "{:{}}{}", "", severity_name(level).length() + 2,
 		             "use oly --help for more information");
 	}
 
 	if (has_option(opts, logopt::CMD_HELP)) {
 		std::string cmd_str = cmd.empty() ? "<cmd>" : cmd;
 		std::println(std::cerr, "{:{}}use oly {} --help for more information", "",
-		             severity_name(level) + 2, cmd_str);
+		             severity_name(level).length() + 2, cmd_str);
 	}
 
 	if (has_option(opts, logopt::WAIT)) {
