@@ -6,9 +6,10 @@ namespace fs = std::filesystem;
 
 void print_help();
 
-std::string expand_vars(std::string str);
+std::string expand_vars(std::string str, bool expand_config_vars = true,
+                        bool expand_env_vars = true);
 
-std::string expand_env_vars(const std::string& str);
+std::string expand_env_vars(std::string str);
 
 fs::path parse_pb_name(const std::string& pb_name);
 

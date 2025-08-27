@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # build the code in build/
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
 
-# Fetch yaml-cpp from GitHub
+# fetch yaml-cpp from GitHub
 FetchContent_Declare(
   yaml-cpp
   GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git

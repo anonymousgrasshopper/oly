@@ -24,39 +24,31 @@ void print_help() {
     --version           -v       - Print this binary's version)");
 }
 
-std::string expand_vars(std::string str) {
+std::string expand_vars(std::string str, bool expand_config_vars, bool expand_env_vars) {
 	std::string fmt = str;
+
+	if (expand_env_vars && fmt.starts_with("~/")) {
+		const char* home = getenv("HOME");
+		fmt = std::string(home == NULL ? "" : home) + fmt.substr(1);
+	}
 
 	static std::regex var("\\$\\{([^}]+)\\}");
 	std::smatch match;
 	while (std::regex_search(fmt, match, var)) {
-		if (!config[match[1].str()]) {
-			Log::Log(severity::WARNING,
-			         "In metadata config: ${" + match[1].str() + "} is not a valid value !");
-			fmt.replace(match[0].first, match[0].second, "");
-		} else {
-			const std::string var(config[match[1].str()].as<std::string>());
-			fmt.replace(match[0].first, match[0].second, var);
+		std::string var = "";
+		if (expand_config_vars && config[match[1].str()]) {
+			var = config[match[1].str()].as<std::string>();
+		} else if (expand_env_vars) {
+			const char* s = getenv(match[1].str().c_str());
+			var = (s == NULL ? "" : s);
 		}
+		fmt.replace(match[0].first, match[0].second, var);
 	}
 	return fmt;
 };
 
-std::string expand_env_vars(const std::string& str) {
-	std::string fmt = str;
-	// expand tilde
-	if (fmt.starts_with("~/")) {
-		fmt = std::string(getenv("HOME")) + fmt.substr(1);
-	}
-	// expand env vars
-	static std::regex var("\\$\\{([^}]+)\\}");
-	std::smatch match;
-	while (std::regex_search(fmt, match, var)) {
-		const char* s = getenv(match[1].str().c_str());
-		const std::string var(s == NULL ? "" : s);
-		fmt.replace(match[0].first, match[0].second, var);
-	}
-	return fmt;
+std::string expand_env_vars(std::string str) {
+	return expand_vars(str, false, true);
 }
 
 void create_file(const fs::path& filepath, const std::string& contents) {

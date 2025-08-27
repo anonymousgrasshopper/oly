@@ -67,6 +67,10 @@ void add_defaults(YAML::Node& config) {
 	if (!config["editor"])
 		config["editor"] = editor;
 
+	if (!config["output_directory"]) {
+		config["output_directory"] = "~/.cache/oly/${source}/";
+	}
+
 	if (!config["preamble"]) {
 		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
 #embed "../assets/default_preamble.tex"
