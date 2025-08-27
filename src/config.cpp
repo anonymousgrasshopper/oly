@@ -8,8 +8,6 @@
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
-#include "yaml-cpp/yaml.h"
-
 namespace fs = std::filesystem;
 
 static fs::path config_file;
@@ -22,19 +20,6 @@ static std::string get_editor() {
 	if (!editor)
 		editor = "vim";
 	return editor;
-}
-
-static fs::path get_config_file_path() {
-	const char* xdg = std::getenv("XDG_CONFIG_HOME");
-	const char* home = std::getenv("HOME");
-
-	if (xdg) {
-		return fs::path(xdg) / "oly" / "config.yaml";
-	} else if (home) {
-		return fs::path(home) / ".config" / "oly" / "config.yaml";
-	} else {
-		Log::Log(severity::CRITICAL, "Nor $XDG_CONFIG_HOME nor $HOME are set.");
-	}
 }
 
 static void edit_config() {
@@ -102,11 +87,7 @@ void add_defaults(YAML::Node& config) {
 }
 
 YAML::Node load_config(std::string config_file_path) {
-	if (config_file_path != "") {
-		config_file = expand_env_vars(config_file_path);
-	} else {
-		config_file = get_config_file_path();
-	}
+	config_file = expand_env_vars(config_file_path);
 
 	editor = get_editor();
 	while (!fs::exists(config_file)) {

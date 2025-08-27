@@ -8,8 +8,6 @@
 #include <variant>
 #include <vector>
 
-#include "yaml-cpp/yaml.h"
-
 struct Option {
 	std::vector<std::string> names;
 	std::string desc;

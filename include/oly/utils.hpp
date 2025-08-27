@@ -2,7 +2,6 @@
 
 #include <deque>
 #include <filesystem>
-#include <fstream>
 namespace fs = std::filesystem;
 
 void print_help();

@@ -31,10 +31,7 @@ template <typename T>
             std::constructible_from<std::string, T &&>) &&
            (!std::invocable<T>))
 void Command::add(std::string flags, std::string desc, T&& default_value) {
-	using CleanT = std::remove_cvref_t<T>;
-	using ValueType = std::conditional_t<std::same_as<CleanT, bool>, bool, std::string>;
-
-	ValueType v = std::forward<T>(default_value);
+	auto v = std::forward<T>(default_value);
 	auto opt = std::make_shared<Option>(std::move(desc),
 	                                    std::variant<bool, std::string>{std::move(v)});
 

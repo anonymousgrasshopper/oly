@@ -1,8 +1,6 @@
 #include <deque>
 #include <filesystem>
-#include <regex>
 #include <string>
-#include <vector>
 
 #include "oly/cmds/add.hpp"
 #include "oly/config.hpp"
@@ -16,16 +14,14 @@ Add::Add() {}
 void Add::create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
 	                           "preview.tex");
-	const std::string PREVIEW_FILE_CONTENTS = R"(\documentclass[11pt]{scrartcl}
+	const std::string PREVIEW_FILE_CONTENTS = expand_vars(R"(\documentclass[11pt]{scrartcl}
 \usepackage[sexy,diagrams]{evan}
-\author{)" + config["author"].as<std::string>() +
-	                                          R"(}
-\title{VON Preview}
+\author{${author}}
+\title{${source}}
 \begin{document}
-\input{)" + preview_file_path.string() +
-	                                          R"(/}
+\input{/tmp/oly/${source}/solution.tex}
 \end{document}
-)";
+)");
 	create_file(preview_file_path, PREVIEW_FILE_CONTENTS);
 }
 
@@ -35,7 +31,6 @@ std::deque<std::string> Add::get_solution_body() {
 	    input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution.tex",
 	               expand_vars(config["preamble"].as<std::string>()))
 	        .lines();
-	Log::Log(severity::DEBUG, config["preamble"].as<std::string>());
 	while (input.front().starts_with("%") || input.front().empty()) {
 		input.pop_front();
 	}
