@@ -37,8 +37,8 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	std::vector<std::string> required_fields = {"author", "base_path"};
 	for (const std::string& field : required_fields)
 		if (!config.value()[field]) {
-			Log::Log(severity::ERROR,
-			         "the " + field + " field must be configured in config.yaml", logopt::WAIT);
+			Log::ERROR("the " + field + " field must be configured in config.yaml",
+			           logopt::WAIT);
 			return false;
 		}
 	return true;

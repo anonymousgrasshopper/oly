@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <stdexcept>
 
 #include "oly/cmds/generate.hpp"
 #include "oly/config.hpp"
@@ -13,10 +14,8 @@ Generate::Generate() {}
 
 std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 	std::ifstream file(get_problem_path(source));
-	if (!file.is_open()) {
-		Log::Log(severity::ERROR, "Could not open " + get_problem_path(source).string());
-		return std::vector<std::string>();
-	}
+	if (!file.is_open())
+		throw std::runtime_error("Could not open " + get_problem_path(source).string());
 
 	std::vector<std::string> bodies;
 	std::string body;
@@ -47,10 +46,8 @@ std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 
 YAML::Node Generate::get_solution_metadata(std::string source) {
 	std::ifstream file(get_problem_path(source));
-	if (!file.is_open()) {
-		Log::Log(severity::ERROR, "Could not open " + get_problem_path(source).string());
-		return YAML::Node();
-	}
+	if (!file.is_open())
+		throw std::runtime_error("Could not open " + get_problem_path(source).string());
 
 	std::string yaml;
 	std::string line;
@@ -62,7 +59,7 @@ YAML::Node Generate::get_solution_metadata(std::string source) {
 	}
 	std::optional<YAML::Node> data = load_yaml(yaml);
 	if (!data) {
-		Log::Log(severity::ERROR, "Could not get metadata from " + source);
+		Log::ERROR("Could not get metadata from " + source);
 		return YAML::Node();
 	}
 	return data.value();
@@ -112,13 +109,15 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 void Generate::create_pdf(std::filesystem::path latex_file_path) {
 	for (auto program : {std::string("latexmk"), config["pdf_viewer"].as<std::string>()})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
-			Log::Log(severity::CRITICAL, program + " is not executable");
+			Log::CRITICAL(program + " is not executable");
+
+	if (latex_file_path.string().contains('"'))
+		throw std::invalid_argument("double quotes not allowed in file paths !");
 
 	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
 	                  '\"' + " -quiet -pv -e '$pdf_previewer=q[zathura %S];' \"" +
 	                  latex_file_path.replace_extension(".tex").string() + '"';
-	Log::Log(severity::DEBUG, cmd);
-	std::system(cmd.c_str()); // pray for the filename not to contain quotes
+	std::system(cmd.c_str());
 }
 
 int Generate::execute() {
@@ -133,8 +132,12 @@ int Generate::execute() {
 	config["source"] = source;
 
 	fs::path output_path(expand_vars(config["output_directory"].as<std::string>()));
-	create_latex_file(output_path / (source + ".tex"));
-	create_pdf(output_path / (source + ".pdf"));
+	try {
+		create_latex_file(output_path / (source + ".tex"));
+		create_pdf(output_path / (source + ".pdf"));
+	} catch (const std::runtime_error& e) {
+		Log::ERROR(e.what());
+	}
 
 	return 0;
 }

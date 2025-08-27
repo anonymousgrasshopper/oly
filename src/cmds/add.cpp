@@ -41,7 +41,6 @@ YAML::Node Add::get_solution_metadata() {
 	input_file file("/tmp/oly/" + config["source"].as<std::string>() + "/metadata.yaml",
 	                expand_vars(config["metadata"].as<std::string>()));
 
-	Log::Log(severity::INFO, "attempting to load yaml !");
 	auto metadata = load_yaml(file.filepath);
 	while (!metadata) {
 		file.edit();
@@ -69,9 +68,7 @@ void Add::create_solution_file(const std::deque<std::string>& body,
 void Add::add_problem(std::string source) {
 	config["source"] = source;
 	std::deque<std::string> body = get_solution_body();
-	Log::Log(severity::INFO, "got solution body !");
 	YAML::Node metadata = get_solution_metadata();
-	Log::Log(severity::INFO, "got solution metadata !");
 
 	create_solution_file(body, metadata);
 }

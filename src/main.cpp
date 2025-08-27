@@ -35,7 +35,8 @@ int main(int argc, char* argv[]) {
 		cmd = std::make_unique<Default>();
 		remove_cmd_name = false;
 	} else {
-		Log::Log(severity::CRITICAL, "Unrecognized subcommand: " + args[0], logopt::HELP);
+		Log::CRITICAL("Unrecognized subcommand: " + args[0],
+		              logopt::HELP | logopt::NO_PREFIX);
 	}
 
 	if (remove_cmd_name)

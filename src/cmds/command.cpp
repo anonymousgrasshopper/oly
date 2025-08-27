@@ -107,8 +107,8 @@ void Command::parse(std::vector<std::string> args) {
 			std::string flag = (eq_pos != std::string::npos) ? arg.substr(0, eq_pos) : arg;
 
 			if (!has(flag))
-				Log::Log(severity::CRITICAL, "Unknown flag : " + flag, logopt::CMD_HELP,
-				         cmd_name);
+				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX,
+				              cmd_name);
 
 			auto opt_ptr = lookup[flag];
 			if (opt_ptr->requires_arg) {
@@ -116,8 +116,8 @@ void Command::parse(std::vector<std::string> args) {
 					set(flag, arg.substr(eq_pos + 1));
 				} else {
 					if (i + 1 == args.size())
-						Log::Log(severity::CRITICAL, flag + " requires an argument", logopt::CMD_HELP,
-						         cmd_name);
+						Log::CRITICAL(flag + " requires an argument",
+						              logopt::HELP | logopt::NO_PREFIX, cmd_name);
 					set(flag, args[++i]);
 				}
 			} else {
@@ -138,8 +138,8 @@ void Command::parse(std::vector<std::string> args) {
 			for (size_t j = 1; j < arg.size(); ++j) {
 				std::string short_flag = "-" + std::string(1, arg[j]);
 				if (!has(short_flag))
-					Log::Log(severity::CRITICAL, "Unknown flag : " + short_flag, logopt::CMD_HELP,
-					         cmd_name);
+					Log::CRITICAL("Unknown flag : " + short_flag, logopt::HELP | logopt::NO_PREFIX,
+					              cmd_name);
 
 				auto opt_ptr = lookup[short_flag];
 				if (opt_ptr->requires_arg) {
@@ -148,8 +148,8 @@ void Command::parse(std::vector<std::string> args) {
 						break; // rest of string consumed as argument
 					} else {
 						if (i + 1 >= args.size())
-							Log::Log(severity::CRITICAL, short_flag + " requires an argument",
-							         logopt::CMD_HELP, cmd_name);
+							Log::CRITICAL(short_flag + " requires an argument",
+							              logopt::HELP | logopt::NO_PREFIX, cmd_name);
 						set(short_flag, args[++i]);
 					}
 				} else {

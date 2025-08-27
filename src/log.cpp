@@ -6,23 +6,23 @@
 
 #include "oly/log.hpp"
 
-inline bool operator<(severity a, severity b) {
+bool operator<(severity a, severity b) {
 	return static_cast<unsigned>(a) < static_cast<unsigned>(b);
 }
-inline bool operator>(severity a, severity b) {
+bool operator>(severity a, severity b) {
 	return static_cast<unsigned>(a) > static_cast<unsigned>(b);
 }
-inline bool operator<=(severity a, severity b) {
+bool operator<=(severity a, severity b) {
 	return static_cast<unsigned>(a) <= static_cast<unsigned>(b);
 }
-inline bool operator>=(severity a, severity b) {
+bool operator>=(severity a, severity b) {
 	return static_cast<unsigned>(a) >= static_cast<unsigned>(b);
 }
 
-inline logopt operator|(logopt a, logopt b) {
+logopt operator|(logopt a, logopt b) {
 	return static_cast<logopt>(static_cast<unsigned>(a) | static_cast<unsigned>(b));
 }
-inline logopt& operator|=(logopt& a, logopt b) {
+logopt& operator|=(logopt& a, logopt b) {
 	a = a | b;
 	return a;
 }
@@ -70,22 +70,18 @@ static constexpr const std::string severity_color(severity lvl) {
 constexpr const std::string COLOR_RESET = "\x1b[0m";
 
 namespace Log {
-void Log(severity level, const std::string& message, logopt opts,
-         const std::string& cmd) {
+static void Log(severity level, const std::string& message, logopt opts,
+                const std::string& cmd) {
 	if (level < log_level)
 		return;
 
-	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level),
-	             COLOR_RESET, message);
+	if (!has_option(opts, logopt::NO_PREFIX))
+		std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level),
+		             COLOR_RESET, message);
 
 	if (has_option(opts, logopt::HELP)) {
-		std::println(std::cerr, "{:{}}{}", "", severity_name(level).length() + 2,
-		             "use oly --help for more information");
-	}
-
-	if (has_option(opts, logopt::CMD_HELP)) {
-		std::string cmd_str = cmd.empty() ? "<cmd>" : cmd;
-		std::println(std::cerr, "{:{}}use oly {} --help for more information", "",
+		std::string cmd_str = cmd.empty() ? "" : cmd + " ";
+		std::println(std::cerr, "{:{}}use oly {}--help for more information", "",
 		             severity_name(level).length() + 2, cmd_str);
 	}
 
@@ -94,9 +90,25 @@ void Log(severity level, const std::string& message, logopt opts,
 		std::cerr.flush();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
+}
 
-	if (level == severity::CRITICAL) {
-		std::exit(EXIT_FAILURE);
-	}
+void CRITICAL(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
+	std::exit(EXIT_FAILURE);
+}
+void ERROR(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
+}
+void WARNING(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
+}
+void INFO(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
+}
+void DEBUG(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
+}
+void TRACE(const std::string& message, logopt opts, const std::string& cmd_name) {
+	Log(severity::ERROR, message, opts, cmd_name);
 }
 } // namespace Log
