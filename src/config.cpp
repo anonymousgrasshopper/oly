@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -85,14 +86,18 @@ void add_defaults(YAML::Node& config) {
 		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
 #embed "../assets/default_preamble.tex"
 		};
-		config["preamble"] = DEFAULT_PREAMBLE_BYTES;
+		constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
+		std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
+		config["preamble"] = preamble;
 	}
 
 	if (!config["metadata"]) {
 		constexpr char DEFAULT_METADATA_BYTES[] = {
 #embed "../assets/default_metadata.yaml"
 		};
-		config["metadata"] = DEFAULT_METADATA_BYTES;
+		constexpr size_t DEFAULT_METADATA_SIZE = sizeof(DEFAULT_METADATA_BYTES);
+		std::string metadata(DEFAULT_METADATA_BYTES, DEFAULT_METADATA_SIZE);
+		config["metadata"] = metadata;
 	}
 }
 

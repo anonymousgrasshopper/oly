@@ -3,6 +3,7 @@
 #include <print>
 #include <regex>
 
+#include "oly/config.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -22,6 +23,24 @@ void print_help() {
     --verify-config              - Check wether the config has any errors
     --version           -v       - Print this binary's version)");
 }
+
+std::string expand_vars(std::string str) {
+	std::string fmt = str;
+
+	static std::regex var("\\$\\{([^}]+)\\}");
+	std::smatch match;
+	while (std::regex_search(fmt, match, var)) {
+		if (!config[match[1].str()]) {
+			Log::Log(severity::WARNING,
+			         "In metadata config: ${" + match[1].str() + "} is not a valid value !");
+			fmt.replace(match[0].first, match[0].second, "");
+		} else {
+			const std::string var(config[match[1].str()].as<std::string>());
+			fmt.replace(match[0].first, match[0].second, var);
+		}
+	}
+	return fmt;
+};
 
 std::string expand_env_vars(const std::string& str) {
 	std::string fmt = str;
@@ -70,4 +89,39 @@ void set_log_level(std::string level) {
 		         level + "is not a valid log level. Using default severity INFO.");
 		Log::log_level = severity::INFO;
 	}
+}
+
+void input_file::create_file() {
+	fs::create_directories(filepath.parent_path());
+	std::ofstream out(filepath);
+	out << contents;
+	out.close();
+}
+
+input_file::input_file(fs::path filepath, std::string contents, bool remove)
+    : remove(remove), filepath(filepath), contents(contents) {
+	create_file();
+	edit();
+};
+input_file::~input_file() {
+	if (remove && fs::exists(filepath)) {
+		fs::remove(filepath);
+	}
+}
+
+std::deque<std::string> input_file::lines() {
+	std::ifstream file(filepath);
+	std::deque<std::string> lines;
+	std::string line;
+	if (!file.is_open())
+		Log::Log(severity::CRITICAL, "unable to open " + filepath.string() + "!");
+	while (getline(file, line)) {
+		lines.push_back(line);
+	}
+	return lines;
+}
+
+void input_file::edit() {
+	std::system((config["editor"].as<std::string>() + " \"" + filepath.string() + "\"")
+	                .c_str()); // pray for the filetype not to contain quotes
 }

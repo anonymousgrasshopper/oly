@@ -1,2 +1,3 @@
-source: "${pb_name}"
+source: "${source}"
+difficulty: "trivial"
 url: ""
