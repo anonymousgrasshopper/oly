@@ -70,14 +70,13 @@ static constexpr const std::string severity_color(severity lvl) {
 constexpr const std::string COLOR_RESET = "\x1b[0m";
 
 namespace Log {
-inline severity log_level = severity::INFO;
-
-void Log(severity level, const std::string& message, logopt opts, const std::string& cmd) {
+void Log(severity level, const std::string& message, logopt opts,
+         const std::string& cmd) {
 	if (level < log_level)
 		return;
 
-	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level), COLOR_RESET,
-	             message);
+	std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level),
+	             COLOR_RESET, message);
 
 	if (has_option(opts, logopt::HELP)) {
 		std::println(std::cerr, "{:{}}{}", "", severity_name(level).length() + 2,

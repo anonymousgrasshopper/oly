@@ -1,6 +1,0 @@
-#include "oly/cmds/add.hpp"
-#include "oly/cmds/default.hpp"
-#include "oly/cmds/edit.hpp"
-#include "oly/cmds/generate.hpp"
-#include "oly/cmds/search.hpp"
-#include "oly/cmds/show.hpp"

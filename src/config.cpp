@@ -23,14 +23,14 @@ static std::string get_editor() {
 	return editor;
 }
 
-static std::filesystem::path get_config_file_path() {
+static fs::path get_config_file_path() {
 	const char* xdg = std::getenv("XDG_CONFIG_HOME");
 	const char* home = std::getenv("HOME");
 
 	if (xdg) {
-		return std::filesystem::path(xdg) / "oly" / "config.yaml";
+		return fs::path(xdg) / "oly" / "config.yaml";
 	} else if (home) {
-		return std::filesystem::path(home) / ".config" / "oly" / "config.yaml";
+		return fs::path(home) / ".config" / "oly" / "config.yaml";
 	} else {
 		Log::Log(severity::CRITICAL, "Nor $XDG_CONFIG_HOME nor $HOME are set.");
 	}
@@ -42,7 +42,7 @@ static void edit_config() {
 }
 
 static void create_default_config() {
-	std::filesystem::create_directories(config_file.parent_path());
+	fs::create_directories(config_file.parent_path());
 	constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/default_config.yaml"
 	};
@@ -53,14 +53,15 @@ static void create_default_config() {
 
 static std::optional<YAML::Node> parse_config() {
 	try {
-		YAML::Node config = YAML::LoadFile(config_file.string());
+		YAML::Node config = YAML::LoadFile(config_file);
 		return config;
 	} catch (const YAML::ParserException& e) {
 		Log::Log(severity::ERROR,
 		         "YAML syntax error in config file: " + static_cast<std::string>(e.what()),
 		         logopt::WAIT);
 	} catch (const YAML::BadFile& e) {
-		Log::Log(severity::ERROR, "Could not open config file: " + config_file.string(), logopt::WAIT);
+		Log::Log(severity::ERROR, "Could not open config file: " + config_file.string(),
+		         logopt::WAIT);
 	}
 	return std::nullopt;
 }
@@ -69,11 +70,30 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	std::vector<std::string> required_fields = {"author", "base_path"};
 	for (const std::string& field : required_fields)
 		if (!config.value()[field]) {
-			Log::Log(severity::ERROR, "the " + field + " field must be configured in config.yaml",
-			         logopt::WAIT);
+			Log::Log(severity::ERROR,
+			         "the " + field + " field must be configured in config.yaml", logopt::WAIT);
 			return false;
 		}
 	return true;
+}
+
+void add_defaults(YAML::Node& config) {
+	if (!config["editor"])
+		config["editor"] = editor;
+
+	if (!config["preamble"]) {
+		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
+#embed "../assets/default_preamble.tex"
+		};
+		config["preamble"] = DEFAULT_PREAMBLE_BYTES;
+	}
+
+	if (!config["metadata"]) {
+		constexpr char DEFAULT_METADATA_BYTES[] = {
+#embed "../assets/default_metadata.yaml"
+		};
+		config["metadata"] = DEFAULT_METADATA_BYTES;
+	}
 }
 
 YAML::Node load_config(std::string config_file_path) {
@@ -94,9 +114,9 @@ YAML::Node load_config(std::string config_file_path) {
 		edit_config();
 		config = parse_config();
 	}
-	if (!config.value()["editor"])
-		config.value()["editor"] = editor; // yaml-cpp sometimes parses an incorrect file successfully,
-		                                   // resulting in BIG TROUBLE
+
+	add_defaults(config.value());
+	// yaml-cpp sometimes parses an incorrect file successfully, resulting in BIG TROUBLE
 
 	return config.value();
 }

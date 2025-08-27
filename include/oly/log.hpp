@@ -28,7 +28,7 @@ inline logopt operator|(logopt a, logopt b);
 inline logopt& operator|=(logopt& a, logopt b);
 
 namespace Log {
-extern inline severity log_level;
-void Log(severity level, const std::string& message, logopt opts = logopt::NONE,
-         const std::string& cmd = "");
+inline severity log_level = severity::INFO;
+void Log(severity level = severity::INFO, const std::string& message = "",
+         logopt opts = logopt::NONE, const std::string& cmd = "");
 } // namespace Log

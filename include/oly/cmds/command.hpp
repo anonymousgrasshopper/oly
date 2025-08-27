@@ -11,26 +11,32 @@
 #include "yaml-cpp/yaml.h"
 
 struct Option {
-	std::string desc;
 	std::vector<std::string> names;
+	std::string desc;
 	std::variant<bool, std::string> value;
-	std::function<void()> callback; // Optional callback
+	std::function<void()> callback;
+	std::function<void(std::string)> arg_callback;
 	bool requires_arg;
+	bool has_callback;
 
 	Option(std::string desc, std::variant<bool, std::string> val)
-	    : desc(std::move(desc)), value(std::move(val)) {
+	    : desc(std::move(desc)), value(std::move(val)), has_callback(false) {
 		requires_arg = std::holds_alternative<std::string>(value);
 	}
 
 	Option(std::string desc, std::function<void()> callback)
-	    : desc(std::move(desc)), callback(std::move(callback)), requires_arg(false) {}
+	    : desc(std::move(desc)), callback(std::move(callback)), requires_arg(false),
+	      has_callback(true) {}
+
+	Option(std::string desc, std::function<void(std::string)> callback)
+	    : desc(std::move(desc)), arg_callback(std::move(callback)), requires_arg(true),
+	      has_callback(true) {}
 };
 
 class Command {
 protected:
 	static inline const std::string cmd_name;
 	std::vector<std::string> positional_args;
-	YAML::Node config;
 
 	std::vector<std::shared_ptr<Option>> storage;
 	std::unordered_map<std::string, std::shared_ptr<Option>> lookup;
@@ -48,9 +54,12 @@ public:
 	           (!std::invocable<T>))
 	void add(std::string flags, std::string desc, T&& default_value);
 
-	template <typename F>
-	  requires(std::invocable<F>)
-	void add(std::string flags, std::string desc, F&& callback);
+	template <typename Callable>
+	  requires std::invocable<Callable, std::string>
+	void add(std::string flags, std::string desc, Callable&& callback);
+
+	template <std::invocable Callable>
+	void add(std::string flags, std::string desc, Callable&& callback);
 
 	template <typename T> T get(const std::string& flag) const;
 
