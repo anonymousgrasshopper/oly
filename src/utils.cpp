@@ -58,6 +58,11 @@ void create_file(const fs::path& filepath, const std::string& contents) {
 	out.close();
 }
 
+void edit(const fs::path& filepath) {
+	std::string cmd = config["editor"].as<std::string>() + " \"" + filepath.string() + "\"";
+	std::system(cmd.c_str()); // pray for the filetype not to contain quotes
+}
+
 void set_log_level(std::string level) {
 	std::transform(level.begin(), level.end(), level.begin(),
 	               [](unsigned char c) { return std::toupper(c); });
@@ -195,6 +200,6 @@ std::deque<std::string> input_file::lines() {
 }
 
 void input_file::edit() {
-	std::system((config["editor"].as<std::string>() + " \"" + filepath.string() + "\"")
-	                .c_str()); // pray for the filetype not to contain quotes
+	std::string cmd = config["editor"].as<std::string>() + " \"" + filepath.string() + "\"";
+	std::system(cmd.c_str()); // pray for the filetype not to contain quotes
 }

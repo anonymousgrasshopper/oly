@@ -23,11 +23,6 @@ static std::string get_editor() {
 	return editor;
 }
 
-static void edit_config() {
-	std::string cmd = editor + " " + config_file.string();
-	std::system(cmd.c_str());
-}
-
 static void create_default_config() {
 	fs::create_directories(config_file.parent_path());
 	constexpr char DEFAULT_CONFIG_BYTES[] = {
@@ -85,12 +80,12 @@ YAML::Node load_config(std::string config_file_path) {
 	editor = get_editor();
 	while (!fs::exists(config_file)) {
 		create_default_config();
-		edit_config();
+		edit(config_file);
 	}
 
 	std::optional<YAML::Node> config = load_yaml(config_file);
 	while (!config || !has_required_fields(config)) {
-		edit_config();
+		edit(config_file);
 		config = load_yaml(config_file);
 	}
 

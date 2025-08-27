@@ -24,6 +24,8 @@ fs::path get_problem_path(const std::string& source);
 
 void create_file(const fs::path& filepath, const std::string& contents = "");
 
+void edit(const fs::path& filepath);
+
 void set_log_level(std::string level);
 
 [[nodiscard]]
