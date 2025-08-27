@@ -41,27 +41,11 @@ YAML::Node Add::get_solution_metadata() {
 	input_file file("/tmp/oly/" + config["source"].as<std::string>() + "/metadata.yaml",
 	                expand_vars(config["metadata"].as<std::string>()));
 
-	auto load_yaml = [&]() -> std::optional<YAML::Node> {
-		try {
-			YAML::Node metadata = YAML::LoadFile(file.filepath);
-			return metadata;
-		} catch (const YAML::ParserException& e) {
-			Log::Log(severity::ERROR,
-			         "YAML syntax error in config file: " + static_cast<std::string>(e.what()),
-			         logopt::WAIT);
-			return std::nullopt;
-		} catch (const YAML::BadFile& e) {
-			Log::Log(severity::ERROR, "Could not open config file: " + file.filepath.string(),
-			         logopt::WAIT);
-			return std::nullopt;
-		}
-	};
-
 	Log::Log(severity::INFO, "attempting to load yaml !");
-	auto metadata = load_yaml();
+	auto metadata = load_yaml(file.filepath);
 	while (!metadata) {
 		file.edit();
-		metadata = load_yaml();
+		metadata = load_yaml(file.filepath);
 	}
 	return metadata.value();
 }
@@ -94,7 +78,7 @@ void Add::add_problem(std::string source) {
 
 int Add::execute() {
 	for (std::string source : positional_args) {
-		add_problem(source);
+		add_problem(get_problem_id(source));
 	}
 	return 0;
 }

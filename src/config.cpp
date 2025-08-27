@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <unordered_map>
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
@@ -37,21 +38,6 @@ static void create_default_config() {
 	out.close();
 }
 
-static std::optional<YAML::Node> parse_config() {
-	try {
-		YAML::Node config = YAML::LoadFile(config_file);
-		return config;
-	} catch (const YAML::ParserException& e) {
-		Log::Log(severity::ERROR,
-		         "YAML syntax error in config file: " + static_cast<std::string>(e.what()),
-		         logopt::WAIT);
-	} catch (const YAML::BadFile& e) {
-		Log::Log(severity::ERROR, "Could not open config file: " + config_file.string(),
-		         logopt::WAIT);
-	}
-	return std::nullopt;
-}
-
 static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	std::vector<std::string> required_fields = {"author", "base_path"};
 	for (const std::string& field : required_fields)
@@ -64,11 +50,14 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 }
 
 void add_defaults(YAML::Node& config) {
-	if (!config["editor"])
-		config["editor"] = editor;
-
-	if (!config["output_directory"]) {
-		config["output_directory"] = "~/.cache/oly/${source}/";
+	std::unordered_map<std::string, std::string> default_options = {
+	    {"editor", editor},
+	    {"pdf_viewer", "zathura"},
+	    {"output_directory", "~/.cache/oly/${source}"},
+	    {"separator", "---"}};
+	for (auto [key, value] : default_options) {
+		if (!config[key])
+			config[key] = value;
 	}
 
 	if (!config["preamble"]) {
@@ -99,10 +88,10 @@ YAML::Node load_config(std::string config_file_path) {
 		edit_config();
 	}
 
-	std::optional<YAML::Node> config = parse_config();
+	std::optional<YAML::Node> config = load_yaml(config_file);
 	while (!config || !has_required_fields(config)) {
 		edit_config();
-		config = parse_config();
+		config = load_yaml(config_file);
 	}
 
 	add_defaults(config.value());

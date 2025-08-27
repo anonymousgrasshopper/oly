@@ -83,6 +83,87 @@ void set_log_level(std::string level) {
 	}
 }
 
+std::string get_problem_id(const std::string& source) {
+	std::smatch match;
+	std::string contest, year, problem;
+
+	// 1. Contest name: at least 2 consecutive letters
+	std::regex contest_regex(R"(([A-Za-z]{2,}))");
+	if (std::regex_search(source, match, contest_regex)) {
+		contest = match.str(1) + " ";
+		std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
+	}
+
+	// 2. Year: 4 digits or 2 digits not part of a longer digit sequence
+	std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
+	if (std::regex_search(source, match, year_regex)) {
+		if (match.str(1).size() == 4) {
+			year = match.str(1) + " ";
+		} else if (match.str(1).size() == 2) {
+			year = "20" + match.str(1) + " ";
+		}
+	}
+
+	// 3. Problem: single digit, not part of year, preceded by non-digit or letter, not
+	// followed by digit
+	std::regex problem_regex(R"((\b[A-Za-z]?\d\b))");
+	if (std::regex_search(source, match, problem_regex)) {
+		if (match.str(1).size() == 1) {
+			problem = "P" + match.str(1);
+		} else if (match.str(1).size() == 2) {
+			problem = match.str(1);
+		}
+	}
+
+	return contest + year + problem;
+}
+
+fs::path get_problem_path(const std::string& source) {
+	return fs::path(expand_env_vars(config["base_path"].as<std::string>()) +
+	                get_problem_id(source) + ".tex");
+}
+
+bool is_separator(const std::string& line) {
+	return line == config["separator"].as<std::string>();
+}
+
+bool is_yaml(const std::string& line) {
+	if (std::regex_match(line, std::regex(R"(^\s*$)")))
+		return true; // true if blank
+
+	std::regex yaml_pattern(R"(^([^:\s][^:]*):\s*.+$)");
+	return std::regex_match(line, yaml_pattern);
+}
+
+std::optional<YAML::Node> load_yaml(const fs::path& filepath) {
+	try {
+		YAML::Node data = YAML::LoadFile(filepath);
+		return data;
+	} catch (const YAML::ParserException& e) {
+		Log::Log(severity::ERROR,
+		         "YAML syntax error in file" + filepath.string() + ": " +
+		             static_cast<std::string>(e.what()),
+		         logopt::WAIT);
+	} catch (const YAML::BadFile& e) {
+		Log::Log(severity::ERROR, "Could not open file: " + filepath.string(), logopt::WAIT);
+	}
+	return std::nullopt;
+}
+
+std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source) {
+	try {
+		YAML::Node data = YAML::Load(yaml);
+		return data;
+	} catch (const YAML::ParserException& e) {
+		if (!source.empty())
+			source = " in file " + source;
+		Log::Log(severity::ERROR,
+		         "YAML syntax error" + source + ": " + static_cast<std::string>(e.what()),
+		         logopt::WAIT);
+	}
+	return std::nullopt;
+}
+
 void input_file::create_file() {
 	fs::create_directories(filepath.parent_path());
 	std::ofstream out(filepath);

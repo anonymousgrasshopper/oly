@@ -1,15 +1,16 @@
 #pragma once
+#include <filesystem>
 
 #include "oly/cmds/command.hpp"
-#include <filesystem>
+#include "yaml-cpp/yaml.h"
 
 class Generate : public Command {
 private:
-	void generate(std::string source);
+	std::vector<std::string> get_solution_bodies(std::string source);
+	YAML::Node get_solution_metadata(std::string source);
 
 	void create_latex_file(std::filesystem::path latex_file_path);
 	void create_pdf(std::filesystem::path latex_file_path);
-	void open_pdf_viewer(std::filesystem::path latex_file_path);
 
 public:
 	Generate();

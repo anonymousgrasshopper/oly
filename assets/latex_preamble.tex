@@ -1,4 +1,6 @@
 % shamelessly stolen from https://github.com/vEnhance/von
+\documentclass[11pt]{scrartcl}
+
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage[minimal]{yhmath}
 \usepackage{derivative}
@@ -173,10 +175,10 @@
 \addtolength{\textheight}{3.14cm}
 \setlength{\footskip}{0.5in}
 \setlength{\headsep}{10pt}
-\lehead{\normalfont\footnotesize\textbf{AUTHOR}}
-\lohead{\normalfont\footnotesize\textbf{AUTHOR}}
-\rehead{\normalfont\footnotesize\textbf{TITLE}}
-\rohead{\normalfont\footnotesize\textbf{TITLE}}
+\lehead{\normalfont\footnotesize\textbf{${author}}}
+\lohead{\normalfont\footnotesize\textbf{${author}}}
+\rehead{\normalfont\footnotesize\textbf{${author}}}
+\rohead{\normalfont\footnotesize\textbf{${author}}}
 \pagestyle{scrheadings}
 
 \providecommand{\arc}[1]{\wideparen{#1}}
@@ -185,3 +187,10 @@
 \par\nointerlineskip \vspace{\baselineskip}}
 
 \addtokomafont{paragraph}{\color{orange!35!black}\P\ }
+
+\begin{document}
+\title{${source}}
+\author{${author}}
+\date{${date}}
+\maketitle
+
