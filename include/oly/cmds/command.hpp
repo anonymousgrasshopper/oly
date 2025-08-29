@@ -17,9 +17,22 @@ struct Option {
 	bool requires_arg;
 	bool has_callback;
 
-	Option(std::string d, std::variant<bool, std::string>&& v);
+	// Option(std::string d, std::variant<bool, std::string>&& v);
+	// Option(std::string d,
+	//        std::variant<std::function<void()>, std::function<void(std::string)>>&& v);
+	Option(std::string d, std::variant<bool, std::string>&& v)
+	    : desc(std::move(d)), value(std::forward<decltype(v)>(v)) {
+		has_callback = false;
+		if (std::holds_alternative<std::string>(value))
+			requires_arg = true;
+	}
 	Option(std::string d,
-	       std::variant<std::function<void()>, std::function<void(std::string)>>&& v);
+	       std::variant<std::function<void()>, std::function<void(std::string)>>&& v)
+	    : desc(std::move(d)), callback(std::forward<decltype(v)>(v)) {
+		has_callback = true;
+		if (std::holds_alternative<std::function<void(std::string)>>(callback))
+			requires_arg = true;
+	}
 };
 
 class Command {

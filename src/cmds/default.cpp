@@ -1,5 +1,6 @@
-#include "oly/cmds/default.hpp"
 #include <print>
+
+#include "oly/cmds/default.hpp"
 
 void Default::print_version() {
 #if defined(OLY_NAME) && defined(OLY_VERSION) && defined(OLY_BUILD_TYPE)

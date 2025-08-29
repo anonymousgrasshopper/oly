@@ -1,8 +1,3 @@
-#include "oly/cmds/command.hpp"
-#include "oly/config.hpp"
-#include "oly/log.hpp"
-#include "oly/utils.hpp"
-
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -13,19 +8,10 @@
 #include <string>
 #include <vector>
 
-Option::Option(std::string d, std::variant<bool, std::string>&& v)
-    : desc(std::move(d)), value(std::forward<decltype(v)>(v)) {
-	has_callback = false;
-	if (std::holds_alternative<std::string>(value))
-		requires_arg = true;
-}
-Option::Option(std::string d,
-               std::variant<std::function<void()>, std::function<void(std::string)>>&& v)
-    : desc(std::move(d)), callback(std::forward<decltype(v)>(v)) {
-	has_callback = true;
-	if (std::holds_alternative<std::function<void(std::string)>>(callback))
-		requires_arg = true;
-}
+#include "oly/cmds/command.hpp"
+#include "oly/config.hpp"
+#include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 Command::Command() {
 	add("--config-file,-c", "Specify config file to use", "~/.config/oly/config.yaml");
