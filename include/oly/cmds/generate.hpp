@@ -16,5 +16,5 @@ public:
 	Generate();
 	int execute() override;
 
-	static inline const std::string cmd_name = "gen";
+	static constexpr const std::string cmd_name = "gen";
 };

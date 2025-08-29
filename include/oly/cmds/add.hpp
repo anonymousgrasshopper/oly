@@ -22,5 +22,5 @@ public:
 	Add();
 	int execute() override;
 
-	static inline const std::string cmd_name = "add";
+	static constexpr const std::string cmd_name = "add";
 };

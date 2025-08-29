@@ -1,7 +1,10 @@
-# This is oly's configuration file.
-# Please edit the following values.
-# A list of all possible configuration options and their defaults can be found at
-# https://github.com/anonymousgrasshopper/oly/blob/main/src/config.cpp#L47-#L75
+###################################################################################
+# This is oly's configuration file.                                               #
+# Please edit the following values.                                               #
+#                                                                                 #
+# A list of all possible configuration options and their defaults can be found at #
+# https://github.com/anonymousgrasshopper/oly/blob/main/src/config.cpp#L49-#L76   #
+###################################################################################
 
 # The author's name in the LaTeX preview
 author: "Leonhard Euler"

@@ -7,5 +7,5 @@ public:
 	Edit();
 	int execute() override;
 
-	static inline const std::string cmd_name = "edit";
+	static constexpr const std::string cmd_name = "edit";
 };

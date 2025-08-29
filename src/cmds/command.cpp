@@ -13,11 +13,25 @@
 #include <string>
 #include <vector>
 
+Option::Option(std::string d, std::variant<bool, std::string>&& v)
+    : desc(std::move(d)), value(std::forward<decltype(v)>(v)) {
+	has_callback = false;
+	if (std::holds_alternative<std::string>(value))
+		requires_arg = true;
+}
+Option::Option(std::string d,
+               std::variant<std::function<void()>, std::function<void(std::string)>>&& v)
+    : desc(std::move(d)), callback(std::forward<decltype(v)>(v)) {
+	has_callback = true;
+	if (std::holds_alternative<std::function<void(std::string)>>(callback))
+		requires_arg = true;
+}
+
 Command::Command() {
 	add("--config-file,-c", "Specify config file to use", "~/.config/oly/config.yaml");
 	add("--help,-h", "Show help", [this]() { Command::print_help(); });
 	add("--log-level", "Specify log level (default INFO)",
-	    [](std::string level) { set_log_level(level); });
+	    [](std::string level) { utils::set_log_level(level); });
 }
 
 Command::~Command() = default;
@@ -26,55 +40,12 @@ int Command::execute() {
 	return 0;
 }
 
-template <typename T>
-  requires((std::same_as<std::remove_cvref_t<T>, bool> ||
-            std::constructible_from<std::string, T &&>) &&
-           (!std::invocable<T>))
-void Command::add(std::string flags, std::string desc, T&& default_value) {
-	auto v = std::forward<T>(default_value);
-	auto opt = std::make_shared<Option>(std::move(desc),
-	                                    std::variant<bool, std::string>{std::move(v)});
-
-	std::stringstream ss(flags);
-	std::string flag;
-	while (std::getline(ss, flag, ',')) {
-		opt->names.push_back(flag);
-	}
-	for (auto& n : opt->names)
-		lookup[n] = opt;
-	storage.push_back(std::move(opt));
+void Command::add(std::string flags, std::string desc, void (*callback)()) {
+	add(flags, std::move(desc), std::function<void()>(callback));
 }
 
-template <typename Callable>
-  requires std::invocable<Callable, std::string>
-void Command::add(std::string flags, std::string desc, Callable&& callback) {
-	auto opt = std::make_shared<Option>(
-	    std::move(desc),
-	    std::function<void(std::string)>(std::forward<Callable>(callback)));
-
-	std::stringstream ss(flags);
-	std::string flag;
-	while (std::getline(ss, flag, ',')) {
-		opt->names.push_back(flag);
-	}
-	for (auto& n : opt->names)
-		lookup[n] = opt;
-	storage.push_back(std::move(opt));
-}
-
-template <std::invocable Callable>
-void Command::add(std::string flags, std::string desc, Callable&& callback) {
-	auto opt = std::make_shared<Option>(
-	    std::move(desc), std::function<void()>(std::forward<Callable>(callback)));
-
-	std::stringstream ss(flags);
-	std::string flag;
-	while (std::getline(ss, flag, ',')) {
-		opt->names.push_back(flag);
-	}
-	for (auto& n : opt->names)
-		lookup[n] = opt;
-	storage.push_back(std::move(opt));
+void Command::add(std::string flags, std::string desc, void (*callback)(std::string)) {
+	add(flags, std::move(desc), std::function<void(std::string)>(callback));
 }
 
 template <typename T> T Command::get(const std::string& flag) const {
@@ -96,6 +67,7 @@ void Command::set(const std::string& flag, std::variant<bool, std::string> val) 
 }
 
 void Command::parse(std::vector<std::string> args) {
+	std::string cmd = config["cmd"].as<std::string>();
 	for (size_t i = 0; i < args.size(); ++i) {
 		const std::string& arg = args[i];
 
@@ -107,8 +79,7 @@ void Command::parse(std::vector<std::string> args) {
 			std::string flag = (eq_pos != std::string::npos) ? arg.substr(0, eq_pos) : arg;
 
 			if (!has(flag))
-				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX,
-				              cmd_name);
+				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX, cmd);
 
 			auto opt_ptr = lookup[flag];
 			if (opt_ptr->requires_arg) {
@@ -117,7 +88,7 @@ void Command::parse(std::vector<std::string> args) {
 				} else {
 					if (i + 1 == args.size())
 						Log::CRITICAL(flag + " requires an argument",
-						              logopt::HELP | logopt::NO_PREFIX, cmd_name);
+						              logopt::HELP | logopt::NO_PREFIX, cmd);
 					set(flag, args[++i]);
 				}
 			} else {
@@ -126,9 +97,10 @@ void Command::parse(std::vector<std::string> args) {
 			if (opt_ptr->has_callback) {
 				if (opt_ptr->requires_arg) {
 					// Pass the argument value to the callback
-					opt_ptr->arg_callback(std::get<std::string>(opt_ptr->value));
+					std::get<std::function<void(std::string)>>(opt_ptr->callback)(
+					    std::get<std::string>(opt_ptr->value));
 				} else {
-					opt_ptr->callback();
+					std::get<std::function<void()>>(opt_ptr->callback)();
 				}
 			}
 		}
@@ -139,7 +111,7 @@ void Command::parse(std::vector<std::string> args) {
 				std::string short_flag = "-" + std::string(1, arg[j]);
 				if (!has(short_flag))
 					Log::CRITICAL("Unknown flag : " + short_flag, logopt::HELP | logopt::NO_PREFIX,
-					              cmd_name);
+					              cmd);
 
 				auto opt_ptr = lookup[short_flag];
 				if (opt_ptr->requires_arg) {
@@ -149,7 +121,7 @@ void Command::parse(std::vector<std::string> args) {
 					} else {
 						if (i + 1 >= args.size())
 							Log::CRITICAL(short_flag + " requires an argument",
-							              logopt::HELP | logopt::NO_PREFIX, cmd_name);
+							              logopt::HELP | logopt::NO_PREFIX, cmd);
 						set(short_flag, args[++i]);
 					}
 				} else {
@@ -174,6 +146,12 @@ void Command::load_config_file() {
 }
 
 void Command::print_help() const {
+	std::string cmd = config["cmd"].as<std::string>();
+	if (cmd == "default") {
+		utils::print_help();
+		return;
+	}
+
 	size_t max_len = 0;
 	std::vector<std::string> alias_strings;
 	alias_strings.reserve(storage.size());
@@ -189,7 +167,7 @@ void Command::print_help() const {
 		max_len = std::max(max_len, joined.size());
 	}
 
-	std::println("available arguments for {}:", cmd_name);
+	std::println("available arguments for {}:", cmd);
 
 	for (size_t idx = 0; idx < storage.size(); ++idx) {
 		const auto& opt = storage[idx];

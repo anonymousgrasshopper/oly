@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(oly LANGUAGES CXX)
+project(oly VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -32,6 +32,11 @@ set(SOURCES
 
 add_executable(oly ${SOURCES})
 
+target_compile_definitions(oly PRIVATE
+	OLY_NAME="${PROJECT_NAME}"
+	OLY_VERSION="${PROJECT_VERSION}"
+	OLY_BUILD_TYPE="$<CONFIG>"
+)
 target_compile_features(oly PRIVATE cxx_std_23)
 target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
 

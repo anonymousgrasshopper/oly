@@ -76,13 +76,17 @@ static void Log(severity level, const std::string& message, logopt opts,
 		return;
 
 	if (!has_option(opts, logopt::NO_PREFIX))
-		std::println(std::cerr, "{}{}{}: {}", severity_color(level), severity_name(level),
-		             COLOR_RESET, message);
+		std::print(std::cerr, "{}{}{}: ", severity_color(level), severity_name(level),
+		           COLOR_RESET);
+
+	std::println(std::cerr, "{}", message);
 
 	if (has_option(opts, logopt::HELP)) {
+		int padding =
+		    has_option(opts, logopt::NO_PREFIX) ? 0 : severity_name(level).length() + 2;
 		std::string cmd_str = cmd.empty() ? "" : cmd + " ";
-		std::println(std::cerr, "{:{}}use oly {}--help for more information", "",
-		             severity_name(level).length() + 2, cmd_str);
+		std::println(std::cerr, "{:{}}use oly {}--help for more information", "", padding,
+		             cmd_str);
 	}
 
 	if (has_option(opts, logopt::WAIT)) {
@@ -93,22 +97,22 @@ static void Log(severity level, const std::string& message, logopt opts,
 }
 
 void CRITICAL(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+	Log(severity::CRITICAL, message, opts, cmd_name);
 	std::exit(EXIT_FAILURE);
 }
 void ERROR(const std::string& message, logopt opts, const std::string& cmd_name) {
 	Log(severity::ERROR, message, opts, cmd_name);
 }
 void WARNING(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+	Log(severity::WARNING, message, opts, cmd_name);
 }
 void INFO(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+	Log(severity::INFO, message, opts, cmd_name);
 }
 void DEBUG(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+	Log(severity::DEBUG, message, opts, cmd_name);
 }
 void TRACE(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+	Log(severity::TRACE, message, opts, cmd_name);
 }
 } // namespace Log

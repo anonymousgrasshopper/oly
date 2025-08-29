@@ -28,13 +28,15 @@ static void create_default_config() {
 	constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/default_config.yaml"
 	};
+	constexpr size_t DEFAULT_CONFIG_SIZE = sizeof(DEFAULT_CONFIG_BYTES);
+	std::string default_config(DEFAULT_CONFIG_BYTES, DEFAULT_CONFIG_SIZE);
 	std::ofstream out(config_file);
-	out << DEFAULT_CONFIG_BYTES;
+	out << default_config;
 	out.close();
 }
 
 static bool has_required_fields(const std::optional<YAML::Node>& config) {
-	std::vector<std::string> required_fields = {"author", "base_path"};
+	std::vector<std::string> required_fields = {"author", "base_path", "pdf_viewer"};
 	for (const std::string& field : required_fields)
 		if (!config.value()[field]) {
 			Log::ERROR("the " + field + " field must be configured in config.yaml",
@@ -47,7 +49,6 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::string> default_options = {
 	    {"editor", editor},
-	    {"pdf_viewer", "zathura"},
 	    {"output_directory", "~/.cache/oly/${source}"},
 	    {"separator", "---"}};
 	for (auto [key, value] : default_options) {
@@ -75,21 +76,22 @@ void add_defaults(YAML::Node& config) {
 }
 
 YAML::Node load_config(std::string config_file_path) {
-	config_file = expand_env_vars(config_file_path);
+	config_file = utils::expand_env_vars(config_file_path);
 
 	editor = get_editor();
 	while (!fs::exists(config_file)) {
 		create_default_config();
-		edit(config_file);
+		utils::edit(config_file, editor);
 	}
 
-	std::optional<YAML::Node> config = load_yaml(config_file);
+	std::optional<YAML::Node> config = utils::load_yaml(config_file);
 	while (!config || !has_required_fields(config)) {
-		edit(config_file);
-		config = load_yaml(config_file);
+		utils::edit(config_file, editor);
+		config = utils::load_yaml(config_file);
 	}
 
-	add_defaults(config.value());
+	Log::WARNING("ok");
+	// add_defaults(config.value());
 	// yaml-cpp sometimes parses an incorrect file successfully, resulting in BIG TROUBLE
 
 	return config.value();

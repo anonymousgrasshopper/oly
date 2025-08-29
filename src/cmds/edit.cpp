@@ -4,8 +4,10 @@
 Edit::Edit() {}
 
 int Edit::execute() {
+	load_config_file();
+
 	for (std::string source : positional_args) {
-		edit(get_problem_path(source));
+		utils::edit(utils::get_problem_path(source));
 	}
 	return 0;
 }

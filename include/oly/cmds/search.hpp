@@ -7,5 +7,5 @@ public:
 	Search();
 	int execute() override;
 
-	static inline const std::string cmd_name = "search";
+	static constexpr const std::string cmd_name = "search";
 };

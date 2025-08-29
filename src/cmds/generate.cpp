@@ -13,16 +13,17 @@ namespace fs = std::filesystem;
 Generate::Generate() {}
 
 std::vector<std::string> Generate::get_solution_bodies(std::string source) {
-	std::ifstream file(get_problem_path(source));
+	std::ifstream file(utils::get_problem_path(source));
 	if (!file.is_open())
-		throw std::runtime_error("Could not open " + get_problem_path(source).string());
+		throw std::runtime_error("Could not open " +
+		                         utils::get_problem_path(source).string());
 
 	std::vector<std::string> bodies;
 	std::string body;
 	std::string line;
 	while (getline(file, line)) {
-		if (!is_yaml(line)) {
-			if (is_separator(line)) {
+		if (!utils::is_yaml(line)) {
+			if (utils::is_separator(line)) {
 				bodies.push_back(body);
 				body = "";
 			} else {
@@ -32,7 +33,7 @@ std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 		}
 	}
 	while (getline(file, line)) {
-		if (is_separator(line)) {
+		if (utils::is_separator(line)) {
 			bodies.push_back(body);
 			body = "";
 		} else {
@@ -45,19 +46,20 @@ std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 }
 
 YAML::Node Generate::get_solution_metadata(std::string source) {
-	std::ifstream file(get_problem_path(source));
+	std::ifstream file(utils::get_problem_path(source));
 	if (!file.is_open())
-		throw std::runtime_error("Could not open " + get_problem_path(source).string());
+		throw std::runtime_error("Could not open " +
+		                         utils::get_problem_path(source).string());
 
 	std::string yaml;
 	std::string line;
 	while (getline(file, line)) {
-		if (is_yaml(line))
+		if (utils::is_yaml(line))
 			yaml += (line + '\n');
 		else
 			break;
 	}
-	std::optional<YAML::Node> data = load_yaml(yaml);
+	std::optional<YAML::Node> data = utils::load_yaml(yaml);
 	if (!data) {
 		Log::ERROR("Could not get metadata from " + source);
 		return YAML::Node();
@@ -74,7 +76,7 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
-	out << expand_vars(latex_preamble);
+	out << utils::expand_vars(latex_preamble);
 
 	for (std::string problem : positional_args) {
 		std::vector<std::string> bodies = get_solution_bodies(problem);
@@ -123,17 +125,19 @@ void Generate::create_pdf(std::filesystem::path latex_file_path) {
 }
 
 int Generate::execute() {
+	load_config_file();
+
 	if (positional_args.empty())
 		return 0;
 
 	std::string source;
 	for (std::string problem : positional_args) {
-		source += get_problem_id(problem) + " - ";
+		source += utils::get_problem_id(problem) + " - ";
 	}
 	source = source.substr(0, source.length() - 3);
 	config["source"] = source;
 
-	fs::path output_path(expand_vars(config["output_directory"].as<std::string>()));
+	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
 	try {
 		create_latex_file(output_path / (source + ".tex"));
 		create_pdf(output_path / (source + ".pdf"));

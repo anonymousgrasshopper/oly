@@ -2,11 +2,13 @@
 
 #include <deque>
 #include <filesystem>
+#include <string>
 
 #include "yaml-cpp/yaml.h"
 
 namespace fs = std::filesystem;
 
+namespace utils {
 void print_help();
 
 [[nodiscard]]
@@ -24,7 +26,7 @@ fs::path get_problem_path(const std::string& source);
 
 void create_file(const fs::path& filepath, const std::string& contents = "");
 
-void edit(const fs::path& filepath);
+void edit(const fs::path& filepath, std::string editor = "");
 
 void set_log_level(std::string level);
 
@@ -57,3 +59,4 @@ public:
 
 	void edit();
 };
+} // namespace utils

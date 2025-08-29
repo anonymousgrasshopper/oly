@@ -7,5 +7,5 @@ public:
 	Show();
 	int execute() override;
 
-	static inline const std::string cmd_name = "show";
+	static constexpr const std::string cmd_name = "show";
 };

@@ -7,6 +7,7 @@
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
+namespace utils {
 void print_help() {
 	std::println("usage: oly <cmd> [args [...]].\n");
 	std::println(R"(Available subcommands:
@@ -58,8 +59,10 @@ void create_file(const fs::path& filepath, const std::string& contents) {
 	out.close();
 }
 
-void edit(const fs::path& filepath) {
-	std::string cmd = config["editor"].as<std::string>() + " \"" + filepath.string() + "\"";
+void edit(const fs::path& filepath, std::string editor) {
+	if (editor == "")
+		editor = config["editor"].as<std::string>();
+	std::string cmd = editor + " \"" + filepath.string() + "\"";
 	if (filepath.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
@@ -206,3 +209,4 @@ void input_file::edit() {
 
 	std::system(cmd.c_str());
 }
+} // namespace utils
