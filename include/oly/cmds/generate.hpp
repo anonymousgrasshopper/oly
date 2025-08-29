@@ -2,7 +2,7 @@
 #include <filesystem>
 
 #include "oly/cmds/command.hpp"
-#include "yaml-cpp/yaml.h"
+#include "yaml-cpp/node/node.h"
 
 class Generate : public Command {
 private:

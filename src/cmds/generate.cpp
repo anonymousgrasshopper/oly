@@ -85,7 +85,7 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 		else
 			out << "\\begin{problem*}";
 		if (metadata["source"])
-			out << "[" + config["source"].as<std::string>() + "]";
+			out << " [" + config["source"].as<std::string>() + "]";
 		out << "\n";
 		if (bodies.size() > 0)
 			out << bodies[0];
@@ -93,15 +93,16 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 			out << "\\end{problem}";
 		else
 			out << "\\end{problem*}";
+		out << "\n\n";
 		if (metadata["url"])
 			out << "\\noindent\\emph{Link}: \\url{" << metadata["url"].as<std::string>() << "}"
-			    << "\n";
+			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i)
-			out << "\n" << "\\hrulebar" << "\n\n" << bodies[i];
-		out << "\\pagebreak" << "\n\n";
+			out << "\\hrulebar" << "\n\n" << bodies[i];
+		out << "\n" << "\\pagebreak" << "\n\n";
 	}
 
-	out << "\\end{document}";
+	out << "\\end{document}" << '\n';
 
 	out.close();
 }

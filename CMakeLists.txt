@@ -16,27 +16,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(yaml-cpp)
 
-# FetchContent_Declare(
-# 	json
-# 	GIT_REPOSITORY https://github.com/nlohmann/json.git
-# 	GIT_TAG        v3.11.2
-# )
-# FetchContent_MakeAvailable(json)
-
-# FetchContent_Declare(
-# 	cpr
-# 	GIT_REPOSITORY https://github.com/libcpr/cpr.git
-# 	GIT_TAG 1.10.5
-# )
-# FetchContent_MakeAvailable(cpr)
-
-# FetchContent_Declare(
-# 	gumbo
-# 	GIT_REPOSITORY https://github.com/google/gumbo-parser.git
-# 	GIT_TAG        main
-# )
-# FetchContent_MakeAvailable(gumbo)
-
 set(SOURCES
 	src/main.cpp
 	src/log.cpp
@@ -58,7 +37,7 @@ target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
 
 target_include_directories(oly PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries(oly PRIVATE yaml-cpp #[[ nlohmann_json::nlohmann_json cpr::cpr gumbo ]])
+target_link_libraries(oly PRIVATE yaml-cpp)
 
 set_target_properties(oly PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
