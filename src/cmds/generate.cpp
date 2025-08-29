@@ -116,7 +116,8 @@ void Generate::create_pdf(std::filesystem::path latex_file_path) {
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
 	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
-	                  '\"' + " -quiet -pv -e '$pdf_previewer=q[zathura %S];' \"" +
+	                  '\"' + " -quiet -pv -e '$pdf_previewer=q[" +
+	                  config["pdf_previewer"].as<std::string>() + " %S];' \"" +
 	                  latex_file_path.replace_extension(".tex").string() + '"';
 	std::system(cmd.c_str());
 }
