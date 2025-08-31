@@ -1,0 +1,33 @@
+#compdef oly
+
+_oly() {
+	local -a subcommands
+	subcommands=(
+		'add:Add a new problem'
+		'edit:Edit an existing problem'
+		'gen:Generate output from problems'
+	)
+
+	local -a global_opts
+	global_opts=(
+		'(-c --config-file)'{-c,--config-file}'[Specify config file]:filename:_files'
+		'--verify-config[Verify configuration file]'
+		'--help[Show help message]'
+		'--version[Show version information]'
+	)
+
+	# If first argument is a subcommand, complete its arguments
+	if (( CURRENT == 2 )); then
+		_describe 'subcommand' subcommands
+		_arguments -s $global_opts
+		return
+	fi
+
+	# Complete subcommands first, then global flags
+	_arguments -s $global_opts '*::subcommand:->subcmds'
+}
+
+_oly "$@"
+
+# Zsh users: place this somewhere in your $fpath to get shell completion for
+# oly commands.
