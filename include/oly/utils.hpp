@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <filesystem>
+#include <regex>
 #include <string>
 
 #include "yaml-cpp/yaml.h"
@@ -27,6 +28,8 @@ fs::path get_problem_path(const std::string& source);
 void create_file(const fs::path& filepath, const std::string& contents = "");
 
 void edit(const fs::path& filepath, std::string editor = "");
+
+void overwrite_file(const fs::path& filepath, const std::string& content);
 
 void set_log_level(std::string level);
 
@@ -57,6 +60,13 @@ public:
 	[[nodiscard]]
 	std::deque<std::string> lines();
 
+	[[nodiscard]]
+	std::string filter_top_lines(const std::regex& reg);
+
 	void edit();
 };
+
+namespace preview {
+void create_preview_file();
+}
 } // namespace utils

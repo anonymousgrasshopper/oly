@@ -69,6 +69,16 @@ void edit(const fs::path& filepath, std::string editor) {
 	std::system(cmd.c_str());
 }
 
+void overwrite_file(const fs::path& filepath, const std::string& content) {
+	std::ofstream file(filepath, std::ios::trunc);
+	if (!file) {
+		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
+	}
+
+	file << content;
+	file.close();
+}
+
 void set_log_level(std::string level) {
 	std::transform(level.begin(), level.end(), level.begin(),
 	               [](unsigned char c) { return std::toupper(c); });
@@ -172,13 +182,6 @@ std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source)
 	return std::nullopt;
 }
 
-void input_file::create_file() {
-	fs::create_directories(filepath.parent_path());
-	std::ofstream out(filepath);
-	out << contents;
-	out.close();
-}
-
 input_file::input_file(fs::path filepath, std::string contents, bool remove)
     : remove(remove), filepath(filepath), contents(contents) {
 	create_file();
@@ -190,14 +193,41 @@ input_file::~input_file() {
 	}
 }
 
+void input_file::create_file() {
+	fs::create_directories(filepath.parent_path());
+	std::ofstream out(filepath);
+	out << contents;
+	out.close();
+}
+
 std::deque<std::string> input_file::lines() {
 	std::ifstream file(filepath);
 	std::deque<std::string> lines;
 	std::string line;
 	if (!file.is_open())
 		Log::CRITICAL("unable to open " + filepath.string() + "!");
+
 	while (getline(file, line)) {
 		lines.push_back(line);
+	}
+	return lines;
+}
+
+std::string input_file::filter_top_lines(const std::regex& reg) {
+	std::ifstream file(filepath);
+	std::string lines;
+	std::string line;
+	if (!file.is_open())
+		Log::CRITICAL("unable to open " + filepath.string() + "!");
+
+	while (getline(file, line)) {
+		if (!regex_search(line, reg)) {
+			lines.append(line + '\n');
+			break;
+		}
+	}
+	while (getline(file, line)) {
+		lines.append(line + '\n');
 	}
 	return lines;
 }
@@ -209,4 +239,21 @@ void input_file::edit() {
 
 	std::system(cmd.c_str());
 }
+
+namespace preview {
+void create_preview_file() {
+	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
+	                           "preview.tex");
+	const std::string PREVIEW_FILE_CONTENTS =
+	    utils::expand_vars(R"(\documentclass[11pt]{scrartcl}
+\usepackage[sexy,diagrams]{evan}
+\author{${author}}
+\title{${source}}
+\begin{document}
+\input{/tmp/oly/${source}/solution.tex}
+\end{document}
+)");
+	utils::create_file(preview_file_path, PREVIEW_FILE_CONTENTS);
+}
+} // namespace preview
 } // namespace utils

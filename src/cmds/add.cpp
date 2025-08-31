@@ -1,4 +1,3 @@
-#include <deque>
 #include <filesystem>
 #include <string>
 
@@ -10,35 +9,17 @@ namespace fs = std::filesystem;
 
 Add::Add() {}
 
-void Add::create_preview_file() {
-	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
-	                           "preview.tex");
-	const std::string PREVIEW_FILE_CONTENTS =
-	    utils::expand_vars(R"(\documentclass[11pt]{scrartcl}
-\usepackage[sexy,diagrams]{evan}
-\author{${author}}
-\title{${source}}
-\begin{document}
-\input{/tmp/oly/${source}/solution.tex}
-\end{document}
-)");
-	utils::create_file(preview_file_path, PREVIEW_FILE_CONTENTS);
-}
-
-std::deque<std::string> Add::get_solution_body() {
-	create_preview_file();
-	std::deque<std::string> input =
+std::string Add::get_solution_body() const {
+	utils::preview::create_preview_file();
+	std::string input =
 	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
 	                          "/solution.tex",
 	                      utils::expand_vars(config["preamble"].as<std::string>()))
-	        .lines();
-	while (input.front().starts_with("%") || input.front().empty()) {
-		input.pop_front();
-	}
+	        .filter_top_lines(std::regex("^%.*$|^$"));
 	return input;
 }
 
-YAML::Node Add::get_solution_metadata() {
+YAML::Node Add::get_solution_metadata() const {
 	utils::input_file file("/tmp/oly/" + config["source"].as<std::string>() +
 	                           "/metadata.yaml",
 	                       utils::expand_vars(config["metadata"].as<std::string>()));
@@ -51,8 +32,8 @@ YAML::Node Add::get_solution_metadata() {
 	return metadata.value();
 }
 
-void Add::create_solution_file(const std::deque<std::string>& body,
-                               const YAML::Node& metadata) {
+void Add::create_solution_file(const std::string& body,
+                               const YAML::Node& metadata) const {
 	const fs::path path(utils::expand_env_vars(config["base_path"].as<std::string>()) +
 	                    config["source"].as<std::string>() + ".tex");
 	std::string contents;
@@ -61,15 +42,13 @@ void Add::create_solution_file(const std::deque<std::string>& body,
 		                field.second.as<std::string>() + '\n');
 	}
 	contents.append("\n");
-	for (std::string line : body) {
-		contents.append(line + '\n');
-	}
+	contents.append(body);
 	utils::create_file(path, contents);
 }
 
-void Add::add_problem(std::string source) {
+void Add::add_problem(std::string source) const {
 	config["source"] = source;
-	std::deque<std::string> body = get_solution_body();
+	std::string body = get_solution_body();
 	YAML::Node metadata = get_solution_metadata();
 
 	create_solution_file(body, metadata);
