@@ -50,7 +50,7 @@ void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::string> default_options = {
 	    {"editor", editor},
 	    {"output_directory", "~/.cache/oly/${source}"},
-	    {"separator", "---"}};
+	    {"separator", "\\hrulebar"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key])
 			config[key] = value;
@@ -90,9 +90,7 @@ YAML::Node load_config(std::string config_file_path) {
 		config = utils::load_yaml(config_file);
 	}
 
-	Log::WARNING("ok");
-	// add_defaults(config.value());
-	// yaml-cpp sometimes parses an incorrect file successfully, resulting in BIG TROUBLE
+	add_defaults(config.value());
 
 	return config.value();
 }
