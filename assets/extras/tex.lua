@@ -96,12 +96,14 @@ local function highlight_hrule()
 	end
 end
 
-if vim.env.OLY then
+if vim.env.OLY and not vim.b[buf].oly_highlight then
+	vim.b[buf].oly_highlight = true
+
 	highlight_metadata()
 	highlight_hrule()
 
 	vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
-		callback = function(event)
+		callback = function()
 			highlight_metadata()
 			highlight_hrule()
 		end,
