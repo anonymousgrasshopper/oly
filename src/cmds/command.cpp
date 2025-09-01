@@ -1,8 +1,5 @@
-#include <cassert>
-#include <iomanip>
-#include <iostream>
+#include <algorithm>
 #include <memory>
-#include <ostream>
 #include <print>
 #include <stdexcept>
 #include <string>
@@ -138,9 +135,9 @@ void Command::print_help() const {
 		return;
 	}
 
-	size_t max_len = 0;
 	std::vector<std::string> alias_strings;
 	alias_strings.reserve(storage.size());
+	size_t max_len = 0;
 
 	for (const auto& opt : storage) {
 		std::string joined;
@@ -149,16 +146,16 @@ void Command::print_help() const {
 			if (i + 1 < opt->names.size())
 				joined += ", ";
 		}
-		alias_strings.push_back(joined);
 		max_len = std::max(max_len, joined.size());
+		alias_strings.push_back(std::move(joined));
 	}
 
 	std::println("available arguments for {}:", cmd);
 
-	for (size_t idx = 0; idx < storage.size(); ++idx) {
-		const auto& opt = storage[idx];
-		const auto& alias_str = alias_strings[idx];
+	for (size_t i = 0; i < storage.size(); ++i) {
+		const auto& opt = storage[i];
+		const auto& alias_str = alias_strings[i];
 
-		std::cout << std::left << std::setw(max_len + 2) << alias_str << opt->desc << "\n";
+		std::println("{:<{}} - {}", alias_str, max_len + 5, opt->desc);
 	}
 }
