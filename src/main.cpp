@@ -47,6 +47,8 @@ int main(int argc, char* argv[]) {
 		config["cmd"] = "default";
 	}
 
+	setenv("OLY", config["cmd"].as<std::string>().c_str(), 1);
+
 	cmd->parse(args);
 	return cmd->execute();
 }

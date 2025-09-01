@@ -17,9 +17,6 @@ struct Option {
 	bool requires_arg;
 	bool has_callback;
 
-	// Option(std::string d, std::variant<bool, std::string>&& v);
-	// Option(std::string d,
-	//        std::variant<std::function<void()>, std::function<void(std::string)>>&& v);
 	Option(std::string d, std::variant<bool, std::string>&& v)
 	    : desc(std::move(d)), value(std::forward<decltype(v)>(v)) {
 		has_callback = false;
