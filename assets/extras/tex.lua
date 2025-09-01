@@ -97,7 +97,6 @@ local function highlight_hrule()
 end
 
 if vim.env.OLY then
-	vim.notify(vim.inspect("CALLLED"))
 	highlight_metadata()
 	highlight_hrule()
 
