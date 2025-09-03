@@ -1,3 +1,4 @@
-source: "${source}"
-difficulty: "trivial"
-url: ""
+source: ${source}
+topic:
+difficulty: trivial
+url:

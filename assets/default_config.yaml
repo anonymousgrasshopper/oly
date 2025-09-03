@@ -7,10 +7,14 @@
 ###################################################################################
 
 # The author's name in the LaTeX preview
-author: "Leonhard Euler"
+author: Leonhard Euler
 
 # The base path where solutions are stored
-base_path: "~/Mathematics/Solutions"
+base_path: ~/Mathematics/Solutions
 
 # The pdf viewer used for 'oly gen <files>'
-pdf_viewer: "zathura"
+pdf_viewer: zathura
+
+# map contest names to other ones
+abbreviations:
+  Shortlist: ISL

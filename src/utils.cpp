@@ -110,8 +110,8 @@ std::string get_problem_id(const std::string& source) {
 	// 1. Contest name: a string of letters and spaces beginning and ending with letters
 	std::regex contest_regex(R"(\b([A-Za-z](?:[A-Za-z ]*)[A-Za-z])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
-		contest = match.str(1) + " ";
-		if (contest.find(' ') == contest.length() - 1) {
+		contest = match.str(1);
+		if (contest.length() < 4 && contest.find(' ') == std::string::npos) {
 			std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
 		} else {
 			for (size_t i = 0; i < contest.length(); ++i) {
@@ -122,6 +122,10 @@ std::string get_problem_id(const std::string& source) {
 				}
 			}
 		}
+		if (config["abbreviations"][contest]) {
+			contest = config["abbreviations"][contest].as<std::string>();
+		}
+		contest.append(" ");
 	}
 
 	// 2. Year: 4 digits or 2 digits not part of a longer digit sequence
