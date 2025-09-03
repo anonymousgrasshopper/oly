@@ -107,11 +107,21 @@ std::string get_problem_id(const std::string& source) {
 	std::smatch match;
 	std::string contest, year, problem;
 
-	// 1. Contest name: at least 2 consecutive letters
-	std::regex contest_regex(R"(([A-Za-z]{2,}))");
+	// 1. Contest name: a string of letters and spaces beginning and ending with letters
+	std::regex contest_regex(R"(\b([A-Za-z](?:[A-Za-z ]*)[A-Za-z])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1) + " ";
-		std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
+		if (contest.find(' ') == contest.length() - 1) {
+			std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
+		} else {
+			for (size_t i = 0; i < contest.length(); ++i) {
+				if (i == 0 || contest[i - 1] == ' ') {
+					contest[i] = std::toupper(contest[i]);
+				} else {
+					contest[i] = std::tolower(contest[i]);
+				}
+			}
+		}
 	}
 
 	// 2. Year: 4 digits or 2 digits not part of a longer digit sequence
@@ -124,8 +134,7 @@ std::string get_problem_id(const std::string& source) {
 		}
 	}
 
-	// 3. Problem: single digit, not part of year, preceded by non-digit or letter, not
-	// followed by digit
+	// 3. Problem: single digit, preceded by non-digit or letter, not followed by digit
 	std::regex problem_regex(R"((\b[A-Za-z]?\d\b))");
 	if (std::regex_search(source, match, problem_regex)) {
 		if (match.str(1).size() == 1) {
