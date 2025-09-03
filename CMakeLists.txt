@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 project(oly VERSION 0.0.1 LANGUAGES CXX)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
@@ -37,7 +41,9 @@ target_compile_definitions(oly PRIVATE
 	OLY_VERSION="${PROJECT_VERSION}"
 	OLY_BUILD_TYPE="$<CONFIG>"
 )
+
 target_compile_features(oly PRIVATE cxx_std_23)
+
 target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
 
 target_include_directories(oly PRIVATE ${PROJECT_SOURCE_DIR}/include)

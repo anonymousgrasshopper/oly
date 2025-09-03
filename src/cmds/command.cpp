@@ -31,13 +31,6 @@ void Command::add(std::string flags, std::string desc, void (*callback)(std::str
 	add(flags, std::move(desc), std::function<void(std::string)>(callback));
 }
 
-template <typename T> T Command::get(const std::string& flag) const {
-	auto it = lookup.find(flag);
-	if (it == lookup.end())
-		throw std::invalid_argument{"Unknown option: " + flag};
-	return std::get<T>(it->second->value);
-}
-
 bool Command::has(const std::string& flag) const {
 	return lookup.find(flag) != lookup.end();
 }
@@ -62,7 +55,7 @@ void Command::parse(std::vector<std::string> args) {
 			std::string flag = (eq_pos != std::string::npos) ? arg.substr(0, eq_pos) : arg;
 
 			if (!has(flag))
-				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX, cmd);
+				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX);
 
 			auto opt_ptr = lookup[flag];
 			if (opt_ptr->requires_arg) {
@@ -71,7 +64,7 @@ void Command::parse(std::vector<std::string> args) {
 				} else {
 					if (i + 1 == args.size())
 						Log::CRITICAL(flag + " requires an argument",
-						              logopt::HELP | logopt::NO_PREFIX, cmd);
+						              logopt::HELP | logopt::NO_PREFIX);
 					set(flag, args[++i]);
 				}
 			} else {
@@ -93,8 +86,7 @@ void Command::parse(std::vector<std::string> args) {
 			for (size_t j = 1; j < arg.size(); ++j) {
 				std::string short_flag = "-" + std::string(1, arg[j]);
 				if (!has(short_flag))
-					Log::CRITICAL("Unknown flag : " + short_flag, logopt::HELP | logopt::NO_PREFIX,
-					              cmd);
+					Log::CRITICAL("Unknown flag : " + short_flag, logopt::HELP | logopt::NO_PREFIX);
 
 				auto opt_ptr = lookup[short_flag];
 				if (opt_ptr->requires_arg) {
@@ -104,7 +96,7 @@ void Command::parse(std::vector<std::string> args) {
 					} else {
 						if (i + 1 >= args.size())
 							Log::CRITICAL(short_flag + " requires an argument",
-							              logopt::HELP | logopt::NO_PREFIX, cmd);
+							              logopt::HELP | logopt::NO_PREFIX);
 						set(short_flag, args[++i]);
 					}
 				} else {

@@ -30,16 +30,10 @@ logopt& operator|=(logopt& a, logopt b);
 namespace Log {
 inline severity log_level = severity::INFO;
 
-void CRITICAL(const std::string& message, logopt opts = logopt::NONE,
-              const std::string& cmd = "");
-void ERROR(const std::string& message, logopt opts = logopt::NONE,
-           const std::string& cmd = "");
-void WARNING(const std::string& message, logopt opts = logopt::NONE,
-             const std::string& cmd = "");
-void INFO(const std::string& message, logopt opts = logopt::NONE,
-          const std::string& cmd = "");
-void DEBUG(const std::string& message, logopt opts = logopt::NONE,
-           const std::string& cmd = "");
-void TRACE(const std::string& message, logopt opts = logopt::NONE,
-           const std::string& cmd = "");
+void CRITICAL(const std::string& message, logopt opts = logopt::NONE);
+void ERROR(const std::string& message, logopt opts = logopt::NONE);
+void WARNING(const std::string& message, logopt opts = logopt::NONE);
+void INFO(const std::string& message, logopt opts = logopt::NONE);
+void DEBUG(const std::string& message, logopt opts = logopt::NONE);
+void TRACE(const std::string& message, logopt opts = logopt::NONE);
 } // namespace Log

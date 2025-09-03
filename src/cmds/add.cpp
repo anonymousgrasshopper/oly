@@ -3,11 +3,14 @@
 
 #include "oly/cmds/add.hpp"
 #include "oly/config.hpp"
+#include "oly/log.hpp"
 #include "oly/utils.hpp"
 
 namespace fs = std::filesystem;
 
-Add::Add() {}
+Add::Add() {
+	add("--overwrite,-o", "Overwrite previous database entry for the problem", false);
+}
 
 std::string Add::get_solution_body() const {
 	utils::preview::create_preview_file();
@@ -47,6 +50,11 @@ void Add::create_solution_file(const std::string& body,
 }
 
 void Add::add_problem(std::string source) const {
+	if (!get<bool>("--overwrite") && fs::exists(utils::get_problem_path(source))) {
+		Log::CRITICAL("cannot add " + source + "; entry already present in database");
+		// "Use oly edit " + source + "to edit it",
+		// "Or use --overwrite / -o to ignore this");
+	}
 	config["source"] = source;
 	std::string body = get_solution_body();
 	YAML::Node metadata = get_solution_metadata();

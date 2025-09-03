@@ -4,6 +4,7 @@
 #include <print>
 #include <string>
 
+#include "oly/config.hpp"
 #include "oly/log.hpp"
 
 bool operator<(severity a, severity b) {
@@ -70,8 +71,7 @@ static constexpr const std::string severity_color(severity lvl) {
 constexpr const std::string COLOR_RESET = "\x1b[0m";
 
 namespace Log {
-static void Log(severity level, const std::string& message, logopt opts,
-                const std::string& cmd) {
+static void Log(severity level, const std::string& message, logopt opts) {
 	if (level < log_level)
 		return;
 
@@ -84,7 +84,9 @@ static void Log(severity level, const std::string& message, logopt opts,
 	if (has_option(opts, logopt::HELP)) {
 		int padding =
 		    has_option(opts, logopt::NO_PREFIX) ? 0 : severity_name(level).length() + 2;
-		std::string cmd_str = cmd.empty() ? "" : cmd + " ";
+		std::string cmd_str = config["cmd"].as<std::string>() == "default"
+		                          ? config["cmd"].as<std::string>() + " "
+		                          : "";
 		std::println(std::cerr, "{:{}}use oly {}--help for more information", "", padding,
 		             cmd_str);
 	}
@@ -96,23 +98,23 @@ static void Log(severity level, const std::string& message, logopt opts,
 	}
 }
 
-void CRITICAL(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::CRITICAL, message, opts, cmd_name);
+void CRITICAL(const std::string& message, logopt opts) {
+	Log(severity::CRITICAL, message, opts);
 	std::exit(EXIT_FAILURE);
 }
-void ERROR(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::ERROR, message, opts, cmd_name);
+void ERROR(const std::string& message, logopt opts) {
+	Log(severity::ERROR, message, opts);
 }
-void WARNING(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::WARNING, message, opts, cmd_name);
+void WARNING(const std::string& message, logopt opts) {
+	Log(severity::WARNING, message, opts);
 }
-void INFO(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::INFO, message, opts, cmd_name);
+void INFO(const std::string& message, logopt opts) {
+	Log(severity::INFO, message, opts);
 }
-void DEBUG(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::DEBUG, message, opts, cmd_name);
+void DEBUG(const std::string& message, logopt opts) {
+	Log(severity::DEBUG, message, opts);
 }
-void TRACE(const std::string& message, logopt opts, const std::string& cmd_name) {
-	Log(severity::TRACE, message, opts, cmd_name);
+void TRACE(const std::string& message, logopt opts) {
+	Log(severity::TRACE, message, opts);
 }
 } // namespace Log

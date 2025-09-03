@@ -122,3 +122,10 @@ void Command::add(std::string flags, std::string desc, Callable&& callback) {
 		lookup[n] = opt;
 	storage.push_back(std::move(opt));
 }
+
+template <typename T> T Command::get(const std::string& flag) const {
+	auto it = lookup.find(flag);
+	if (it == lookup.end())
+		throw std::invalid_argument{"Unknown option: " + flag};
+	return std::get<T>(it->second->value);
+}
