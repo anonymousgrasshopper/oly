@@ -4,6 +4,7 @@
 #include <fstream>
 #include <optional>
 #include <unordered_map>
+#include <variant>
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
@@ -47,13 +48,19 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 }
 
 void add_defaults(YAML::Node& config) {
-	std::unordered_map<std::string, std::string> default_options = {
+	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
 	    {"editor", editor},
 	    {"output_directory", "~/.cache/oly/${source}"},
-	    {"separator", "\\hrulebar"}};
+	    {"separator", "\\hrulebar"},
+	    {"preview", true}};
 	for (auto [key, value] : default_options) {
-		if (!config[key])
-			config[key] = value;
+		if (!config[key]) {
+			if (std::holds_alternative<bool>(value)) {
+				config[key] = std::get<bool>(value);
+			} else {
+				config[key] = std::get<std::string>(value);
+			}
+		}
 	}
 
 	if (!config["preamble"]) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "oly/config.hpp"
 #include <concepts>
 #include <functional>
 #include <memory>
@@ -63,7 +64,7 @@ public:
 
 	void add(std::string flags, std::string desc, void (*callback)(std::string));
 
-	template <typename T> T get(const std::string& flag) const;
+	template <typename T> T get(const std::string& opt) const;
 
 	bool has(const std::string& flag) const;
 
@@ -123,9 +124,13 @@ void Command::add(std::string flags, std::string desc, Callable&& callback) {
 	storage.push_back(std::move(opt));
 }
 
-template <typename T> T Command::get(const std::string& flag) const {
-	auto it = lookup.find(flag);
-	if (it == lookup.end())
-		throw std::invalid_argument{"Unknown option: " + flag};
-	return std::get<T>(it->second->value);
+template <typename T> T Command::get(const std::string& opt) const {
+	if (opt.starts_with('-')) {
+		auto it = lookup.find(opt);
+		if (it == lookup.end())
+			throw std::invalid_argument{"Unknown option: " + opt};
+		return std::get<T>(it->second->value);
+	} else {
+		return config[opt].as<T>();
+	}
 }

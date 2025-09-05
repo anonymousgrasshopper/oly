@@ -145,6 +145,7 @@ std::string get_problem_id(const std::string& source) {
 			problem = "P" + match.str(1);
 		} else if (match.str(1).size() == 2) {
 			problem = match.str(1);
+			config["topic"] = problem[1];
 		}
 	}
 

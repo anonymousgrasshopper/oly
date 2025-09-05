@@ -10,7 +10,15 @@
 
 namespace fs = std::filesystem;
 
-Generate::Generate() {}
+Generate::Generate() {
+	add("--preview", "open the generated pdf", [] { config["preview"] = true; });
+	add("--no-preview", "do not open the generated pdf", [] { config["preview"] = false; });
+	add("--clean", "remove the auxiliary files", false);
+	add("--no-pdf", "only generate a tex file", false);
+	add("--no-tex", "remove the tex file and induce --clean", false);
+	add("--cwd", "create the files in the current directory",
+	    [] { config["output_directory"] = std::string(getenv("PWD")); });
+}
 
 std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 	std::ifstream file(utils::get_problem_path(source));
@@ -110,6 +118,9 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 }
 
 void Generate::create_pdf(std::filesystem::path latex_file_path) {
+	if (get<bool>("--no-pdf"))
+		return;
+
 	for (auto program : {std::string("latexmk"), config["pdf_viewer"].as<std::string>()})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
@@ -117,11 +128,20 @@ void Generate::create_pdf(std::filesystem::path latex_file_path) {
 	if (latex_file_path.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
+	std::string preview_cmd = config["preview"].as<bool>()
+	                              ? "-pv -e '$pdf_previewer=q[" +
+	                                    config["pdf_viewer"].as<std::string>() + " %S];' "
+	                              : "";
 	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
-	                  '\"' + " -quiet -pv -e '$pdf_previewer=q[" +
-	                  config["pdf_previewer"].as<std::string>() + " %S];' \"" +
+	                  '\"' + " -quiet " + preview_cmd + "\"" +
 	                  latex_file_path.replace_extension(".tex").string() + '"';
 	std::system(cmd.c_str());
+
+	// cleanup
+	if (get<bool>("--clean") || get<bool>("--no-tex")) {
+		fs::remove(latex_file_path.replace_extension(".out"));
+		fs::remove(latex_file_path.replace_extension(".log"));
+	}
 }
 
 int Generate::execute() {
@@ -143,6 +163,10 @@ int Generate::execute() {
 		create_pdf(output_path / (source + ".pdf"));
 	} catch (const std::runtime_error& e) {
 		Log::ERROR(e.what());
+	}
+
+	if (get<bool>("--no-tex")) {
+		fs::remove(output_path / (source + ".log"));
 	}
 
 	return 0;
