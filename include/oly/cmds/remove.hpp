@@ -1,8 +1,15 @@
 #pragma once
 
+#include <filesystem>
+
 #include "oly/cmds/command.hpp"
 
 class Remove : public Command {
+private:
+	bool prompt_before_deletion(const std::filesystem::path& path);
+
+	void remove_pb(const std::filesystem::path& path);
+
 public:
 	Remove();
 	int execute() override;
