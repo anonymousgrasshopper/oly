@@ -37,8 +37,9 @@ YAML::Node Add::get_solution_metadata() const {
 
 void Add::create_solution_file(const std::string& body,
                                const YAML::Node& metadata) const {
-	const fs::path path(utils::expand_env_vars(config["base_path"].as<std::string>()) +
-	                    config["source"].as<std::string>() + ".tex");
+	const fs::path path(
+	    fs::path(utils::expand_env_vars(config["base_path"].as<std::string>())) /
+	    (config["source"].as<std::string>() + ".tex"));
 	std::string contents;
 
 	YAML::Emitter out;

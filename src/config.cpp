@@ -38,12 +38,24 @@ static void create_default_config() {
 
 static bool has_required_fields(const std::optional<YAML::Node>& config) {
 	std::vector<std::string> required_fields = {"author", "base_path", "pdf_viewer"};
+	std::vector<std::string> missing_fields;
 	for (const std::string& field : required_fields)
-		if (!config.value()[field]) {
-			Log::ERROR("the " + field + " field must be configured in config.yaml",
-			           logopt::WAIT);
-			return false;
+		if (!config.value()[field])
+			missing_fields.push_back(field);
+
+	if (!missing_fields.empty()) {
+		std::string missing = missing_fields[0];
+		for (size_t i = 1; i < missing_fields.size(); i++) {
+			if (i == missing_fields.size() - 1) {
+				missing.append(" and " + missing_fields[i]);
+			} else {
+				missing.append(", " + missing_fields[i]);
+			}
 		}
+		Log::ERROR(missing + " must be configured in config.yaml", logopt::WAIT);
+		return false;
+	}
+
 	return true;
 }
 

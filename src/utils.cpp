@@ -178,8 +178,8 @@ std::string get_problem_id(const std::string& source) {
 }
 
 fs::path get_problem_path(const std::string& source) {
-	return fs::path(expand_env_vars(config["base_path"].as<std::string>()) +
-	                get_problem_id(source) + ".tex");
+	return fs::path(fs::path(expand_env_vars(config["base_path"].as<std::string>())) /
+	                (get_problem_id(source) + ".tex"));
 }
 
 bool is_separator(const std::string& line) {
