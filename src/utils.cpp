@@ -170,7 +170,7 @@ std::string get_problem_id(const std::string& source) {
 		} else if (match.str(1).size() == 2) {
 			problem = match.str(1);
 			problem[0] = std::toupper(problem[0]);
-			config["topic"] = get_topic(problem[1]);
+			config["topic"] = get_topic(problem[0]);
 		}
 	}
 
