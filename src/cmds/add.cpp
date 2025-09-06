@@ -40,11 +40,12 @@ void Add::create_solution_file(const std::string& body,
 	const fs::path path(utils::expand_env_vars(config["base_path"].as<std::string>()) +
 	                    config["source"].as<std::string>() + ".tex");
 	std::string contents;
-	for (auto field : metadata) {
-		contents.append(field.first.as<std::string>() + ": " +
-		                field.second.as<std::string>() + '\n');
-	}
-	contents.append("\n");
+
+	YAML::Emitter out;
+	out << metadata;
+	contents.append(out.c_str());
+
+	contents.append("\n\n");
 	contents.append(body);
 	utils::create_file(path, contents);
 }
