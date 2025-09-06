@@ -199,7 +199,7 @@ std::optional<YAML::Node> load_yaml(const fs::path& filepath) {
 		YAML::Node data = YAML::LoadFile(filepath);
 		return data;
 	} catch (const YAML::ParserException& e) {
-		Log::ERROR("YAML syntax error in file" + filepath.string() + ": " +
+		Log::ERROR("YAML syntax error in file " + filepath.string() + ": " +
 		               static_cast<std::string>(e.what()),
 		           logopt::WAIT);
 	} catch (const YAML::BadFile& e) {
@@ -215,7 +215,7 @@ std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source)
 	} catch (const YAML::ParserException& e) {
 		if (!source.empty())
 			source = " in file " + source;
-		Log::ERROR("YAML syntax error" + source + ": " + static_cast<std::string>(e.what()),
+		Log::ERROR("YAML syntax error " + source + ": " + static_cast<std::string>(e.what()),
 		           logopt::WAIT);
 	}
 	return std::nullopt;
@@ -283,16 +283,12 @@ namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
 	                           "preview.tex");
-	const std::string PREVIEW_FILE_CONTENTS =
-	    utils::expand_vars(R"(\documentclass[11pt]{scrartcl}
-\usepackage[sexy,diagrams]{evan}
-\author{${author}}
-\title{${source}}
-\begin{document}
-\input{/tmp/oly/${source}/solution.tex}
-\end{document}
-)");
-	utils::create_file(preview_file_path, PREVIEW_FILE_CONTENTS);
+	constexpr char PREVIEW_FILE_CONTENTS[] = {
+#embed "../assets/preview.tex"
+	};
+	constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
+	std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
+	utils::create_file(preview_file_path, utils::expand_vars(PREVIEW_FILE_CONTENTS));
 }
 } // namespace preview
 } // namespace utils

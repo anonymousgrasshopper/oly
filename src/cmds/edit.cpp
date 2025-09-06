@@ -12,7 +12,6 @@ std::string Edit::get_solution() const {
 	std::ifstream solution_file(
 	    utils::get_problem_path(config["source"].as<std::string>()));
 	std::stringstream old_content;
-	old_content << utils::expand_vars("% TeX root: /tmp/oly/${source}/preview.tex\n");
 	old_content << solution_file.rdbuf();
 	solution_file.close();
 
