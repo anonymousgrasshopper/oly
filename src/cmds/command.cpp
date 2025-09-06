@@ -112,11 +112,7 @@ void Command::parse(std::vector<std::string> args) {
 }
 
 void Command::load_config_file() {
-	if (has("--config-file")) {
-		config = load_config(get<std::string>("--config-file"));
-	} else {
-		config = load_config();
-	}
+	config = load_config(get<std::string>("--config-file"));
 }
 
 void Command::print_help() const {
