@@ -3,6 +3,9 @@
 #include "oly/cmds/command.hpp"
 
 class Show : public Command {
+private:
+	void print_statement(const std::string& pb);
+
 public:
 	Show();
 	int execute() override;

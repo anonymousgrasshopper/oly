@@ -16,7 +16,7 @@ Remove::Remove() {
 }
 
 bool Remove::prompt_before_deletion(const fs::path& path) {
-	std::print("rm: remove regular file '{}' ? [y/n] ", path.string());
+	std::print("Are you sure you want to remove '{}' ? [y/n] ", path.string());
 
 	std::string input;
 	if (!std::getline(std::cin, input)) {
