@@ -1,7 +1,9 @@
 #include <cstdlib>
 #include <fstream>
 #include <print>
+#include <ranges>
 #include <regex>
+#include <stdexcept>
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
@@ -13,16 +15,19 @@ void print_help() {
 	std::println(R"(Available subcommands:
     add                          - add a problem to the database
     edit                         - edit an entry in the database
-    show                         - generate a pdf file for a problem and open it
     gen                          - generate a LaTeX or PDF file from a problem
-    search                       - search problems by tag, difficulty, contest...
-    Run oly <cmd> --help for more information regarding a specific subcommand
-    )");
+    search                       - search problems by contest, metadata...
+    show                         - print a problem statement
+    alias                        - link a problem to another one
+    rm                           - remove a problem and its solution file
+  Run oly <cmd> --help for more information regarding a specific subcommand
+)");
 	std::println(R"(Arguments:
     --help              -h       - Show this help message
-    --config FILE       -c FILE  - Specify config file to use
+    --config-file FILE  -c FILE  - Specify config file to use
     --verify-config              - Check wether the config has any errors
-    --version           -v       - Print this binary's version)");
+    --version           -v       - Print this binary's version
+    --log-level LEVEL            - Set the log level)");
 }
 
 std::string expand_vars(std::string str, bool expand_config_vars, bool expand_env_vars) {
@@ -103,6 +108,25 @@ void set_log_level(std::string level) {
 	}
 }
 
+std::string get_topic(const char& letter) {
+	switch (letter) {
+	case 'A':
+		return "Algebra";
+		break;
+	case 'C':
+		return "Combinatorics";
+		break;
+	case 'G':
+		return "Geometry";
+		break;
+	case 'N':
+		return "Number Theory";
+		break;
+	default:
+		return "";
+	}
+}
+
 std::string get_problem_id(const std::string& source) {
 	std::smatch match;
 	std::string contest, year, problem;
@@ -145,7 +169,8 @@ std::string get_problem_id(const std::string& source) {
 			problem = "P" + match.str(1);
 		} else if (match.str(1).size() == 2) {
 			problem = match.str(1);
-			config["topic"] = problem[1];
+			problem[0] = std::toupper(problem[0]);
+			config["topic"] = get_topic(problem[1]);
 		}
 	}
 
@@ -165,7 +190,7 @@ bool is_yaml(const std::string& line) {
 	if (std::regex_match(line, std::regex(R"(^\s*$)")))
 		return true; // true if blank
 
-	std::regex yaml_pattern(R"(^([^:\s][^:]*):\s*.+$)");
+	std::regex yaml_pattern(R"(^[A-Za-z]+:\s*.+$)");
 	return std::regex_match(line, yaml_pattern);
 }
 

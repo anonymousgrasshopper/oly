@@ -43,7 +43,6 @@ void Command::set(const std::string& flag, std::variant<bool, std::string> val) 
 }
 
 void Command::parse(std::vector<std::string> args) {
-	std::string cmd = config["cmd"].as<std::string>();
 	for (size_t i = 0; i < args.size(); ++i) {
 		const std::string& arg = args[i];
 
@@ -121,11 +120,11 @@ void Command::load_config_file() {
 }
 
 void Command::print_help() const {
-	std::string cmd = config["cmd"].as<std::string>();
-	if (cmd == "default") {
+	if (config["cmd"].as<std::string>() == "default") {
 		utils::print_help();
 		return;
 	}
+	std::string cmd = config["cmd"].as<std::string>();
 
 	std::vector<std::string> alias_strings;
 	alias_strings.reserve(storage.size());

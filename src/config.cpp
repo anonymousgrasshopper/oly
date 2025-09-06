@@ -52,7 +52,8 @@ void add_defaults(YAML::Node& config) {
 	    {"editor", editor},
 	    {"output_directory", "~/.cache/oly/${source}"},
 	    {"separator", "\\hrulebar"},
-	    {"preview", true}};
+	    {"preview", true},
+	    {"confirm", false}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {

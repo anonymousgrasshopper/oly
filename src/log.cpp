@@ -84,7 +84,7 @@ static void Log(severity level, const std::string& message, logopt opts) {
 	if (has_option(opts, logopt::HELP)) {
 		int padding =
 		    has_option(opts, logopt::NO_PREFIX) ? 0 : severity_name(level).length() + 2;
-		std::string cmd_str = config["cmd"].as<std::string>() == "default"
+		std::string cmd_str = config["cmd"] && config["cmd"].as<std::string>() != "default"
 		                          ? config["cmd"].as<std::string>() + " "
 		                          : "";
 		std::println(std::cerr, "{:{}}use oly {}--help for more information", "", padding,

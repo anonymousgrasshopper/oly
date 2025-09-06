@@ -1,4 +1,4 @@
 source: ${source}
-topic:
-difficulty: trivial
+topic: ${topic}
+tags: []
 url:

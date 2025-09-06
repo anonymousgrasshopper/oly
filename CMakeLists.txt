@@ -26,10 +26,12 @@ set(SOURCES
 	src/config.cpp
 	src/utils.cpp
 	src/cmds/add.cpp
+	src/cmds/alias.cpp
 	src/cmds/command.cpp
 	src/cmds/default.cpp
 	src/cmds/edit.cpp
 	src/cmds/generate.cpp
+	src/cmds/remove.cpp
 	src/cmds/search.cpp
 	src/cmds/show.cpp
 )
