@@ -16,7 +16,7 @@ std::string Edit::get_solution() const {
 	solution_file.close();
 
 	std::string input = utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
-	                                          "/solution.tex",
+	                                          "/solution." + utils::filetype(),
 	                                      old_content.str())
 	                        .filter_top_lines(std::regex("^%.*$|^$"));
 	return input;

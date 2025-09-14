@@ -15,7 +15,7 @@ Generate::Generate() {
 	add("--no-preview", "do not open the generated pdf", [] { config["preview"] = false; });
 	add("--clean", "remove the auxiliary files", false);
 	add("--no-pdf", "only generate a tex file", false);
-	add("--no-tex", "remove the tex file and induce --clean", false);
+	add("--no-source", "remove the source file and induce --clean", false);
 	add("--cwd", "create the files in the current directory",
 	    [] { config["output_directory"] = std::string(getenv("PWD")); });
 }
@@ -80,7 +80,7 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 	std::ofstream out(latex_file_path);
 
 	constexpr char LATEX_PREAMBLE[] = {
-#embed "../../assets/latex_preamble.tex"
+#embed "../../assets/preamble.tex"
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
@@ -117,7 +117,7 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 	out.close();
 }
 
-void Generate::create_pdf(std::filesystem::path latex_file_path) {
+void Generate::create_pdf_from_latex(std::filesystem::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
@@ -133,8 +133,8 @@ void Generate::create_pdf(std::filesystem::path latex_file_path) {
 	                                    config["pdf_viewer"].as<std::string>() + " %S];' "
 	                              : "";
 	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
-	                  '\"' + " -quiet " + preview_cmd + "\"" +
-	                  latex_file_path.replace_extension(".tex").string() + '"';
+	                  '\"' + " -quiet " + preview_cmd + "\"" + latex_file_path.string() +
+	                  '"';
 	std::system(cmd.c_str());
 
 	// cleanup
@@ -143,6 +143,9 @@ void Generate::create_pdf(std::filesystem::path latex_file_path) {
 		fs::remove(latex_file_path.replace_extension(".log"));
 	}
 }
+
+void create_typst_file(std::filesystem::path typst_file_path) {}
+void create_pdf_from_typst(std::filesystem::path typst_file_path) {}
 
 int Generate::execute() {
 	load_config_file();
@@ -158,15 +161,20 @@ int Generate::execute() {
 	config["source"] = source;
 
 	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
-	try {
-		create_latex_file(output_path / (source + ".tex"));
-		create_pdf(output_path / (source + ".pdf"));
-	} catch (const std::runtime_error& e) {
-		Log::ERROR(e.what());
-	}
-
-	if (get<bool>("--no-tex")) {
-		fs::remove(output_path / (source + ".log"));
+	if (config["language"].as<std::string>() == "latex") {
+		try {
+			create_latex_file(output_path / (source + ".tex"));
+			create_pdf_from_latex(output_path / (source + ".tex"));
+		} catch (const std::runtime_error& e) {
+			Log::ERROR(e.what());
+		}
+	} else {
+		try {
+			// create_typst_file(output_path / (source + ".typ"));
+			// create_pdf_from_typst(output_path / (source + ".pdf"));
+		} catch (const std::runtime_error& e) {
+			Log::ERROR(e.what());
+		}
 	}
 
 	return 0;

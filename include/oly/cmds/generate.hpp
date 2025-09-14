@@ -11,7 +11,10 @@ private:
 	YAML::Node get_solution_metadata(std::string source);
 
 	void create_latex_file(std::filesystem::path latex_file_path);
-	void create_pdf(std::filesystem::path latex_file_path);
+	void create_pdf_from_latex(std::filesystem::path latex_file_path);
+
+	void create_typst_file(std::filesystem::path typst_file_path);
+	void create_pdf_from_typst(std::filesystem::path typst_file_path);
 
 public:
 	Generate();

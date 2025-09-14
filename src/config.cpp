@@ -27,7 +27,7 @@ static std::string get_editor() {
 static void create_default_config() {
 	fs::create_directories(config_file.parent_path());
 	constexpr char DEFAULT_CONFIG_BYTES[] = {
-#embed "../assets/default_config.yaml"
+#embed "../assets/config.yaml"
 	};
 	constexpr size_t DEFAULT_CONFIG_SIZE = sizeof(DEFAULT_CONFIG_BYTES);
 	std::string default_config(DEFAULT_CONFIG_BYTES, DEFAULT_CONFIG_SIZE);
@@ -36,11 +36,13 @@ static void create_default_config() {
 	out.close();
 }
 
-static bool has_required_fields(const std::optional<YAML::Node>& config) {
+static bool is_valid(const YAML::Node& config) {
+	bool valid = true;
 	std::vector<std::string> required_fields = {"author", "base_path", "pdf_viewer"};
 	std::vector<std::string> missing_fields;
+
 	for (const std::string& field : required_fields)
-		if (!config.value()[field])
+		if (!config[field])
 			missing_fields.push_back(field);
 
 	if (!missing_fields.empty()) {
@@ -52,20 +54,31 @@ static bool has_required_fields(const std::optional<YAML::Node>& config) {
 				missing.append(", " + missing_fields[i]);
 			}
 		}
-		Log::ERROR(missing + " must be configured in config.yaml", logopt::WAIT);
-		return false;
+		Log::ERROR(missing + " must be configured in config.yaml");
+		valid = false;
+	}
+
+	if (config["language"]) {
+		if (!config["language"].IsScalar() ||
+		    (config["language"].as<std::string>() != "latex" &&
+		     config["language"].as<std::string>() != "typst")) {
+			Log::ERROR("language has to be one of latex or typst");
+			valid = false;
+		}
+	}
+
+	if (!valid) {
+		Log::Wait();
 	}
 
 	return true;
 }
 
-void add_defaults(YAML::Node& config) {
+static void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    {"editor", editor},
-	    {"output_directory", "~/.cache/oly/${source}"},
-	    {"separator", "\\hrulebar"},
-	    {"preview", true},
-	    {"confirm", false}};
+	    {"editor", editor},          {"output_directory", "~/.cache/oly/${source}"},
+	    {"separator", "\\hrulebar"}, {"preview", true},
+	    {"confirm", false},          {"language", "latex"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {
@@ -77,17 +90,44 @@ void add_defaults(YAML::Node& config) {
 	}
 
 	if (!config["preamble"]) {
-		constexpr char DEFAULT_PREAMBLE_BYTES[] = {
-#embed "../assets/default_preamble.tex"
-		};
-		constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
-		std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
-		config["preamble"] = preamble;
+		if (config["language"].as<std::string>() == "latex") {
+			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
+#embed "../assets/preamble.tex"
+			};
+			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
+			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
+			config["preamble"] = preamble;
+		} else {
+			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
+#embed "../assets/preamble.typ"
+			};
+			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
+			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
+			config["preamble"] = preamble;
+		}
+	}
+
+	if (!config["contents"]) {
+		if (config["language"].as<std::string>() == "latex") {
+			constexpr char DEFAULT_CONTENTS_BYTES[] = {
+#embed "../assets/contents.tex"
+			};
+			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
+			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
+			config["contents"] = contents;
+		} else {
+			constexpr char DEFAULT_CONTENTS_BYTES[] = {
+#embed "../assets/contents.typ"
+			};
+			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
+			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
+			config["contents"] = contents;
+		}
 	}
 
 	if (!config["metadata"]) {
 		constexpr char DEFAULT_METADATA_BYTES[] = {
-#embed "../assets/default_metadata.yaml"
+#embed "../assets/metadata.yaml"
 		};
 		constexpr size_t DEFAULT_METADATA_SIZE = sizeof(DEFAULT_METADATA_BYTES);
 		std::string metadata(DEFAULT_METADATA_BYTES, DEFAULT_METADATA_SIZE);
@@ -105,7 +145,7 @@ YAML::Node load_config(std::string config_file_path) {
 	}
 
 	std::optional<YAML::Node> config = utils::load_yaml(config_file);
-	while (!config || !has_required_fields(config)) {
+	while (!config || !is_valid(config.value())) {
 		utils::edit(config_file, editor);
 		config = utils::load_yaml(config_file);
 	}

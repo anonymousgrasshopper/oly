@@ -15,9 +15,9 @@ Add::Add() {
 std::string Add::get_solution_body() const {
 	utils::preview::create_preview_file();
 	std::string input =
-	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
-	                          "/solution.tex",
-	                      utils::expand_vars(config["preamble"].as<std::string>()))
+	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution." +
+	                          utils::filetype(),
+	                      utils::expand_vars(config["contents"].as<std::string>()))
 	        .filter_top_lines(std::regex("^%.*$|^$"));
 	return input;
 }
@@ -37,9 +37,7 @@ YAML::Node Add::get_solution_metadata() const {
 
 void Add::create_solution_file(const std::string& body,
                                const YAML::Node& metadata) const {
-	const fs::path path(
-	    fs::path(utils::expand_env_vars(config["base_path"].as<std::string>())) /
-	    (config["source"].as<std::string>() + ".tex"));
+	const fs::path path(utils::get_problem_path(config["source"].as<std::string>(), false));
 	std::string contents;
 
 	YAML::Emitter out;

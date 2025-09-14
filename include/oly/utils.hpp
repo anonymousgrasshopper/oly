@@ -20,10 +20,7 @@ std::string expand_vars(std::string str, bool expand_config_vars = true,
 std::string expand_env_vars(std::string str);
 
 [[nodiscard]]
-std::string get_problem_id(const std::string& source);
-
-[[nodiscard]]
-fs::path get_problem_path(const std::string& source);
+std::string filetype();
 
 void create_file(const fs::path& filepath, const std::string& contents = "");
 
@@ -32,6 +29,12 @@ void edit(const fs::path& filepath, std::string editor = "");
 void overwrite_file(const fs::path& filepath, const std::string& content);
 
 void set_log_level(std::string level);
+
+[[nodiscard]]
+std::string get_problem_id(const std::string& source);
+
+[[nodiscard]]
+fs::path get_problem_path(const std::string& source, const bool process_source = true);
 
 [[nodiscard]]
 bool is_separator(const std::string& line);

@@ -28,11 +28,11 @@ logopt& operator|=(logopt& a, logopt b) {
 	return a;
 }
 
-static bool has_option(logopt opts, logopt flag) {
+static constexpr bool has_option(logopt opts, logopt flag) {
 	return (static_cast<unsigned>(opts) & static_cast<unsigned>(flag)) != 0;
 }
 
-static constexpr const std::string severity_name(severity lvl) {
+static constexpr std::string severity_name(severity lvl) {
 	switch (lvl) {
 	case severity::CRITICAL:
 		return "CRITICAL";
@@ -50,7 +50,7 @@ static constexpr const std::string severity_name(severity lvl) {
 		return "TRACE";
 	}
 }
-static constexpr const std::string severity_color(severity lvl) {
+static constexpr std::string severity_color(severity lvl) {
 	switch (lvl) {
 	case severity::CRITICAL:
 		return "\x1b[38;2;0;0;0m\x1b[48;2;232;36;36m";
@@ -92,10 +92,14 @@ static void Log(severity level, const std::string& message, logopt opts) {
 	}
 
 	if (has_option(opts, logopt::WAIT)) {
-		std::print(std::cerr, "\033[0;90mPress Enter to continue...\033[0m");
-		std::cerr.flush();
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		Wait();
 	}
+}
+
+void Wait() {
+	std::print(std::cerr, "\033[0;90mPress Enter to continue...\033[0m");
+	std::cerr.flush();
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 void CRITICAL(const std::string& message, logopt opts) {

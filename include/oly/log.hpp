@@ -30,6 +30,8 @@ logopt& operator|=(logopt& a, logopt b);
 namespace Log {
 inline severity log_level = severity::INFO;
 
+void Wait();
+
 void CRITICAL(const std::string& message, logopt opts = logopt::NONE);
 void ERROR(const std::string& message, logopt opts = logopt::NONE);
 void WARNING(const std::string& message, logopt opts = logopt::NONE);

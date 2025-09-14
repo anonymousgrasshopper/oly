@@ -15,7 +15,7 @@ void print_help() {
 	std::println(R"(Available subcommands:
     add                          - add a problem to the database
     edit                         - edit an entry in the database
-    gen                          - generate a LaTeX or PDF file from a problem
+    gen                          - generate a PDF from a problem
     search                       - search problems by contest, metadata...
     show                         - print a problem statement
     alias                        - link a problem to another one
@@ -55,6 +55,10 @@ std::string expand_vars(std::string str, bool expand_config_vars, bool expand_en
 
 std::string expand_env_vars(std::string str) {
 	return expand_vars(str, false, true);
+}
+
+std::string filetype() {
+	return config["language"].as<std::string>() == "latex" ? "tex" : "typ";
 }
 
 void create_file(const fs::path& filepath, const std::string& contents) {
@@ -177,9 +181,10 @@ std::string get_problem_id(const std::string& source) {
 	return contest + year + problem;
 }
 
-fs::path get_problem_path(const std::string& source) {
+fs::path get_problem_path(const std::string& source, bool process_source) {
+	std::string id = process_source ? get_problem_id(source) : source;
 	return fs::path(fs::path(expand_env_vars(config["base_path"].as<std::string>())) /
-	                (get_problem_id(source) + ".tex"));
+	                (id + filetype()));
 }
 
 bool is_separator(const std::string& line) {
@@ -282,13 +287,22 @@ void input_file::edit() {
 namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
-	                           "preview.tex");
-	constexpr char PREVIEW_FILE_CONTENTS[] = {
+	                           "preview." + filetype());
+	if (config["language"].as<std::string>() == "latex") {
+		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/preview.tex"
-	};
-	constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
-	std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-	utils::create_file(preview_file_path, utils::expand_vars(PREVIEW_FILE_CONTENTS));
+		};
+		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
+		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
+		utils::create_file(preview_file_path, utils::expand_vars(default_config));
+	} else {
+		constexpr char PREVIEW_FILE_CONTENTS[] = {
+#embed "../assets/preview.typ"
+		};
+		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
+		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
+		utils::create_file(preview_file_path, utils::expand_vars(default_config));
+	}
 }
 } // namespace preview
 } // namespace utils
