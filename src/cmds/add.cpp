@@ -15,10 +15,10 @@ Add::Add() {
 std::string Add::get_solution_body() const {
 	utils::preview::create_preview_file();
 	std::string input =
-	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution." +
-	                          utils::filetype(),
+	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution" +
+	                          utils::filetype_extension(),
 	                      utils::expand_vars(config["contents"].as<std::string>()))
-	        .filter_top_lines(std::regex("^%.*$|^$"));
+	        .filter_top_lines(std::regex("^\\s*$"));
 	return input;
 }
 

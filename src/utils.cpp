@@ -57,8 +57,8 @@ std::string expand_env_vars(std::string str) {
 	return expand_vars(str, false, true);
 }
 
-std::string filetype() {
-	return config["language"].as<std::string>() == "latex" ? "tex" : "typ";
+std::string filetype_extension() {
+	return config["language"].as<std::string>() == "latex" ? ".tex" : ".typ";
 }
 
 void create_file(const fs::path& filepath, const std::string& contents) {
@@ -184,7 +184,7 @@ std::string get_problem_id(const std::string& source) {
 fs::path get_problem_path(const std::string& source, bool process_source) {
 	std::string id = process_source ? get_problem_id(source) : source;
 	return fs::path(fs::path(expand_env_vars(config["base_path"].as<std::string>())) /
-	                (id + filetype()));
+	                (id + filetype_extension()));
 }
 
 bool is_separator(const std::string& line) {
@@ -192,8 +192,8 @@ bool is_separator(const std::string& line) {
 }
 
 bool is_yaml(const std::string& line) {
-	if (std::regex_match(line, std::regex(R"(^\s*$)")))
-		return true; // true if blank
+	// if (std::regex_match(line, std::regex(R"(^\s*$)")))
+	// 	return true; // true if blank
 
 	std::regex yaml_pattern(R"(^[A-Za-z]+:\s*.+$)");
 	return std::regex_match(line, yaml_pattern);
@@ -287,7 +287,7 @@ void input_file::edit() {
 namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
-	                           "preview." + filetype());
+	                           "preview" + filetype_extension());
 	if (config["language"].as<std::string>() == "latex") {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/preview.tex"

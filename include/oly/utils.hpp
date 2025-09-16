@@ -20,7 +20,7 @@ std::string expand_vars(std::string str, bool expand_config_vars = true,
 std::string expand_env_vars(std::string str);
 
 [[nodiscard]]
-std::string filetype();
+std::string filetype_extension();
 
 void create_file(const fs::path& filepath, const std::string& contents = "");
 

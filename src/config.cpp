@@ -71,7 +71,7 @@ static bool is_valid(const YAML::Node& config) {
 		Log::Wait();
 	}
 
-	return true;
+	return valid;
 }
 
 static void add_defaults(YAML::Node& config) {
