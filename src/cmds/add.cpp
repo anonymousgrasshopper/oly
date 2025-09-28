@@ -17,7 +17,7 @@ std::string Add::get_solution_body() const {
 	std::string input =
 	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution" +
 	                          utils::filetype_extension(),
-	                      utils::expand_vars(config["contents"].as<std::string>()))
+	                      utils::expand_vars(config["contents"].as<std::string>()), false)
 	        .filter_top_lines(std::regex("^\\s*$"));
 	return input;
 }
@@ -37,7 +37,7 @@ YAML::Node Add::get_solution_metadata() const {
 
 void Add::create_solution_file(const std::string& body,
                                const YAML::Node& metadata) const {
-	const fs::path path(utils::get_problem_path(config["source"].as<std::string>(), false));
+	const fs::path path(utils::get_problem_path(config["source"].as<std::string>()));
 	std::string contents;
 
 	YAML::Emitter out;
@@ -51,7 +51,7 @@ void Add::create_solution_file(const std::string& body,
 
 void Add::add_problem(std::string source) const {
 	if (!get<bool>("--overwrite") && fs::exists(utils::get_problem_path(source))) {
-		Log::CRITICAL("cannot add " + source + "; entry already present in database");
+		Log::CRITICAL("cannot add " + source + ": entry already present in database");
 		// "Use oly edit " + source + "to edit it",
 		// "Or use --overwrite / -o to ignore this");
 	}

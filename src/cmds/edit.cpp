@@ -60,7 +60,7 @@ std::string Edit::get_solution() const {
 
 	std::string input = utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
 	                                          "/solution" + utils::filetype_extension(),
-	                                      solution)
+	                                      solution, false)
 	                        .filter_top_lines(std::regex("^\\s*$"));
 
 	return uncomment_metadata(input);

@@ -131,15 +131,15 @@ std::string get_topic(const char& letter) {
 	}
 }
 
-std::string get_problem_id(const std::string& source) {
-	std::smatch match;
-	std::string contest, year, problem;
-
+static std::string source_get_contest(const std::string& source) {
 	// 1. Contest name: a string of letters and spaces beginning and ending with letters
+	std::string contest;
+	std::smatch match;
+
 	std::regex contest_regex(R"(\b([A-Za-z](?:[A-Za-z ]*)[A-Za-z])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
-		if (contest.length() < 4 && contest.find(' ') == std::string::npos) {
+		if (contest.length() <= 4 && contest.find(' ') == std::string::npos) {
 			std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
 		} else {
 			for (size_t i = 0; i < contest.length(); ++i) {
@@ -153,20 +153,32 @@ std::string get_problem_id(const std::string& source) {
 		if (config["abbreviations"][contest]) {
 			contest = config["abbreviations"][contest].as<std::string>();
 		}
-		contest.append(" ");
 	}
 
+	return contest;
+}
+
+static std::string source_get_year(const std::string& source) {
 	// 2. Year: 4 digits or 2 digits not part of a longer digit sequence
+	std::string year;
+	std::smatch match;
+
 	std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
 	if (std::regex_search(source, match, year_regex)) {
 		if (match.str(1).size() == 4) {
-			year = match.str(1) + " ";
+			year = match.str(1);
 		} else if (match.str(1).size() == 2) {
-			year = "20" + match.str(1) + " ";
+			year = "20" + match.str(1);
 		}
 	}
 
+	return year;
+}
+static std::string source_get_problem(const std::string& source) {
 	// 3. Problem: single digit, preceded by non-digit or letter, not followed by digit
+	std::string problem;
+	std::smatch match;
+
 	std::regex problem_regex(R"((\b[A-Za-z]?\d\b))");
 	if (std::regex_search(source, match, problem_regex)) {
 		if (match.str(1).size() == 1) {
@@ -178,13 +190,48 @@ std::string get_problem_id(const std::string& source) {
 		}
 	}
 
-	return contest + year + problem;
+	return problem;
 }
 
-fs::path get_problem_path(const std::string& source, bool process_source) {
-	std::string id = process_source ? get_problem_id(source) : source;
+std::string get_problem_id(const std::string& source) {
+	std::string contest{source_get_contest(source)};
+	if (contest.length()) {
+		std::string year{source_get_year(source)};
+		if (year.length()) {
+			std::string problem{source_get_problem(source)};
+			if (problem.length()) {
+				return contest + " " + year + " " + problem;
+			}
+		}
+	}
+
+	return source;
+}
+
+fs::path get_problem_path(const std::string& source) {
+	auto get_path = [&]() -> std::string {
+		std::string contest{source_get_contest(source)};
+		if (contest.length()) {
+			std::string year{source_get_year(source)};
+			if (year.length()) {
+				std::string problem{source_get_problem(source)};
+				if (problem.length()) {
+					return contest + "/" + contest + " " + year + "/" + contest + " " + year + " " +
+					       problem;
+				} else {
+					return contest + "/" + source;
+				}
+			} else {
+				return contest + "/" + source;
+			}
+		} else {
+			return source;
+		}
+	};
+
+	std::string path = get_path();
 	return fs::path(fs::path(expand_env_vars(config["base_path"].as<std::string>())) /
-	                (id + filetype_extension()));
+	                (path + filetype_extension()));
 }
 
 bool is_separator(const std::string& line) {

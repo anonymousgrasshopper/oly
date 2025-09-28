@@ -34,7 +34,7 @@ void set_log_level(std::string level);
 std::string get_problem_id(const std::string& source);
 
 [[nodiscard]]
-fs::path get_problem_path(const std::string& source, const bool process_source = true);
+fs::path get_problem_path(const std::string& source);
 
 [[nodiscard]]
 bool is_separator(const std::string& line);
