@@ -1,6 +1,7 @@
 #let title = "${source}"
 #let author = "${author}"
 #let today = datetime.today().display("[day] [month repr:long] [year]")
+// #let today = "${date}"
 
 #set document(title: title)
 #set document(author: author)
@@ -27,15 +28,10 @@
 )
 #set text(
   font: "New Computer Modern",
+  lang: "fr",
   size: 11pt,
   fallback: false,
 )
-
-// For bold elements, use sans font
-// show strong: set text(font:fonts.sans, size: 0.9em)
-
-// Theorem environments
-// show: thm-rules.with(qed-symbol: $square$)
 
 // Change quote display
 #set quote(block: true)
@@ -61,3 +57,9 @@
 #show ref: it => {
   link(it.target, it)
 }
+
+// theorems
+#import "@local/oly:1.0.0": *
+#show: thmrules.with(qed-symbol: $square$)
+
+// main content

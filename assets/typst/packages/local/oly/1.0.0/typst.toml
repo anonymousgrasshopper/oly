@@ -1,0 +1,10 @@
+[package]
+name = "oly"
+version = "1.0.0"
+entrypoint = "main.typ"
+authors = ["Antoine Saez Dumas"]
+license = "MIT"
+
+[template]
+path = "template"
+entrypoint = "main.typ"

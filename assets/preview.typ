@@ -1,7 +1,7 @@
 #let title = "${source}"
 #let author = "${author}"
 #let today = datetime.today().display("[day] [month repr:long] [year]")
-#let today = "${date}"
+// #let today = "${date}"
 
 #set document(title: title)
 #set document(author: author)
@@ -28,6 +28,7 @@
 )
 #set text(
   font: "New Computer Modern",
+  lang: "fr",
   size: 11pt,
   fallback: false,
 )
@@ -57,7 +58,9 @@
   link(it.target, it)
 }
 
+// theorems
+#import "@local/oly:1.0.0": *
+#show: thmrules.with(qed-symbol: $square$)
+
 // main content
 #include "solution.typ"
-#h(1fr)
-#text(size: 1.4em, $square.stroked$)
