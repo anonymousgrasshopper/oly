@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include <fstream>
 #include <print>
-#include <ranges>
 #include <regex>
 #include <stdexcept>
 
@@ -58,7 +57,7 @@ std::string expand_env_vars(std::string str) {
 }
 
 std::string filetype_extension() {
-	return config["language"].as<std::string>() == "latex" ? ".tex" : ".typ";
+	return config["markup"].as<std::string>() == "latex" ? ".tex" : ".typ";
 }
 
 void create_file(const fs::path& filepath, const std::string& contents) {
@@ -335,7 +334,7 @@ namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
 	                           "preview" + filetype_extension());
-	if (config["language"].as<std::string>() == "latex") {
+	if (config["markup"].as<std::string>() == "latex") {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/preview.tex"
 		};

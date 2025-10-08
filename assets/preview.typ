@@ -61,6 +61,7 @@
 // theorems
 #import "@local/oly:1.0.0": *
 #show: thmrules.with(qed-symbol: $square$)
+#language("${language}")
 
 // main content
 #include "solution.typ"
