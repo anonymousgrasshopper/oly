@@ -10,18 +10,22 @@
   "proof": "Proof",
 ))
 
-#let update_names(new_lang) = {
+#let language(new_lang) = {
+  assert(
+    type(new_lang) == str,
+    message: "called language function from oly package with argument"
+      + new_lang
+      + "which doesn't have type string",
+  )
+
+  lang.update(new_lang)
   if new_lang == "french" {
+    set text(lang: "fr")
     names.update(("lemma": "Lemme", "theorem": "Théorème", "proof": "Preuve"))
   } else {
+    set text(lang: "eng")
     names.update(("lemma": "Lemma", "theorem": "Theorem", "proof": "Proof"))
   }
-}
-#let language(new_lang) = {
-  if type(new_lang) == str {
-    lang.update(new_lang)
-  }
-  update_names(new_lang)
 }
 
 // environments
@@ -53,10 +57,8 @@
 #let iiint = sym.integral.triple
 #let oiiint = sym.integral.vol
 
-// #context if lang.get() == "french" {
 #let pgcd = math.op("pgcd")
 #let ppcm = math.op("ppcm")
-// }
 
 #let dbbracket(lhs, rhs) = {
   if type(lhs) == array {

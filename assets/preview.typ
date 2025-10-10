@@ -28,7 +28,6 @@
 )
 #set text(
   font: "New Computer Modern",
-  lang: "fr",
   size: 11pt,
   fallback: false,
 )
