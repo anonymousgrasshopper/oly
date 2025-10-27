@@ -58,10 +58,10 @@ static bool is_valid(const YAML::Node& config) {
 		valid = false;
 	}
 
-	if (config["markup"]) {
-		if (!config["markup"].IsScalar() || (config["markup"].as<std::string>() != "latex" &&
-		                                     config["markup"].as<std::string>() != "typst")) {
-			Log::ERROR("markup has to be one of latex or typst");
+	if (config["language"]) {
+		if (!config["language"].IsScalar() || (config["language"].as<std::string>() != "latex" &&
+		                                       config["language"].as<std::string>() != "typst")) {
+			Log::ERROR("language has to be one of latex or typst");
 			valid = false;
 		}
 	}
@@ -77,8 +77,8 @@ static void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
 	    {"editor", editor},          {"output_directory", "~/.cache/oly/${source}"},
 	    {"separator", "\\hrulebar"}, {"preview", true},
-	    {"confirm", false},          {"markup", "latex"},
-	    {"language", "english"}};
+	    {"confirm", false},          {"language", "latex"},
+	    {"language", "en"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {
@@ -90,7 +90,7 @@ static void add_defaults(YAML::Node& config) {
 	}
 
 	if (!config["preamble"]) {
-		if (config["markup"].as<std::string>() == "latex") {
+		if (config["language"].as<std::string>() == "latex") {
 			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
 #embed "../assets/preamble.tex"
 			};
@@ -108,7 +108,7 @@ static void add_defaults(YAML::Node& config) {
 	}
 
 	if (!config["contents"]) {
-		if (config["markup"].as<std::string>() == "latex") {
+		if (config["language"].as<std::string>() == "latex") {
 			constexpr char DEFAULT_CONTENTS_BYTES[] = {
 #embed "../assets/contents.tex"
 			};

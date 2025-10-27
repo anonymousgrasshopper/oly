@@ -161,7 +161,7 @@ int Generate::execute() {
 	config["source"] = source;
 
 	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
-	if (config["markup"].as<std::string>() == "latex") {
+	if (config["language"].as<std::string>() == "latex") {
 		try {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));

@@ -16,16 +16,16 @@ std::string Edit::comment_metadata() const {
 
 	std::string solution;
 	std::string line;
-	if (get<std::string>("markup") == "typst")
+	if (get<std::string>("language") == "typst")
 		solution += "/*\n";
 	while (getline(solution_file, line)) {
 		if (!utils::is_yaml(line)) {
-			if (get<std::string>("markup") == "typst")
+			if (get<std::string>("language") == "typst")
 				solution += "*/\n";
 			solution += (line + '\n');
 			break;
 		} else {
-			if (get<std::string>("markup") == "latex")
+			if (get<std::string>("language") == "latex")
 				solution += "% ";
 			solution += (line + '\n');
 		}
@@ -37,7 +37,7 @@ std::string Edit::comment_metadata() const {
 }
 
 std::string Edit::uncomment_metadata(std::string& input) const {
-	if (get<std::string>("markup") == "typst") {
+	if (get<std::string>("language") == "typst") {
 		if (input.starts_with("/*\n")) {
 			input = input.substr(3);
 		}

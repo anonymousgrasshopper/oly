@@ -46,20 +46,9 @@
 #set enum(indent: 1em)
 #set list(indent: 1em)
 
-// Hyperlinks
-#show link: it => {
-  set text(fill: if (type(it.dest) == label) { colors.label } else {
-    colors.hyperlink
-  })
-  it
-}
-#show ref: it => {
-  link(it.target, it)
-}
-
 // theorems
 #import "@local/oly:1.0.0": *
 #show: thmrules.with(qed-symbol: $square$)
-#language("${language}")
+#set text(lang: "${lang}")
 
 // main content

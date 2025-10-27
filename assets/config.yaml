@@ -6,21 +6,21 @@
 # https://github.com/anonymousgrasshopper/oly/blob/main/src/config.cpp#L77-#L137  #
 ###################################################################################
 
-# The author's name in the preview and generated pdf
+# the author's name in the preview and generated pdf
 author: Leonhard Euler
 
-# The base path where solutions are stored
+# the base path where solutions are stored
 base_path: ~/Mathematics/Solutions
 
 # the markup language the solutions are typed in
 # must be one of latex or typst (default latex)
-markup: latex
+language: latex
 
-# you can set a different language to use with
-# the tex and typst preamble files
-language: english
+# language setting passed to the typst preview and preamble files.
+# must be a two or three letters language code
+lang: en
 
-# The pdf viewer used for 'oly gen'
+# the pdf viewer used for 'oly gen'
 pdf_viewer: zathura
 
 # wether to confirm deletion or not in 'oly rm'
