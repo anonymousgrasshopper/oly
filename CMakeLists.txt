@@ -24,6 +24,7 @@ set(SOURCES
 	src/main.cpp
 	src/log.cpp
 	src/config.cpp
+	src/contest.cpp
 	src/utils.cpp
 	src/cmds/add.cpp
 	src/cmds/alias.cpp
@@ -44,7 +45,7 @@ target_compile_definitions(oly PRIVATE
 	OLY_BUILD_TYPE="$<CONFIG>"
 )
 
-target_compile_features(oly PRIVATE cxx_std_23)
+target_compile_features(oly PRIVATE cxx_std_26)
 
 target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
 

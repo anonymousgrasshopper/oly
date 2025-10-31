@@ -13,11 +13,17 @@ namespace utils {
 void print_help();
 
 [[nodiscard]]
-std::string expand_vars(std::string str, bool expand_config_vars = true,
+std::string expand_vars(const std::string& str, auto&& f)
+  requires requires(std::string& s) {
+	  { f(s) } -> std::convertible_to<std::string>;
+  };
+
+[[nodiscard]]
+std::string expand_vars(const std::string& str, bool expand_config_vars = true,
                         bool expand_env_vars = true);
 
 [[nodiscard]]
-std::string expand_env_vars(std::string str);
+std::string expand_env_vars(const std::string& str);
 
 [[nodiscard]]
 std::string filetype_extension();
@@ -29,12 +35,6 @@ void edit(const fs::path& filepath, std::string editor = "");
 void overwrite_file(const fs::path& filepath, const std::string& content);
 
 void set_log_level(std::string level);
-
-[[nodiscard]]
-std::string get_problem_id(const std::string& source);
-
-[[nodiscard]]
-fs::path get_problem_path(const std::string& source);
 
 [[nodiscard]]
 bool is_separator(const std::string& line);
@@ -73,3 +73,19 @@ namespace preview {
 void create_preview_file();
 }
 } // namespace utils
+
+std::string utils::expand_vars(const std::string& str, auto&& f)
+  requires requires(std::string& s) {
+	  { f(s) } -> std::convertible_to<std::string>;
+  }
+{
+	std::string fmt = str;
+
+	static std::regex var("\\$\\{([^}]+)\\}");
+	std::smatch match;
+	while (std::regex_search(fmt, match, var)) {
+		fmt.replace(match[0].first, match[0].second, f(match[1].str()));
+	}
+
+	return fmt;
+}

@@ -5,6 +5,7 @@
 
 #include "oly/cmds/generate.hpp"
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -20,11 +21,10 @@ Generate::Generate() {
 	    [] { config["output_directory"] = std::string(getenv("PWD")); });
 }
 
-std::vector<std::string> Generate::get_solution_bodies(std::string source) {
-	std::ifstream file(utils::get_problem_path(source));
+std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
+	std::ifstream file(source);
 	if (!file.is_open())
-		throw std::runtime_error("Could not open " +
-		                         utils::get_problem_path(source).string());
+		throw std::runtime_error("Could not open " + source.string());
 
 	std::vector<std::string> bodies;
 	std::string body;
@@ -53,11 +53,10 @@ std::vector<std::string> Generate::get_solution_bodies(std::string source) {
 	return bodies;
 }
 
-YAML::Node Generate::get_solution_metadata(std::string source) {
-	std::ifstream file(utils::get_problem_path(source));
+YAML::Node Generate::get_solution_metadata(const fs::path& source) {
+	std::ifstream file(source);
 	if (!file.is_open())
-		throw std::runtime_error("Could not open " +
-		                         utils::get_problem_path(source).string());
+		throw std::runtime_error("Could not open " + source.string());
 
 	std::string yaml;
 	std::string line;
@@ -69,13 +68,13 @@ YAML::Node Generate::get_solution_metadata(std::string source) {
 	}
 	std::optional<YAML::Node> data = utils::load_yaml(yaml);
 	if (!data) {
-		Log::ERROR("Could not get metadata from " + source);
+		Log::ERROR("Could not get metadata from " + source.string());
 		return YAML::Node();
 	}
 	return data.value();
 }
 
-void Generate::create_latex_file(std::filesystem::path latex_file_path) {
+void Generate::create_latex_file(const fs::path& latex_file_path) {
 	fs::create_directories(latex_file_path.parent_path());
 	std::ofstream out(latex_file_path);
 
@@ -117,7 +116,7 @@ void Generate::create_latex_file(std::filesystem::path latex_file_path) {
 	out.close();
 }
 
-void Generate::create_pdf_from_latex(std::filesystem::path latex_file_path) {
+void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
@@ -144,8 +143,8 @@ void Generate::create_pdf_from_latex(std::filesystem::path latex_file_path) {
 	}
 }
 
-void create_typst_file(std::filesystem::path typst_file_path) {}
-void create_pdf_from_typst(std::filesystem::path typst_file_path) {}
+void Generate::create_typst_file(const fs::path& typst_file_path) {}
+void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {}
 
 int Generate::execute() {
 	load_config_file();
@@ -155,25 +154,25 @@ int Generate::execute() {
 
 	std::string source;
 	for (std::string problem : positional_args) {
-		source += utils::get_problem_id(problem) + " - ";
-	}
-	source = source.substr(0, source.length() - 3);
-	config["source"] = source;
+		fs::path source = get_problem_relative_path(problem);
+		config["source"] = source.filename().string();
 
-	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
-	if (config["language"].as<std::string>() == "latex") {
-		try {
-			create_latex_file(output_path / (source + ".tex"));
-			create_pdf_from_latex(output_path / (source + ".tex"));
-		} catch (const std::runtime_error& e) {
-			Log::ERROR(e.what());
-		}
-	} else {
-		try {
-			// create_typst_file(output_path / (source + ".typ"));
-			// create_pdf_from_typst(output_path / (source + ".pdf"));
-		} catch (const std::runtime_error& e) {
-			Log::ERROR(e.what());
+		fs::path output_path(
+		    utils::expand_vars(config["output_directory"].as<std::string>()));
+		if (config["language"].as<std::string>() == "latex") {
+			try {
+				create_latex_file(output_path / source);
+				create_pdf_from_latex(output_path / source);
+			} catch (const std::runtime_error& e) {
+				Log::ERROR(e.what());
+			}
+		} else {
+			try {
+				create_typst_file(output_path / source);
+				create_pdf_from_typst(output_path / source);
+			} catch (const std::runtime_error& e) {
+				Log::ERROR(e.what());
+			}
 		}
 	}
 

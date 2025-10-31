@@ -3,6 +3,7 @@
 
 #include "oly/cmds/add.hpp"
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -35,9 +36,8 @@ YAML::Node Add::get_solution_metadata() const {
 	return metadata.value();
 }
 
-void Add::create_solution_file(const std::string& body,
+void Add::create_solution_file(const fs::path& path, const std::string& body,
                                const YAML::Node& metadata) const {
-	const fs::path path(utils::get_problem_path(config["source"].as<std::string>()));
 	std::string contents;
 
 	YAML::Emitter out;
@@ -49,24 +49,25 @@ void Add::create_solution_file(const std::string& body,
 	utils::create_file(path, contents);
 }
 
-void Add::add_problem(std::string source) const {
-	if (!get<bool>("--overwrite") && fs::exists(utils::get_problem_path(source))) {
-		Log::CRITICAL("cannot add " + source + ": entry already present in database");
-		// "Use oly edit " + source + "to edit it",
-		// "Or use --overwrite / -o to ignore this");
+void Add::add_problem(const fs::path& pb) const {
+	std::string pb_name = pb.filename().string();
+	if (!get<bool>("--overwrite") && fs::exists(pb)) {
+		Log::CRITICAL("cannot add " + pb_name + ": entry already present in database" + "\n" +
+		              "Use oly edit " + pb_name + "to edit it" + "\n" +
+		              "Or use --overwrite / -o to ignore this");
 	}
-	config["source"] = source;
+	config["source"] = pb_name;
 	std::string body = get_solution_body();
 	YAML::Node metadata = get_solution_metadata();
 
-	create_solution_file(body, metadata);
+	create_solution_file(pb, body, metadata);
 }
 
 int Add::execute() {
 	load_config_file();
 
 	for (std::string source : positional_args) {
-		add_problem(utils::get_problem_id(source));
+		add_problem(get_problem_path(source));
 	}
 	return 0;
 }

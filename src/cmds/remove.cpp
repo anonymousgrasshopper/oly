@@ -4,8 +4,8 @@
 
 #include "oly/cmds/remove.hpp"
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
-#include "oly/utils.hpp"
 
 namespace fs = std::filesystem;
 
@@ -50,7 +50,7 @@ int Remove::execute() {
 	load_config_file();
 
 	for (const std::string& arg : positional_args) {
-		remove_pb(utils::get_problem_path(arg));
+		remove_pb(get_problem_path(arg));
 	}
 	return 0;
 }

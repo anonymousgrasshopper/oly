@@ -2,17 +2,16 @@
 
 #include "oly/cmds/edit.hpp"
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
 Edit::Edit() {}
 
-std::string Edit::comment_metadata() const {
-	std::ifstream solution_file(
-	    utils::get_problem_path(config["source"].as<std::string>()));
+std::string Edit::comment_metadata(const fs::path& solution_path) const {
+	std::ifstream solution_file(solution_path);
 	if (!solution_file.is_open())
-		Log::CRITICAL("Could not open " +
-		              utils::get_problem_path(config["source"].as<std::string>()).string());
+		Log::CRITICAL("Could not open " + solution_path.string() + "!");
 
 	std::string solution;
 	std::string line;
@@ -53,10 +52,10 @@ std::string Edit::uncomment_metadata(std::string& input) const {
 	return input;
 }
 
-std::string Edit::get_solution() const {
+std::string Edit::get_solution(const fs::path& source) const {
 	utils::preview::create_preview_file();
 
-	std::string solution = comment_metadata();
+	std::string solution = comment_metadata(source);
 
 	std::string input = utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
 	                                          "/solution" + utils::filetype_extension(),
@@ -66,17 +65,17 @@ std::string Edit::get_solution() const {
 	return uncomment_metadata(input);
 }
 
-void Edit::edit_problem(const std::string& source) const {
-	config["source"] = source;
-	std::string sol = get_solution();
-	utils::overwrite_file(utils::get_problem_path(source), sol);
+void Edit::edit_problem(const fs::path& source) const {
+	config["source"] = source.filename().string();
+	std::string sol = get_solution(source);
+	utils::overwrite_file(source, sol);
 }
 
 int Edit::execute() {
 	load_config_file();
 
 	for (std::string source : positional_args) {
-		edit_problem(utils::get_problem_id(source));
+		edit_problem(get_problem_path(source));
 	}
 	return 0;
 }

@@ -1,4 +1,6 @@
+#include <concepts>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <print>
 #include <regex>
@@ -7,6 +9,8 @@
 #include "oly/config.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
+
+namespace fs = std::filesystem;
 
 namespace utils {
 void print_help() {
@@ -29,31 +33,31 @@ void print_help() {
     --log-level LEVEL            - Set the log level)");
 }
 
-std::string expand_vars(std::string str, bool expand_config_vars, bool expand_env_vars) {
-	std::string fmt = str;
+std::string expand_vars(const std::string& str, bool expand_config_vars,
+                        bool expand_env_vars) {
+	auto formatter = [&](const std::string& match) -> std::string {
+		if (expand_config_vars && config[match]) {
+			return config[match].as<std::string>();
+		} else if (expand_env_vars) {
+			const char* s = getenv(match.c_str());
+			return (s == NULL ? "" : s);
+		} else {
+			return "";
+		}
+	};
+
+	std::string fmt = utils::expand_vars(str, formatter);
 
 	if (expand_env_vars && fmt.starts_with("~/")) {
 		const char* home = getenv("HOME");
 		fmt = std::string(home == NULL ? "" : home) + fmt.substr(1);
 	}
 
-	static std::regex var("\\$\\{([^}]+)\\}");
-	std::smatch match;
-	while (std::regex_search(fmt, match, var)) {
-		std::string var = "";
-		if (expand_config_vars && config[match[1].str()]) {
-			var = config[match[1].str()].as<std::string>();
-		} else if (expand_env_vars) {
-			const char* s = getenv(match[1].str().c_str());
-			var = (s == NULL ? "" : s);
-		}
-		fmt.replace(match[0].first, match[0].second, var);
-	}
 	return fmt;
 };
 
-std::string expand_env_vars(std::string str) {
-	return expand_vars(str, false, true);
+std::string expand_env_vars(const std::string& str) {
+	return utils::expand_vars(str, false, true);
 }
 
 std::string filetype_extension() {
@@ -109,128 +113,6 @@ void set_log_level(std::string level) {
 		Log::ERROR(level + "is not a valid log level. Using default severity INFO.");
 		Log::log_level = severity::INFO;
 	}
-}
-
-std::string get_topic(const char& letter) {
-	switch (letter) {
-	case 'A':
-		return "Algebra";
-		break;
-	case 'C':
-		return "Combinatorics";
-		break;
-	case 'G':
-		return "Geometry";
-		break;
-	case 'N':
-		return "Number Theory";
-		break;
-	default:
-		return "";
-	}
-}
-
-static std::string source_get_contest(const std::string& source) {
-	// 1. Contest name: a string of letters and spaces beginning and ending with letters
-	std::string contest;
-	std::smatch match;
-
-	std::regex contest_regex(R"(\b([A-Za-z](?:[A-Za-z ]*)[A-Za-z])\b)");
-	if (std::regex_search(source, match, contest_regex)) {
-		contest = match.str(1);
-		if (contest.length() <= 4 && contest.find(' ') == std::string::npos) {
-			std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
-		} else {
-			for (size_t i = 0; i < contest.length(); ++i) {
-				if (i == 0 || contest[i - 1] == ' ') {
-					contest[i] = std::toupper(contest[i]);
-				} else {
-					contest[i] = std::tolower(contest[i]);
-				}
-			}
-		}
-		if (config["abbreviations"][contest]) {
-			contest = config["abbreviations"][contest].as<std::string>();
-		}
-	}
-
-	return contest;
-}
-
-static std::string source_get_year(const std::string& source) {
-	// 2. Year: 4 digits or 2 digits not part of a longer digit sequence
-	std::string year;
-	std::smatch match;
-
-	std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
-	if (std::regex_search(source, match, year_regex)) {
-		if (match.str(1).size() == 4) {
-			year = match.str(1);
-		} else if (match.str(1).size() == 2) {
-			year = "20" + match.str(1);
-		}
-	}
-
-	return year;
-}
-static std::string source_get_problem(const std::string& source) {
-	// 3. Problem: single digit, preceded by non-digit or letter, not followed by digit
-	std::string problem;
-	std::smatch match;
-
-	std::regex problem_regex(R"((\b[A-Za-z]?\d\b))");
-	if (std::regex_search(source, match, problem_regex)) {
-		if (match.str(1).size() == 1) {
-			problem = "P" + match.str(1);
-		} else if (match.str(1).size() == 2) {
-			problem = match.str(1);
-			problem[0] = std::toupper(problem[0]);
-			config["topic"] = get_topic(problem[0]);
-		}
-	}
-
-	return problem;
-}
-
-std::string get_problem_id(const std::string& source) {
-	std::string contest{source_get_contest(source)};
-	if (contest.length()) {
-		std::string year{source_get_year(source)};
-		if (year.length()) {
-			std::string problem{source_get_problem(source)};
-			if (problem.length()) {
-				return contest + " " + year + " " + problem;
-			}
-		}
-	}
-
-	return source;
-}
-
-fs::path get_problem_path(const std::string& source) {
-	auto get_path = [&]() -> std::string {
-		std::string contest{source_get_contest(source)};
-		if (contest.length()) {
-			std::string year{source_get_year(source)};
-			if (year.length()) {
-				std::string problem{source_get_problem(source)};
-				if (problem.length()) {
-					return contest + "/" + contest + " " + year + "/" + contest + " " + year + " " +
-					       problem;
-				} else {
-					return contest + "/" + source;
-				}
-			} else {
-				return contest + "/" + source;
-			}
-		} else {
-			return source;
-		}
-	};
-
-	std::string path = get_path();
-	return fs::path(fs::path(expand_env_vars(config["base_path"].as<std::string>())) /
-	                (path + filetype_extension()));
 }
 
 bool is_separator(const std::string& line) {
