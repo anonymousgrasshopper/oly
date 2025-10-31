@@ -53,7 +53,7 @@ void Add::add_problem(const fs::path& pb) const {
 	std::string pb_name = pb.filename().string();
 	if (!get<bool>("--overwrite") && fs::exists(pb)) {
 		Log::CRITICAL("cannot add " + pb_name + ": entry already present in database" + "\n" +
-		              "Use oly edit " + pb_name + "to edit it" + "\n" +
+		              "Use oly edit " + pb_name + " to edit it" + "\n" +
 		              "Or use --overwrite / -o to ignore this");
 	}
 	config["source"] = pb_name;
