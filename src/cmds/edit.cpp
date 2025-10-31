@@ -66,7 +66,7 @@ std::string Edit::get_solution(const fs::path& source) const {
 }
 
 void Edit::edit_problem(const fs::path& source) const {
-	config["source"] = source.filename().string();
+	config["source"] = source.stem().string();
 	std::string sol = get_solution(source);
 	utils::overwrite_file(source, sol);
 }

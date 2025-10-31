@@ -155,7 +155,7 @@ int Generate::execute() {
 	std::string source;
 	for (std::string problem : positional_args) {
 		fs::path source = get_problem_relative_path(problem);
-		config["source"] = source.filename().string();
+		config["source"] = source.stem().string();
 
 		fs::path output_path(
 		    utils::expand_vars(config["output_directory"].as<std::string>()));
