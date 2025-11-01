@@ -1,4 +1,3 @@
-#include <concepts>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -116,15 +115,30 @@ void set_log_level(std::string level) {
 }
 
 bool is_separator(const std::string& line) {
-	return line == config["separator"].as<std::string>();
+	std::regex separator_pattern;
+	if (config["lang"].as<std::string>() == "latex") {
+		separator_pattern = R"(^\\hrulebar\s*$)";
+	} else {
+		separator_pattern = R"(^#hrule\s*$)";
+	}
+	return std::regex_match(line, separator_pattern);
 }
 
 bool is_yaml(const std::string& line) {
-	// if (std::regex_match(line, std::regex(R"(^\s*$)")))
-	// 	return true; // true if blank
-
 	std::regex yaml_pattern(R"(^[A-Za-z]+:\s*.+$)");
 	return std::regex_match(line, yaml_pattern);
+}
+
+bool should_ignore(const std::string& line) {
+	if (config["language"].as<std::string>() == "typst") {
+		if (line.starts_with("#import")) {
+			return true;
+		}
+	}
+	if (std::regex_match(line, std::regex(R"(^\s*$)"))) {
+		return true;
+	}
+	return false;
 }
 
 std::optional<YAML::Node> load_yaml(const fs::path& filepath) {

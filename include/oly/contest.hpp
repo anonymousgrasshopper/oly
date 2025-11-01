@@ -7,4 +7,7 @@ namespace fs = std::filesystem;
 fs::path get_problem_path(const std::string& source);
 
 [[nodiscard]]
-std::string get_problem_relative_path(const std::string& source);
+fs::path get_problem_relative_path(const std::string& source);
+
+[[nodiscard]]
+std::string get_problem_name(const std::string& source);

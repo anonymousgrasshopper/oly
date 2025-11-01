@@ -43,6 +43,9 @@ bool is_separator(const std::string& line);
 bool is_yaml(const std::string& line);
 
 [[nodiscard]]
+bool should_ignore(const std::string& line);
+
+[[nodiscard]]
 std::optional<YAML::Node> load_yaml(const fs::path& filepath);
 
 [[nodiscard]]

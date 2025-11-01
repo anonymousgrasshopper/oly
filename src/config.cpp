@@ -59,8 +59,9 @@ static bool is_valid(const YAML::Node& config) {
 	}
 
 	if (config["language"]) {
-		if (!config["language"].IsScalar() || (config["language"].as<std::string>() != "latex" &&
-		                                       config["language"].as<std::string>() != "typst")) {
+		if (!config["language"].IsScalar() ||
+		    (config["language"].as<std::string>() != "latex" &&
+		     config["language"].as<std::string>() != "typst")) {
 			Log::ERROR("language has to be one of latex or typst");
 			valid = false;
 		}
@@ -75,10 +76,9 @@ static bool is_valid(const YAML::Node& config) {
 
 static void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    {"editor", editor},          {"output_directory", "~/.cache/oly/${source}"},
-	    {"separator", "\\hrulebar"}, {"preview", true},
-	    {"confirm", false},          {"language", "latex"},
-	    {"language", "en"}};
+	    {"editor", editor},    {"output_directory", "~/.cache/oly/${source}"},
+	    {"preview", true},     {"confirm", false},
+	    {"language", "latex"}, {"language", "en"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {

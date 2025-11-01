@@ -171,7 +171,7 @@ static fs::path get_path(const std::string& source) {
 	}
 };
 
-std::string get_problem_relative_path(const std::string& source) {
+fs::path get_problem_relative_path(const std::string& source) {
 	fs::path path = get_path(source);
 	return fs::path(path.replace_extension(utils::filetype_extension()));
 }
@@ -181,4 +181,9 @@ fs::path get_problem_path(const std::string& source) {
 	return fs::path(
 	    fs::path(utils::expand_env_vars(config["base_path"].as<std::string>())) /
 	    (path.replace_extension(utils::filetype_extension())));
+}
+
+std::string get_problem_name(const std::string& source) {
+	fs::path path = get_path(source);
+	return path.stem().string();
 }
