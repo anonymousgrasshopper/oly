@@ -69,6 +69,12 @@ static std::string source_get_year(const std::string& source) {
 		} else if (match.str(1).size() == 2) {
 			year = "20" + match.str(1);
 		}
+	} else {
+		// No year found → use current year
+		auto now = std::chrono::system_clock::now();
+		std::time_t t = std::chrono::system_clock::to_time_t(now);
+		std::tm tm = *std::localtime(&t);
+		year = std::to_string(tm.tm_year + 1900);
 	}
 
 	return year;
