@@ -5,20 +5,28 @@
 // language
 #let names = (
   "fr": (
-    "theorem":     "Théorème",
-    "corollary":   "Corollaire",
-    "lemma":       "Lemme",
-    "proof":       "Preuve",
+    "theorem": "Théorème",
+    "corollary": "Corollaire",
+    "lemma": "Lemme",
+    "proof": "Preuve",
     "proposition": "Proposition",
-    "exercise":    "Exercice",
+    "definition": "Définition",
+    "exercise": "Exercice",
+    "example": "Exemple",
+    "remark": "Remarque",
+    "solution": "Solution",
   ),
   "en": (
-    "theorem":     "Theorem",
-    "corollary":   "Corollary",
-    "lemma":       "Lemma",
-    "proof":       "Proof",
+    "theorem": "Theorem",
+    "corollary": "Corollary",
+    "lemma": "Lemma",
+    "proof": "Proof",
     "proposition": "Proposition",
-    "exercise":    "Exercise",
+    "definition": "Definition",
+    "exercise": "Exercise",
+    "example": "Example",
+    "remark": "Remark",
+    "solution": "Solution",
   ),
 )
 #let get_name(name) = {
@@ -27,40 +35,32 @@
 
 // environments
 #let proof = thmproof("proof", get_name("proof"))
-#let lemma = thmenv(
-  "lemma",
+#let solution = thmproof("solution", get_name("solution"))
+#let env(env_name, newline: false, style: "normal") = thmenv(
+  env_name,
   none,
   none,
   (name, number, body, color: black) => [
-    #let content = get_name("lemma")
-    #if type(number) != str or number.len() != 0 {
-      content += [ #number]
+    #let header = [#get_name(env_name)]
+    #if number != [] { header += [ #number] }
+    #if not newline { header += [:] }
+    #text(weight: "bold", style: style)[#header]
+    #if type(name) == str or type(name) == content {
+      text()[ (#name)]
     }
-    #if type(name) == "str" and name.len() != 0 {
-      content += [ (#name)]
+    #if newline {
+      text()[\ ]
     }
-    #text(color, style: "italic", weight: "bold")[#content:]
     #h(0.2em)
     #body
   ],
 )
-#let exercise = thmenv(
-  "exercise",
-  none,
-  none,
-  (name, number, body, color: black) => [
-    #let content = get_name("exercise")
-    #if type(number) != str or number.len() != 0 {
-      content += [ #number]
-    }
-    #if name.len() != 0 {
-      content += [ (#name)]
-    }
-    #text(color, weight: "bold")[#content:]
-    #h(0.2em)
-    #body
-  ],
-)
+#let lemma = env("lemma", style: "italic")
+#let exercise = env("exercise", newline: true)
+#let definition = env("definition")
+#let example = env("example")
+#let remark = env("remark")
+
 #let theorem = thmbox(
   "theorem",
   get_name("theorem"),
@@ -76,25 +76,26 @@
   get_name("proposition"),
   fill: rgb("#e8e8f8"),
 ).with(numbering: none)
+
 #let eqn(it) = {
   set math.equation(numbering: "(1)")
   it
 }
 
 // symbols
-#let iff    = sym.arrow.l.r.double.long
-#let pm     = sym.plus.minus
-#let mp     = sym.minus.plus
-#let int    = sym.integral
-#let oint   = sym.integral.cont
-#let iint   = sym.integral.double
-#let oiint  = sym.integral.surf
-#let iiint  = sym.integral.triple
+#let iff = sym.arrow.l.r.double.long
+#let pm = sym.plus.minus
+#let mp = sym.minus.plus
+#let int = sym.integral
+#let oint = sym.integral.cont
+#let iint = sym.integral.double
+#let oiint = sym.integral.surf
+#let iiint = sym.integral.triple
 #let oiiint = sym.integral.vol
 
 #let pgcd = math.op("pgcd")
 #let ppcm = math.op("ppcm")
-#let ord  = math.op("ord")
+#let ord = math.op("ord")
 
 #let pmod(x) = $space (mod #x)$
 #let bf(x) = $bold(upright(#x))$
@@ -118,3 +119,13 @@
   features: ("ss01",),
   box($cal(it)$),
 )
+#let title(title) = {
+  v(1em)
+  set align(center)
+  set block(spacing: 2em)
+  block(text(
+    size: 1.5em,
+    weight: "bold",
+    smallcaps(title),
+  ))
+}
