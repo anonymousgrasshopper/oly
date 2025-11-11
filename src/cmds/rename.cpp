@@ -6,10 +6,24 @@
 
 namespace fs = std::filesystem;
 
-Rename::Rename() {}
+Rename::Rename() {
+	add("--alias,-a", "alias the new file to the old one", false);
+}
 
 void Rename::move(const fs::path& from, const fs::path& to) {
-	fs::rename(from, to);
+	try {
+		fs::create_directories(to.parent_path());
+		fs::rename(from, to);
+	} catch (const std::filesystem::filesystem_error& e) {
+		Log::CRITICAL(e.what());
+	}
+	if (fs::exists(to)) {
+		if (get<bool>("--alias")) {
+			fs::create_symlink(to, from);
+		}
+	} else {
+		Log::ERROR("cannot rename " + from.string() + " to " + to.string());
+	}
 }
 
 int Rename::execute() {
