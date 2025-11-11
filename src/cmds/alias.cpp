@@ -9,7 +9,12 @@ namespace fs = std::filesystem;
 Alias::Alias() {}
 
 void Alias::link(const fs::path& from, const fs::path& to) {
-	fs::create_symlink(from, to);
+	try {
+		fs::create_directories(to.parent_path());
+		fs::create_symlink(from, to);
+	} catch (const std::filesystem::filesystem_error& e) {
+		Log::CRITICAL(e.what());
+	}
 }
 
 int Alias::execute() {
