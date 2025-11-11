@@ -16,12 +16,13 @@ void print_help() {
 	std::println("usage: oly <cmd> [args [...]].\n");
 	std::println(R"(Available subcommands:
     add                          - add a problem to the database
-    edit                         - edit an entry in the database
+    edit                         - edit an entry from the database
     gen                          - generate a PDF from a problem
     search                       - search problems by contest, metadata...
     show                         - print a problem statement
     alias                        - link a problem to another one
     rm                           - remove a problem and its solution file
+		mv                           - rename a problem
   Run oly <cmd> --help for more information regarding a specific subcommand
 )");
 	std::println(R"(Arguments:

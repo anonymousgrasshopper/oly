@@ -9,50 +9,55 @@ local context state state_descr line
 # Global options
 # -------------------------
 local -a global_opts=(
-  '(-h --help)'{-h,--help}'[Show help message]'
-  '(-v --version)'{-v,--version}'[Print this binary'"'"'s version]'
-  '(-c --config-file)'{-c,--config-file}'[Specify config file]:file:_files'
-  '--log-level[Set the log level]:level:(CRITICAL ERROR WARNING INFO HINT DEBUG TRACE)'
-  '--verify-config[Verify configuration file]'
+	'(-h --help)'{-h,--help}'[Show help message]'
+	'(-v --version)'{-v,--version}'[Print this binary'"'"'s version]'
+	'(-c --config-file)'{-c,--config-file}'[Specify config file]:file:_files'
+	'--log-level[Set the log level]:level:(CRITICAL ERROR WARNING INFO HINT DEBUG TRACE)'
+	'--verify-config[Verify configuration file]'
 )
 
 # -------------------------
 # Subcommands
 # -------------------------
 local -a subcommands=(
-  'add:Add a problem to the database'
-  'edit:Edit an entry in the database'
-  'gen:Generate a LaTeX or PDF file from a problem'
-  'search:Search problems by contest, metadata...'
-  'show:Print a problem statement'
-  'alias:Link a problem to another one'
-  'rm:Remove a problem and its solution file'
+	'add:Add a problem to the database'
+	'edit:Edit an entry in the database'
+	'gen:Generate a LaTeX or PDF file from a problem'
+	'search:Search problems by contest, metadata...'
+	'show:Print a problem statement'
+	'alias:Link a problem to another one'
+	'rm:Remove a problem and its solution file'
+	'mv:Rename a problem'
 )
 
 # -------------------------
 # Subcommand-specific options (arrays, so specs expand correctly)
 # -------------------------
 local -a opts_add=(
-  '(-o --overwrite)'{-o,--overwrite}'[Overwrite previous database entry]'
+	'(-o --overwrite)'{-o,--overwrite}'[Overwrite previous database entry]'
 )
 
-local -a opts_alias=()   # no options
-local -a opts_edit=()    # no options
-local -a opts_search=()  # no options
-local -a opts_show=()    # no options
+local -a opts_alias=()  # no options
+local -a opts_edit=()   # no options
+local -a opts_search=() # no options
+local -a opts_show=()   # no options
 
 local -a opts_gen=(
-  '(--preview --no-preview)--preview[Open the generated PDF]'
-  '(--preview --no-preview)--no-preview[Do not open the generated PDF]'
-  '--clean[Remove auxiliary files]'
-  '--no-pdf[Only generate a TeX file]'
-  '--no-tex[Remove the TeX file and imply --clean]'
-  '--cwd[Create files in the current directory]'
+	'(--preview --no-preview)--preview[Open the generated PDF]'
+	'(--preview --no-preview)--no-preview[Do not open the generated PDF]'
+	'--clean[Remove auxiliary files]'
+	'--no-pdf[Only generate a TeX file]'
+	'--no-tex[Remove the TeX file and imply --clean]'
+	'--cwd[Create files in the current directory]'
 )
 
 local -a opts_rm=(
-  '(-i --confirm)'{-i,--confirm}'[Prompt before deleting]'
-  '(-f --force)'{-f,--force}'[Do not prompt before deleting]'
+	'(-i --confirm)'{-i,--confirm}'[Prompt before deleting]'
+	'(-f --force)'{-f,--force}'[Do not prompt before deleting]'
+)
+
+local -a opts_mv=(
+	'(-a --alias)'{-a,--alias}'[alias the new file to the old one]'
 )
 
 # -------------------------
@@ -61,44 +66,45 @@ local -a opts_rm=(
 # -------------------------
 local subcmd=""
 {
-  local i w
-  for (( i=2; i<=$#words; ++i )); do
-    w=${words[i]}
-    [[ $w == -- ]] && break
-    if [[ $w != -* ]]; then
-      subcmd=$w
-      break
-    fi
-  done
+	local i w
+	for ((i = 2; i <= $#words; ++i)); do
+		w=${words[i]}
+		[[ $w == -- ]] && break
+		if [[ $w != -* ]]; then
+			subcmd=$w
+			break
+		fi
+	done
 }
 
 # -------------------------
 # Dispatcher
 # -------------------------
 _arguments -C \
-  $global_opts \
-  '1:subcommand:->subcmd' \
-  '*:: :->args'
+	$global_opts \
+	'1:subcommand:->subcmd' \
+	'*:: :->args'
 
 case $state in
-  subcmd)
-    # At position 1 (after command), offer subcommands.
-    _describe -t commands 'subcommand' subcommands
-    ;;
-  args)
-    # After a subcommand (or while typing its args), offer that subcommand's options + globals.
-    case $subcmd in
-      add)    _arguments $global_opts ${opts_add[@]} ;;
-      gen)    _arguments $global_opts ${opts_gen[@]} ;;
-      rm)     _arguments $global_opts ${opts_rm[@]} ;;
-      alias)  _arguments $global_opts ${opts_alias[@]} ;;
-      edit)   _arguments $global_opts ${opts_edit[@]} ;;
-      search) _arguments $global_opts ${opts_search[@]} ;;
-      show)   _arguments $global_opts ${opts_show[@]} ;;
-      *)
-        # No subcommand yet (or none detected): still offer global options.
-        _arguments $global_opts
-        ;;
-    esac
-    ;;
+subcmd)
+	# At position 1 (after command), offer subcommands.
+	_describe -t commands 'subcommand' subcommands
+	;;
+args)
+	# After a subcommand (or while typing its args), offer that subcommand's options + globals.
+	case $subcmd in
+	add) _arguments $global_opts ${opts_add[@]} ;;
+	gen) _arguments $global_opts ${opts_gen[@]} ;;
+	rm) _arguments $global_opts ${opts_rm[@]} ;;
+	alias) _arguments $global_opts ${opts_alias[@]} ;;
+	edit) _arguments $global_opts ${opts_edit[@]} ;;
+	search) _arguments $global_opts ${opts_search[@]} ;;
+	show) _arguments $global_opts ${opts_show[@]} ;;
+	mv) _arguments $global_opts ${opts_mv[@]} ;;
+	*)
+		# No subcommand yet (or none detected): still offer global options.
+		_arguments $global_opts
+		;;
+	esac
+	;;
 esac
