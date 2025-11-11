@@ -17,7 +17,7 @@ int Alias::execute() {
 
 	fs::path target(get_problem_path(positional_args.front()));
 	if (!fs::exists(target)) {
-		Log::CRITICAL("cannot find " + target.string() + " !");
+		Log::CRITICAL("cannot find " + target.string() + ": no such file or directory");
 	}
 
 	for (size_t i = 1; i < positional_args.size(); ++i) {

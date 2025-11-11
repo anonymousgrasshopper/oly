@@ -33,6 +33,7 @@ set(SOURCES
 	src/cmds/edit.cpp
 	src/cmds/generate.cpp
 	src/cmds/remove.cpp
+	src/cmds/rename.cpp
 	src/cmds/search.cpp
 	src/cmds/show.cpp
 )

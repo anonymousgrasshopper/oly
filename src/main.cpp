@@ -9,6 +9,7 @@
 #include "oly/cmds/edit.hpp"
 #include "oly/cmds/generate.hpp"
 #include "oly/cmds/remove.hpp"
+#include "oly/cmds/rename.hpp"
 #include "oly/cmds/search.hpp"
 #include "oly/cmds/show.hpp"
 #include "oly/config.hpp"
@@ -38,6 +39,8 @@ int main(int argc, char* argv[]) {
 		cmd = std::make_unique<Alias>();
 	} else if (args[0] == Remove::cmd_name) {
 		cmd = std::make_unique<Remove>();
+	} else if (args[0] == Rename::cmd_name) {
+		cmd = std::make_unique<Rename>();
 	} else if (args[0].starts_with("-")) {
 		cmd = std::make_unique<Default>();
 		has_cmd_name = false;
