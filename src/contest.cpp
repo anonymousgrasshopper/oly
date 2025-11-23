@@ -27,7 +27,8 @@ static std::string get_topic(const char& letter) {
 	}
 }
 
-static std::string source_get_contest(const std::string& source) {
+namespace parsers {
+static std::string get_contest(const std::string& source) {
 	// Contest name: a string of letters and spaces beginning and ending with letters
 	std::string contest;
 	std::smatch match;
@@ -57,7 +58,7 @@ static std::string source_get_contest(const std::string& source) {
 	return contest;
 }
 
-static std::string source_get_year(const std::string& source) {
+static std::string get_year(const std::string& source) {
 	// Year: 4 digits or 2 digits not part of a longer digit sequence
 	std::string year;
 	std::smatch match;
@@ -80,7 +81,7 @@ static std::string source_get_year(const std::string& source) {
 	return year;
 }
 
-static std::string source_get_problem(const std::string& source) {
+static std::string get_problem(const std::string& source) {
 	// Problem: single digit, preceded by non-digit or letter, not followed by digit
 	std::string problem;
 	std::smatch match;
@@ -99,7 +100,7 @@ static std::string source_get_problem(const std::string& source) {
 	return problem;
 }
 
-static std::string source_get_date(const std::string& source) {
+static std::string get_date(const std::string& source) {
 	// Date: between 2 and 3 sequences of at most two digits with slashes separating them
 	std::smatch match;
 	std::regex date_regex(R"((\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?)");
@@ -138,19 +139,20 @@ static std::string source_get_date(const std::string& source) {
 
 	return oss.str();
 }
+} // namespace parsers
 
 static fs::path get_path(const std::string& source) {
-	std::string contest{source_get_contest(source)};
+	std::string contest{parsers::get_contest(source)};
 	if (config["contest_format"][contest]) {
 		auto expander = [&](const std::string& var) -> std::string {
 			if (var == "date") {
-				return source_get_date(source);
+				return parsers::get_date(source);
 			} else if (var == "contest") {
 				return contest;
 			} else if (var == "year") {
-				return source_get_year(source);
+				return parsers::get_year(source);
 			} else if (var == "problem") {
-				return source_get_problem(source);
+				return parsers::get_problem(source);
 			} else if (var == "source") {
 				return source;
 			} else {
@@ -160,9 +162,9 @@ static fs::path get_path(const std::string& source) {
 		return utils::expand_vars(config["contest_format"][contest].as<std::string>(),
 		                          expander);
 	} else if (contest.length()) {
-		std::string year{source_get_year(source)};
+		std::string year{parsers::get_year(source)};
 		if (year.length()) {
-			std::string problem{source_get_problem(source)};
+			std::string problem{parsers::get_problem(source)};
 			if (problem.length()) {
 				return contest + "/" + contest + " " + year + "/" + contest + " " + year + " " +
 				       problem;
