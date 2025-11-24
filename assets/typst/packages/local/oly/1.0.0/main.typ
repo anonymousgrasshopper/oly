@@ -108,6 +108,10 @@
   }
   math.lr[$⟦ lhs ; rhs ⟧$]
 }
+#let proj(point) = {
+  math.attach([$=$], t: [$#point$])
+}
+
 
 // commands
 #let hrule = box(width: 100%, align(center)[#line(length: 95%, stroke: 0.8pt)])
