@@ -14,11 +14,11 @@ base_path: ~/Mathematics/Solutions
 
 # the markup language the solutions are typed in
 # must be one of latex or typst (default latex)
-language: latex
+lang: latex
 
 # language setting passed to the typst preview and preamble files.
 # must be a two or three letters language code
-lang: en
+language: en
 
 # the pdf viewer used for 'oly gen'
 pdf_viewer: zathura

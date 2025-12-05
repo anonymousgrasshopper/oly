@@ -57,6 +57,7 @@ void Add::add_problem(const fs::path& pb) const {
 		              "Or use --overwrite / -o to ignore this");
 	}
 	config["source"] = pb_name;
+	config["title"] = pb_name;
 	std::string body = get_solution_body();
 	YAML::Node metadata = get_solution_metadata();
 

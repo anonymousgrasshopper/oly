@@ -151,12 +151,18 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
-	out << utils::expand_vars(latex_preamble);
+	if (positional_args.size() != 1) {
+		out << utils::expand_vars(latex_preamble);
+	}
 
 	for (const std::string& problem : positional_args) {
 		const fs::path pb_path = get_problem_path(problem);
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
+		if (positional_args.size() == 1) {
+			utils::merge_config(metadata);
+			out << utils::expand_vars(latex_preamble);
+		}
 
 		out << "#exercise";
 		if (metadata["source"])
@@ -169,7 +175,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		// else
 		// 	out << "].with(numbering: none)";
 		out << "\n\n";
-		if (metadata["url"])
+		if (metadata["url"] and !metadata["url"].IsNull())
 			out << "#link(\"" << metadata["url"].as<std::string>() << "\")[_Link_]"
 			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i)
@@ -217,7 +223,7 @@ int Generate::execute() {
 
 	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
 
-	if (config["language"].as<std::string>() == "latex") {
+	if (config["lang"].as<std::string>() == "latex") {
 		try {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));

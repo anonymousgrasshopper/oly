@@ -51,6 +51,8 @@ std::optional<YAML::Node> load_yaml(const fs::path& filepath);
 [[nodiscard]]
 std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source = "");
 
+void merge_config(const YAML::Node& node);
+
 struct input_file {
 private:
 	void create_file();

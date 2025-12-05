@@ -61,7 +61,7 @@ std::string expand_env_vars(const std::string& str) {
 }
 
 std::string filetype_extension() {
-	return config["language"].as<std::string>() == "latex" ? ".tex" : ".typ";
+	return config["lang"].as<std::string>() == "latex" ? ".tex" : ".typ";
 }
 
 void create_file(const fs::path& filepath, const std::string& contents) {
@@ -131,7 +131,7 @@ bool is_yaml(const std::string& line) {
 }
 
 bool should_ignore(const std::string& line) {
-	if (config["language"].as<std::string>() == "typst") {
+	if (config["lang"].as<std::string>() == "typst") {
 		if (line.starts_with("#import")) {
 			return true;
 		}
@@ -167,6 +167,20 @@ std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source)
 		           logopt::WAIT);
 	}
 	return std::nullopt;
+}
+
+void merge_config(const YAML::Node& extend) {
+	if (!extend.IsDefined())
+		return;
+
+	if (extend.IsMap()) {
+		for (auto it : extend) {
+			const std::string key = it.first.as<std::string>();
+			const YAML::Node& value = it.second;
+			config[key] = value;
+		}
+		return;
+	}
 }
 
 input_file::input_file(fs::path filepath, std::string contents, bool remove)
@@ -231,7 +245,7 @@ namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
 	                           "preview" + filetype_extension());
-	if (config["language"].as<std::string>() == "latex") {
+	if (config["lang"].as<std::string>() == "latex") {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/preview.tex"
 		};

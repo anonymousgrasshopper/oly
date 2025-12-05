@@ -8,35 +8,39 @@
 
 Edit::Edit() {}
 
-std::string Edit::comment_metadata(const fs::path& solution_path) const {
+std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) const {
 	std::ifstream solution_file(solution_path);
 	if (!solution_file.is_open())
 		Log::CRITICAL("Could not open " + solution_path.string() + "!");
 
 	std::string solution;
 	std::string line;
-	if (get<std::string>("language") == "typst")
+	std::string metadata;
+	if (get<std::string>("lang") == "typst")
 		solution += "/*\n";
 	while (getline(solution_file, line)) {
 		if (!utils::is_yaml(line)) {
-			if (get<std::string>("language") == "typst")
+			if (get<std::string>("lang") == "typst")
 				solution += "*/\n";
 			solution += (line + '\n');
 			break;
 		} else {
-			if (get<std::string>("language") == "latex")
+			if (get<std::string>("lang") == "latex")
 				solution += "% ";
 			solution += (line + '\n');
+			metadata += (line + '\n');
 		}
 	}
 	while (getline(solution_file, line)) {
 		solution += (line + '\n');
 	}
+	utils::merge_config(YAML::Load(metadata));
+
 	return solution;
 }
 
 std::string Edit::uncomment_metadata(std::string& input) const {
-	if (get<std::string>("language") == "typst") {
+	if (get<std::string>("lang") == "typst") {
 		if (input.starts_with("/*\n")) {
 			input = input.substr(3);
 		}
@@ -53,9 +57,8 @@ std::string Edit::uncomment_metadata(std::string& input) const {
 }
 
 std::string Edit::get_solution(const fs::path& source) const {
+	std::string solution = parse_and_comment_metadata(source);
 	utils::preview::create_preview_file();
-
-	std::string solution = comment_metadata(source);
 
 	std::string input = utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
 	                                          "/solution" + utils::filetype_extension(),
