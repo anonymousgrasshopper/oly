@@ -1,6 +1,5 @@
 #pragma once
 
-#include "oly/config.hpp"
 #include <concepts>
 #include <functional>
 #include <memory>
@@ -9,6 +8,8 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+
+#include "oly/config.hpp"
 
 struct Option {
 	std::vector<std::string> names;
