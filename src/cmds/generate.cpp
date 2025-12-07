@@ -15,7 +15,7 @@ Generate::Generate() {
 	add("--preview", "open the generated pdf", [] { config["preview"] = true; });
 	add("--no-preview", "do not open the generated pdf", [] { config["preview"] = false; });
 	add("--clean", "remove the auxiliary files", false);
-	add("--no-pdf", "only generate a tex file", false);
+	add("--no-pdf", "only generate a LaTeX file", false);
 	add("--no-source", "remove the source file and induce --clean", false);
 	add("--cwd", "create the files in the current directory",
 	    [] { config["output_directory"] = std::string(getenv("PWD")); });
@@ -66,7 +66,7 @@ YAML::Node Generate::get_solution_metadata(const fs::path& source) {
 		else
 			break;
 	}
-	std::optional<YAML::Node> data = utils::load_yaml(yaml);
+	std::optional<YAML::Node> data = utils::yaml::load(yaml);
 	if (!data) {
 		Log::ERROR("Could not get metadata from " + source.string());
 		return YAML::Node();
@@ -160,7 +160,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
 		if (positional_args.size() == 1) {
-			utils::merge_config(metadata);
+			configuration::merge_config(metadata);
 			out << utils::expand_vars(latex_preamble);
 		}
 

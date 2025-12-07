@@ -134,7 +134,8 @@ static void add_defaults(YAML::Node& config) {
 	}
 }
 
-YAML::Node load_config(std::string config_file_path) {
+namespace configuration {
+void load_config(std::string config_file_path) {
 	config_file = utils::expand_env_vars(config_file_path);
 
 	editor = get_editor();
@@ -143,13 +144,28 @@ YAML::Node load_config(std::string config_file_path) {
 		utils::edit(config_file, editor);
 	}
 
-	std::optional<YAML::Node> config = utils::load_yaml(config_file);
-	while (!config || !is_valid(config.value())) {
+	std::optional<YAML::Node> userconfig = utils::yaml::load(config_file);
+	while (!userconfig || !is_valid(userconfig.value())) {
 		utils::edit(config_file, editor);
-		config = utils::load_yaml(config_file);
+		userconfig = utils::yaml::load(config_file);
 	}
 
-	add_defaults(config.value());
-
-	return config.value();
+	merge_config(userconfig.value(), false);
+	add_defaults(config);
 }
+
+void merge_config(const YAML::Node& extend, bool override) {
+	if (!extend.IsDefined())
+		return;
+
+	if (extend.IsMap()) {
+		for (auto it : extend) {
+			const std::string key = it.first.as<std::string>();
+			const YAML::Node& value = it.second;
+			if (override || !config[key]) {
+				config[key] = value;
+			}
+		}
+	}
+}
+} // namespace configuration

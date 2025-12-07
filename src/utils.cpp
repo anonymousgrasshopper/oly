@@ -142,47 +142,6 @@ bool should_ignore(const std::string& line) {
 	return false;
 }
 
-std::optional<YAML::Node> load_yaml(const fs::path& filepath) {
-	try {
-		YAML::Node data = YAML::LoadFile(filepath);
-		return data;
-	} catch (const YAML::ParserException& e) {
-		Log::ERROR("YAML syntax error in file " + filepath.string() + ": " +
-		               static_cast<std::string>(e.what()),
-		           logopt::WAIT);
-	} catch (const YAML::BadFile& e) {
-		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
-	}
-	return std::nullopt;
-}
-
-std::optional<YAML::Node> load_yaml(const std::string& yaml, std::string source) {
-	try {
-		YAML::Node data = YAML::Load(yaml);
-		return data;
-	} catch (const YAML::ParserException& e) {
-		if (!source.empty())
-			source = " in file " + source;
-		Log::ERROR("YAML syntax error " + source + ": " + static_cast<std::string>(e.what()),
-		           logopt::WAIT);
-	}
-	return std::nullopt;
-}
-
-void merge_config(const YAML::Node& extend) {
-	if (!extend.IsDefined())
-		return;
-
-	if (extend.IsMap()) {
-		for (auto it : extend) {
-			const std::string key = it.first.as<std::string>();
-			const YAML::Node& value = it.second;
-			config[key] = value;
-		}
-		return;
-	}
-}
-
 input_file::input_file(fs::path filepath, std::string contents, bool remove)
     : remove(remove), filepath(filepath), contents(contents) {
 	create_file();
@@ -240,6 +199,35 @@ void input_file::edit() {
 
 	std::system(cmd.c_str());
 }
+
+namespace yaml {
+std::optional<YAML::Node> load(const fs::path& filepath) {
+	try {
+		YAML::Node data = YAML::LoadFile(filepath);
+		return data;
+	} catch (const YAML::ParserException& e) {
+		Log::ERROR("YAML syntax error in file " + filepath.string() + ": " +
+		               static_cast<std::string>(e.what()),
+		           logopt::WAIT);
+	} catch (const YAML::BadFile& e) {
+		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
+	}
+	return std::nullopt;
+}
+
+std::optional<YAML::Node> load(const std::string& yaml, std::string source) {
+	try {
+		YAML::Node data = YAML::Load(yaml);
+		return data;
+	} catch (const YAML::ParserException& e) {
+		if (!source.empty())
+			source = " in file " + source;
+		Log::ERROR("YAML syntax error " + source + ": " + static_cast<std::string>(e.what()),
+		           logopt::WAIT);
+	}
+	return std::nullopt;
+}
+} // namespace yaml
 
 namespace preview {
 void create_preview_file() {

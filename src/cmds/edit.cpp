@@ -34,7 +34,7 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	while (getline(solution_file, line)) {
 		solution += (line + '\n');
 	}
-	utils::merge_config(YAML::Load(metadata));
+	configuration::merge_config(YAML::Load(metadata));
 
 	return solution;
 }

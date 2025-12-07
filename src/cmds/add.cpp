@@ -28,10 +28,10 @@ YAML::Node Add::get_solution_metadata() const {
 	                           "/metadata.yaml",
 	                       utils::expand_vars(config["metadata"].as<std::string>()));
 
-	auto metadata = utils::load_yaml(file.filepath);
+	auto metadata = utils::yaml::load(file.filepath);
 	while (!metadata) {
 		file.edit();
-		metadata = utils::load_yaml(file.filepath);
+		metadata = utils::yaml::load(file.filepath);
 	}
 	return metadata.value();
 }

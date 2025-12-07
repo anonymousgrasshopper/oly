@@ -7,7 +7,6 @@
 
 #include "oly/cmds/command.hpp"
 #include "oly/config.hpp"
-#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -16,6 +15,15 @@ Command::Command() {
 	add("--help,-h", "Show help", [this]() { Command::print_help(); });
 	add("--log-level", "Specify log level (default INFO)",
 	    [](std::string level) { utils::set_log_level(level); });
+	add("--lang", "Choose markup language to use", [&](std::string lang) {
+		if (lang != "latex" && lang != "typst") {
+			Log::CRITICAL("lang needs to be one of tex or typst !");
+		} else {
+			config["lang"] = lang;
+		}
+	});
+	add("--language", "Choose which language to use",
+	    [&](std::string language) { config["language"] = language; });
 }
 
 Command::~Command() = default;
@@ -113,7 +121,7 @@ void Command::parse(std::vector<std::string> args) {
 }
 
 void Command::load_config_file() {
-	config = load_config(get<std::string>("--config-file"));
+	configuration::load_config(get<std::string>("--config-file"));
 }
 
 void Command::print_help() const {
