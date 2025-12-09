@@ -42,14 +42,14 @@ static std::string get_contest(const std::string& source) {
 			if (!config["contest_format"][contest]) {
 				if (contest.length() <= 4 && contest.find(' ') == std::string::npos) {
 					std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
-				} else {
-					for (size_t i = 0; i < contest.length(); ++i) {
-						if (i == 0 || contest[i - 1] == ' ') {
-							contest[i] = std::toupper(contest[i]);
-						} else {
-							contest[i] = std::tolower(contest[i]);
-						}
-					}
+					// } else {
+					// 	for (size_t i = 0; i < contest.length(); ++i) {
+					// 		if (i == 0 || contest[i - 1] == ' ') {
+					// 			contest[i] = std::toupper(contest[i]);
+					// 		} else {
+					// 			contest[i] = std::tolower(contest[i]);
+					// 		}
+					// 	}
 				}
 			}
 		}
