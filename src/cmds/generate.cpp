@@ -164,16 +164,20 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			out << utils::expand_vars(latex_preamble);
 		}
 
-		out << "#exercise";
-		if (metadata["source"])
-			out << "(\"" + config["source"].as<std::string>() + "\")";
-		out << "[\n";
+		if (!metadata["title"]) {
+			if (positional_args.size() > 1)
+				out << "#_exercise";
+			else
+				out << "#exercise";
+			if (metadata["source"])
+				out << "(\"" + config["source"].as<std::string>() + "\")";
+			out << "[\n";
+		}
 		if (bodies.size() > 0)
 			out << bodies[0];
-		// if (positional_args.size() > 1)
-		out << "]";
-		// else
-		// 	out << "].with(numbering: none)";
+		if (!metadata["title"]) {
+			out << "]";
+		}
 		out << "\n\n";
 		if (metadata["url"] and !metadata["url"].IsNull())
 			out << "#link(\"" << metadata["url"].as<std::string>() << "\")[_Link_]"
