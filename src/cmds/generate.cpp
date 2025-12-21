@@ -166,11 +166,11 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 
 		if (!metadata["title"]) {
 			if (positional_args.size() > 1)
-				out << "#_exercise";
+				out << "#problem";
 			else
-				out << "#exercise";
+				out << "#_problem";
 			if (metadata["source"])
-				out << "(\"" + config["source"].as<std::string>() + "\")";
+				out << "(\"" << config["source"].as<std::string>() << "\")";
 			out << "[\n";
 		}
 		if (bodies.size() > 0)
@@ -180,10 +180,16 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		}
 		out << "\n\n";
 		if (metadata["url"] and !metadata["url"].IsNull())
-			out << "#link(\"" << metadata["url"].as<std::string>() << "\")[_Link_]"
+			out << "#link(\"" << metadata["url"].as<std::string>() << "\")[_"
+			    << metadata["url"].as<std::string>() << " _]"
 			    << "\n\n";
-		for (size_t i = 1; i < bodies.size(); ++i)
-			out << "#hrule" << "\n\n" << bodies[i];
+		for (size_t i = 1; i < bodies.size(); ++i) {
+			if (i == 1) {
+				out << bodies[i];
+			} else {
+				out << "#hrule" << "\n\n" << bodies[i];
+			}
+		}
 
 		if (&problem != &positional_args.back()) {
 			out << "\n" << "#pagebreak()" << "\n\n";
