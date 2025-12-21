@@ -127,7 +127,6 @@
 #let thm_plain(
   env_name,
   linebreak: false,
-  numbering: true,
   style: "normal",
   box: false,
   display-title: false,
@@ -142,7 +141,6 @@
     body,
     color: black,
     linebreak: linebreak,
-    numbering: numbering,
     style: style,
     box: box,
     display-title: display-title,
@@ -153,7 +151,7 @@
         ..calloutargs,
         ..additional_calloutargs,
         title: get_env_name(env_name)
-          + if numbering and number != none {
+          + if number != none {
             " " + number
           }
           + if type(name) == str or type(name) == content {
@@ -170,7 +168,7 @@
             fill: color,
             get_env_name(env_name),
           )
-          if numbering and number != none {
+          if number != none {
             text(weight: "bold", style: style, fill: color, " " + number)
           }
           if type(name) == str or type(name) == content {
@@ -199,18 +197,13 @@
   env_name,
   ..thmboxargs,
   accent: color.black,
-  numbering: true,
   linebreak: false,
 ) = thmbox(
   "environment",
   get_env_name(env_name),
   // base = if (counter(heading).get().at(1)) { "heading" } else { none },
   titlefmt: (content, delta: none) => context {
-    if numbering {
-      text(weight: "bold", fill: accent, content)
-    } else {
-      text(weight: "bold", fill: accent, get_env_name(env_name))
-    }
+    text(weight: "bold", fill: accent, content)
   },
   namefmt: content => text(
     fill: accent,
@@ -225,15 +218,23 @@
   ..thmboxargs,
 )
 
+#let thm_numbering(..args) = {
+  if (args.at(2, default: none) == none and args.at(0) == 0) {
+    return args.at(1)
+  } else {
+    return numbering("1.1", ..args)
+  }
+}
+
 #let proof = thmproof("proof", get_env_name("proof"))
 #let solution = thmproof("solution", get_env_name("solution"))
 
-#let definition = thm_plain("definition")
-#let lemma = thm_plain("lemma", style: "italic")
-#let conjecture = thm_plain("conjecture", style: "italic")
-#let remark = thm_plain("remark", box: true, body-color: rgb("#f6f8f9"))
-#let exercise = thm_plain("exercise", box: true, body-color: rgb("#f6f8f9"))
-#let question = thm_plain("question", box: true, body-color: rgb("#f6f8f9"))
+#let definition = thm_plain("definition").with(numbering: thm_numbering)
+#let lemma = thm_plain("lemma", style: "italic").with(numbering: thm_numbering)
+#let conjecture = thm_plain("conjecture", style: "italic").with(numbering: thm_numbering)
+#let remark = thm_plain("remark", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
+#let exercise = thm_plain("exercise", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
+#let question = thm_plain("question", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
 #let problem = thm_plain(
   "problem",
   display-title: true,
@@ -243,24 +244,18 @@
   border-width: 0.7pt,
   body-color: rgb("#f2ecf5"),
   header-color: rgb("#5c5477"),
-)
+).with(numbering: thm_numbering)
+#let theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems).with(numbering: thm_numbering)
+#let corollary = thm_box("corollary", fill: rgb("#e8e8f8")).with(numbering: thm_numbering)
+#let proposition = thm_box("proposition", fill: rgb("#e8e8f8")).with(numbering: thm_numbering)
+#let example = thm_box("example", ..colors.env.examples).with(numbering: thm_numbering)
 
-#let _definition = thm_plain("definition", numbering: false)
-#let _lemma = thm_plain("lemma", style: "italic", numbering: false)
-#let _conjecture = thm_plain("conjecture", style: "italic", numbering: false)
-#let _remark = thm_plain(
-  "remark",
-  box: true,
-  body-color: rgb("#f6f8f9"),
-  numbering: false,
-)
-#let _exercise = thm_plain(
-  "exercise",
-  box: true,
-  body-color: rgb("#f6f8f9"),
-  numbering: false,
-)
-#let _question = thm_plain("question", box: true, body-color: rgb("#f6f8f9"))
+#let _definition = thm_plain("definition").with(numbering: none)
+#let _lemma = thm_plain("lemma", style: "italic").with(numbering: none)
+#let _conjecture = thm_plain("conjecture", style: "italic").with(numbering: none)
+#let _remark = thm_plain("remark", box: true, body-color: rgb("#f6f8f9")).with(numbering: none)
+#let _exercise = thm_plain("exercise", box: true, body-color: rgb("#f6f8f9")).with(numbering: none)
+#let _question = thm_plain("question", box: true, body-color: rgb("#f6f8f9")).with(numbering: none)
 #let _problem = thm_plain(
   "problem",
   box: true,
@@ -270,13 +265,11 @@
   border-width: 0.7pt,
   body-color: rgb("#f2ecf5"),
   header-color: rgb("#5c5477"),
-  numbering: false,
-)
-
-#let theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems)
-#let corollary = thm_box("corollary", fill: rgb("#e8e8f8"))
-#let proposition = thm_box("proposition", fill: rgb("#e8e8f8"))
-#let example = thm_box("example", ..colors.env.examples)
+).with(number: none)
+#let _theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems).with(numbering: none)
+#let _corollary = thm_box("corollary", fill: rgb("#e8e8f8")).with(numbering: none)
+#let _proposition = thm_box("proposition", fill: rgb("#e8e8f8")).with(numbering: none)
+#let _example = thm_box("example", ..colors.env.examples).with(numbering: none)
 
 #let eqn(it) = {
   set math.equation(numbering: "(1)")
