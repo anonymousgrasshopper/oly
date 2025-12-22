@@ -1,7 +1,6 @@
 #include <print>
 
 #include "oly/cmds/default.hpp"
-#include "oly/log.hpp"
 
 void Default::print_version() {
 #if defined(OLY_NAME) && defined(OLY_VERSION) && defined(OLY_BUILD_TYPE)
@@ -23,6 +22,5 @@ Default::Default() {
 }
 
 int Default::execute() {
-	Log::INFO("Use oly --help for more information", logopt::NO_PREFIX);
 	return 0;
 }
