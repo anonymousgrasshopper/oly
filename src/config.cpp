@@ -132,6 +132,14 @@ static void add_defaults(YAML::Node& config) {
 		std::string metadata(DEFAULT_METADATA_BYTES, DEFAULT_METADATA_SIZE);
 		config["metadata"] = metadata;
 	}
+
+	std::string base_path = config["base_path"].as<std::string>();
+	if (base_path.starts_with("~")) {
+		const char* home = getenv("HOME");
+		if (home) {
+			config["base_path"] = std::string(home) + base_path.substr(1);
+		}
+	}
 }
 
 namespace configuration {

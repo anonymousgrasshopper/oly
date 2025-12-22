@@ -147,8 +147,15 @@ static fs::path get_path(const std::string& source) {
 	if (source_to_path.contains(source))
 		return source_to_path[source];
 
-	if (source.starts_with("/home") || source.starts_with("~")) {
-		return fs::path(source);
+	if (source.starts_with("/home")) {
+		source_to_path[source] = fs::path(source);
+		return source_to_path[source];
+	} else if (source.starts_with("~/")) {
+		const char* home = getenv("HOME");
+		if (home) {
+			source_to_path[source] = std::string(home) + source.substr(1);
+			return source_to_path[source];
+		}
 	}
 
 	std::string contest{parsers::get_contest(source)};
@@ -196,10 +203,25 @@ fs::path get_problem_relative_path(const std::string& source) {
 }
 
 fs::path get_problem_path(const std::string& source) {
-	fs::path path = get_path(source);
+	fs::path source_path;
+
+	if (source.starts_with("/home")) {
+		source_path = source;
+		std::string extension = source_path.extension();
+	} else if (source.starts_with("~/")) {
+		const char* home = getenv("HOME");
+		if (home) {
+			source_path = std::string(home) + source.substr(1);
+			std::string extension = source_path.extension();
+		}
+	} else {
+		source_path = get_path(source);
+		source_path.replace_extension(utils::filetype_extension());
+	}
+
 	return fs::path(
 	    fs::path(utils::expand_env_vars(config["base_path"].as<std::string>())) /
-	    (path.replace_extension(utils::filetype_extension())));
+	    source_path);
 }
 
 std::string get_problem_name(const std::string& source) {

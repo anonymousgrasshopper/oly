@@ -147,8 +147,10 @@ std::vector<std::string> prompt_user_for_problems() {
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
 
-	std::string cmd = "fd -tf . " + config["base_path"].as<std::string>() +
-	                  " --print0 | fzf --read0 --print0 --multi";
+	std::string cmd =
+	    "fd -tf . --base-directory " + config["base_path"].as<std::string>() +
+	    " --print0 --color=never --strip-cwd-prefix=always | fzf --read0 --print0 --multi" +
+	    " --preview 'oly show '" + config["base_path"].as<std::string>() + "/{}''";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe)
@@ -163,7 +165,7 @@ std::vector<std::string> prompt_user_for_problems() {
 	while ((n = fread(buf, 1, sizeof(buf), pipe)) > 0) {
 		for (size_t i = 0; i < n; ++i) {
 			if (buf[i] == '\0') {
-				result.push_back(current);
+				result.push_back(config["base_path"].as<std::string>() + "/" + current);
 				current.clear();
 			} else {
 				current.push_back(buf[i]);

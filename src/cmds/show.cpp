@@ -89,7 +89,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 void Show::print_statement(const std::string& pb) const {
 	fs::path path(get_problem_path(pb));
 	if (!fs::exists(path)) {
-		Log::ERROR(path.string() + "does not exist !");
+		Log::ERROR(path.string() + " does not exist !");
 	} else {
 		std::cout << get_statement(path);
 	}
