@@ -1,40 +1,7 @@
+#import "@preview/shadowed:0.2.0": shadowed
+
 #import "definitions.typ": *
 #import "theorems.typ": *
-
-// language
-#let env_names = (
-  "fr": (
-    "theorem": "Théorème",
-    "corollary": "Corollaire",
-    "lemma": "Lemme",
-    "proof": "Preuve",
-    "proposition": "Proposition",
-    "definition": "Définition",
-    "exercise": "Exercice",
-    "example": "Exemple",
-    "remark": "Remarque",
-    "solution": "Solution",
-    "conjecture": "Conjecture",
-    "problem": "Problème",
-  ),
-  "en": (
-    "theorem": "Theorem",
-    "corollary": "Corollary",
-    "lemma": "Lemma",
-    "proof": "Proof",
-    "proposition": "Proposition",
-    "definition": "Definition",
-    "exercise": "Exercise",
-    "example": "Example",
-    "remark": "Remark",
-    "solution": "Solution",
-    "conjecture": "Conjecture",
-    "problem": "Problem",
-  ),
-)
-#let get_env_name(env) = {
-  return context env_names.at(text.lang).at(env)
-}
 
 // environments
 #let callout(
@@ -51,6 +18,8 @@
   accent-color: rgb("#000000"),
   body-color: rgb("#f6f8f9"),
   clip-content: false,
+  shadow: false,
+  shadow-offset: 0.4em,
   title: none,
   icon: none,
   content,
@@ -76,8 +45,7 @@
         columns: (auto, auto),
         align: (horizon, left + horizon),
         gutter: 1em,
-        box(height: 1em)[ #icon ],
-        text(fill: header-text-color, weight: "bold", title),
+        box(height: 1em)[ #icon ], text(fill: header-text-color, weight: "bold", title),
       )
     }
   ]
@@ -98,7 +66,7 @@
     above: 0pt,
   )[#content]
 
-  return block(
+  let callout = block(
     breakable: breakable,
     width: width,
     radius: (
@@ -122,6 +90,18 @@
     #if (not headless and title != none) { header_block }
     #content_block(content)
   ]
+
+  if shadow {
+    return shadowed(
+      radius: border-radius,
+      shadow: 0pt,
+      dx: shadow-offset,
+      dy: shadow-offset,
+      callout,
+    )
+  } else {
+    return callout
+  }
 }
 
 #let thm_plain(
@@ -232,9 +212,15 @@
 #let definition = thm_plain("definition").with(numbering: thm_numbering)
 #let lemma = thm_plain("lemma", style: "italic").with(numbering: thm_numbering)
 #let conjecture = thm_plain("conjecture", style: "italic").with(numbering: thm_numbering)
-#let remark = thm_plain("remark", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
-#let exercise = thm_plain("exercise", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
-#let question = thm_plain("question", box: true, body-color: rgb("#f6f8f9")).with(numbering: thm_numbering)
+#let remark = thm_plain("remark", box: true, body-color: rgb("#f6f8f9")).with(
+  numbering: thm_numbering,
+)
+#let exercise = thm_plain("exercise", box: true, body-color: rgb("#f6f8f9")).with(
+  numbering: thm_numbering,
+)
+#let question = thm_plain("question", box: true, body-color: rgb("#f6f8f9")).with(
+  numbering: thm_numbering,
+)
 #let problem = thm_plain(
   "problem",
   display-title: true,
@@ -244,8 +230,11 @@
   border-width: 0.7pt,
   body-color: rgb("#f2ecf5"),
   header-color: rgb("#5c5477"),
+  shadow: true,
 ).with(numbering: thm_numbering)
-#let theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems).with(numbering: thm_numbering)
+#let theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems).with(
+  numbering: thm_numbering,
+)
 #let corollary = thm_box("corollary", fill: rgb("#e8e8f8")).with(numbering: thm_numbering)
 #let proposition = thm_box("proposition", fill: rgb("#e8e8f8")).with(numbering: thm_numbering)
 #let example = thm_box("example", ..colors.env.examples).with(numbering: thm_numbering)
@@ -265,6 +254,7 @@
   border-width: 0.7pt,
   body-color: rgb("#f2ecf5"),
   header-color: rgb("#5c5477"),
+  shadow: true,
 ).with(number: none)
 #let _theorem = thm_box("theorem", linebreak: true, ..colors.env.theorems).with(numbering: none)
 #let _corollary = thm_box("corollary", fill: rgb("#e8e8f8")).with(numbering: none)

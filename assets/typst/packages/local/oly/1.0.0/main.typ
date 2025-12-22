@@ -1,6 +1,18 @@
 #import "definitions.typ": *
 #import "environments.typ": *
-#import "theorems.typ": *
+
+#let toc = {
+  show outline.entry.where(level: 1): it => {
+    v(1.2em, weak: true)
+    strong(it)
+  }
+  text(weight: "bold", fill: colors.title, size: 1.4em, font: fonts.sans, get_env_name("toc"))
+  v(0.6em)
+  outline(
+    title: none,
+    indent: 2em,
+  )
+}
 
 // symbols
 #let iff = sym.arrow.l.r.double.long
@@ -18,7 +30,6 @@
 #let ord = math.op("ord")
 
 #let pmod(x) = $space (mod #x)$
-#let bf(x) = $bold(upright(#x))$
 #let dbbracket(lhs, rhs) = {
   if type(lhs) == array {
     lhs = lhs.join()
@@ -31,18 +42,24 @@
 #let proj(point) = {
   math.attach([$=$], t: [$#point$])
 }
-#let vocab(txt) = text(weight: "bold", fill: rgb("#0000ff"), txt)
 
 // commands
-#let hrule = box(width: 100%, align(center)[#line(length: 95%, stroke: 0.8pt)])
-#let Box = {
-  h(1fr)
-  text(size: 1.4em, $square$)
-}
+#let boxed(x) = rect(
+  stroke: 0.5pt,
+  inset: 6pt,
+  text(x),
+)
+#let vocab(x) = text(weight: "bold", fill: rgb("#0000ff"), x)
+#let bf(x) = $bold(upright(#x))$
 #let scr(it) = text(
   features: ("ss01",),
   $cal(it)$,
 )
+#let hrule = box(width: 100%, align(center)[#line(length: 100%, stroke: 0.6pt)])
+#let Box = {
+  h(1fr)
+  text(size: 1.4em, $square$)
+}
 
 // main setup
 #let setup(
@@ -88,7 +105,15 @@
   )
 
   // Section headers
-  set heading(numbering: "I.")
+  let heading_numbering(..nums) = {
+    let (section, ..subsections) = nums.pos()
+    if subsections.len() == 0 {
+      numbering("I", section)
+    } else {
+      numbering("1", subsections.at(subsections.len() - 1))
+    }
+  }
+  set heading(numbering: heading_numbering)
   show heading: it => {
     block([
       #if (it.numbering != none) [
