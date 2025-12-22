@@ -141,7 +141,12 @@ static std::string get_date(const std::string& source) {
 }
 } // namespace parsers
 
+static std::map<std::string, fs::path> source_to_path;
+
 static fs::path get_path(const std::string& source) {
+	if (source_to_path.contains(source))
+		return source_to_path[source];
+
 	std::string contest{parsers::get_contest(source)};
 	if (config["contest_format"][contest]) {
 		auto expander = [&](const std::string& var) -> std::string {
@@ -159,24 +164,26 @@ static fs::path get_path(const std::string& source) {
 				return "";
 			}
 		};
-		return utils::expand_vars(config["contest_format"][contest].as<std::string>(),
-		                          expander);
+		source_to_path[source] =
+		    utils::expand_vars(config["contest_format"][contest].as<std::string>(), expander);
 	} else if (contest.length()) {
 		std::string year{parsers::get_year(source)};
 		if (year.length()) {
 			std::string problem{parsers::get_problem(source)};
 			if (problem.length()) {
-				return contest + "/" + contest + " " + year + "/" + contest + " " + year + " " +
-				       problem;
+				source_to_path[source] = contest + "/" + contest + " " + year + "/" + contest +
+				                         " " + year + " " + problem;
 			} else {
-				return contest + "/" + source;
+				source_to_path[source] = contest + "/" + source;
 			}
 		} else {
-			return contest + "/" + source;
+			source_to_path[source] = contest + "/" + source;
 		}
 	} else {
-		return source;
+		source_to_path[source] = source;
 	}
+
+	return source_to_path[source];
 };
 
 fs::path get_problem_relative_path(const std::string& source) {

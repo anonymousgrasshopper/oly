@@ -170,7 +170,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			else
 				out << "#_problem";
 			if (metadata["source"])
-				out << "(\"" << config["source"].as<std::string>() << "\")";
+				out << "(\"" << get_problem_name(problem) << "\")";
 			out << "[\n";
 		}
 		if (bodies.size() > 0)
