@@ -208,11 +208,21 @@ fs::path get_problem_path(const std::string& source) {
 	if (source.starts_with("/home")) {
 		source_path = source;
 		std::string extension = source_path.extension();
+		if (extension == ".tex") {
+			config["lang"] = "latex";
+		} else if (extension == ".typ") {
+			config["lang"] = "typst";
+		}
 	} else if (source.starts_with("~/")) {
 		const char* home = getenv("HOME");
 		if (home) {
 			source_path = std::string(home) + source.substr(1);
 			std::string extension = source_path.extension();
+			if (extension == ".tex") {
+				config["lang"] = "latex";
+			} else if (extension == ".typ") {
+				config["lang"] = "typst";
+			}
 		}
 	} else {
 		source_path = get_path(source);
