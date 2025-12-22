@@ -79,7 +79,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 			pb_statement += (line + '\n');
 		}
 	}
-	while (pb_statement.back() == '\n') {
+	while (!pb_statement.empty() && pb_statement.back() == '\n') {
 		pb_statement.pop_back();
 	}
 
