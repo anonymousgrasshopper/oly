@@ -77,8 +77,14 @@ void Edit::edit_problem(const fs::path& source) const {
 int Edit::execute() {
 	load_config_file();
 
-	for (std::string source : positional_args) {
-		edit_problem(get_problem_path(source));
+	if (positional_args.empty()) {
+		for (const std::string& problem : utils::prompt_user_for_problems()) {
+			positional_args.push_back(problem);
+		}
 	}
+
+	for (std::string source : positional_args)
+		edit_problem(get_problem_path(source));
+
 	return 0;
 }

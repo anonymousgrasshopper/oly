@@ -142,6 +142,40 @@ bool should_ignore(const std::string& line) {
 	return false;
 }
 
+std::vector<std::string> prompt_user_for_problems() {
+	for (auto program : {std::string("fzf"), std::string("fd")})
+		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
+			Log::CRITICAL(program + " is not executable");
+
+	std::string cmd = "fd -tf . " + config["base_path"].as<std::string>() +
+	                  " --print0 | fzf --read0 --print0 --multi";
+
+	FILE* pipe = popen(cmd.c_str(), "r");
+	if (!pipe)
+		Log::CRITICAL("popen() failed");
+
+	std::vector<std::string> result;
+	std::string current;
+
+	char buf[4096];
+	size_t n;
+
+	while ((n = fread(buf, 1, sizeof(buf), pipe)) > 0) {
+		for (size_t i = 0; i < n; ++i) {
+			if (buf[i] == '\0') {
+				result.push_back(current);
+				current.clear();
+			} else {
+				current.push_back(buf[i]);
+			}
+		}
+	}
+
+	pclose(pipe);
+
+	return result;
+}
+
 input_file::input_file(fs::path filepath, std::string contents, bool remove)
     : remove(remove), filepath(filepath), contents(contents) {
 	create_file();

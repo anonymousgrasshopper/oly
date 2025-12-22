@@ -6,6 +6,7 @@
 #include "oly/config.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 namespace fs = std::filesystem;
 
@@ -48,6 +49,12 @@ void Remove::remove_pb(const fs::path& path) {
 
 int Remove::execute() {
 	load_config_file();
+
+	if (positional_args.empty()) {
+		for (const std::string& problem : utils::prompt_user_for_problems()) {
+			positional_args.push_back(problem);
+		}
+	}
 
 	for (const std::string& arg : positional_args) {
 		remove_pb(get_problem_path(arg));

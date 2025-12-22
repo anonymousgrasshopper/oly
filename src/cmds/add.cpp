@@ -66,8 +66,13 @@ void Add::add_problem(const fs::path& pb) const {
 int Add::execute() {
 	load_config_file();
 
-	for (std::string source : positional_args) {
-		add_problem(get_problem_path(source));
+	if (positional_args.size() == 0) {
+		Log::ERROR("Expected problem name", logopt::HELP);
+		return 1;
 	}
+
+	for (std::string source : positional_args)
+		add_problem(get_problem_path(source));
+
 	return 0;
 }

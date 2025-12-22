@@ -147,6 +147,10 @@ static fs::path get_path(const std::string& source) {
 	if (source_to_path.contains(source))
 		return source_to_path[source];
 
+	if (source.starts_with("/home") || source.starts_with("~")) {
+		return fs::path(source);
+	}
+
 	std::string contest{parsers::get_contest(source)};
 	if (config["contest_format"][contest]) {
 		auto expander = [&](const std::string& var) -> std::string {

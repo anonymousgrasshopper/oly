@@ -98,6 +98,12 @@ void Show::print_statement(const std::string& pb) const {
 int Show::execute() {
 	load_config_file();
 
+	if (positional_args.empty()) {
+		for (const std::string& problem : utils::prompt_user_for_problems()) {
+			positional_args.push_back(problem);
+		}
+	}
+
 	for (const std::string& pb : positional_args) {
 		print_statement(pb);
 		if (&pb != &positional_args.back()) {

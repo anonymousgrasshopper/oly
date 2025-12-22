@@ -45,6 +45,9 @@ bool is_yaml(const std::string& line);
 [[nodiscard]]
 bool should_ignore(const std::string& line);
 
+[[nodiscard]]
+std::vector<std::string> prompt_user_for_problems();
+
 struct input_file {
 private:
 	void create_file();

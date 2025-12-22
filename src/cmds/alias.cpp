@@ -13,12 +13,20 @@ void Alias::link(const fs::path& from, const fs::path& to) {
 		fs::create_directories(to.parent_path());
 		fs::create_symlink(from, to);
 	} catch (const std::filesystem::filesystem_error& e) {
-		Log::CRITICAL(e.what());
+		Log::ERROR(e.what());
 	}
 }
 
 int Alias::execute() {
 	load_config_file();
+
+	if (positional_args.size() == 0) {
+		Log::ERROR("Expected source and and at least a destination", logopt::HELP);
+		return 1;
+	} else if (positional_args.size() == 1) {
+		Log::ERROR("No destination provided", logopt::HELP);
+		return 1;
+	}
 
 	fs::path target(get_problem_path(positional_args.front()));
 	if (!fs::exists(target)) {
