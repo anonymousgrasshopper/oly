@@ -5,7 +5,7 @@ A CLI for managing olympiad problem solutions.
 ```sh
 git clone https://github.com/anonymousgrasshopper/oly
 cd oly
-cmake -DCMAKE_BUILD_TYPE=Release build
+cmake -DCMAKE_BUILD_TYPE=Release -B build
 cmake --build build
 sudo cp build/bin/oly /usr/local/bin/oly
 ```
