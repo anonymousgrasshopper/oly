@@ -11,13 +11,25 @@
 #include "oly/utils.hpp"
 
 Command::Command() {
-	add("--config-file,-c", "Specify config file to use", "~/.config/oly/config.yaml");
+	std::string config_home;
+	const char* xdg_config_home = std::getenv("XDG_CONFIG_HOME");
+	if (!xdg_config_home) {
+		const char* home = std::getenv("HOME");
+		if (!home) {
+			Log::CRITICAL("Nor $HOME nor $XDG_CONFIG_HOME are set !");
+		} else {
+			config_home = static_cast<std::string>(home) + "/.config";
+		}
+	} else {
+		config_home = static_cast<std::string>(xdg_config_home);
+	}
+	add("--config-file,-c", "Specify config file to use", config_home + "/oly/config.yaml");
 	add("--help,-h", "Show help", [this]() { Command::print_help(); });
 	add("--log-level", "Specify log level (default INFO)",
 	    [](std::string level) { utils::set_log_level(level); });
 	add("--lang", "Choose markup language to use", [&](std::string lang) {
 		if (lang != "latex" && lang != "typst") {
-			Log::CRITICAL("lang needs to be one of tex or typst !");
+			Log::CRITICAL("lang needs to be one of latex or typst !");
 		} else {
 			config["lang"] = lang;
 		}

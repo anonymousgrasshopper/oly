@@ -74,10 +74,31 @@ static bool is_valid(const YAML::Node& config) {
 }
 
 static void add_defaults(YAML::Node& config) {
+	std::string cache_home;
+	const char* xdg_cache_home = std::getenv("XDG_CACHE_HOME");
+	if (!xdg_cache_home) {
+		const char* home = std::getenv("HOME");
+		if (!home) {
+			Log::CRITICAL("Nor $HOME nor $XDG_CACHE_HOME are set !");
+		} else {
+			cache_home = static_cast<std::string>(home) + "/.cache";
+		}
+	} else {
+		cache_home = static_cast<std::string>(xdg_cache_home);
+	}
+	const char* tmpdir = std::getenv("TMPDIR");
+	if (!tmpdir) {
+		tmpdir = "/tmp";
+	}
+
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    {"editor", editor}, {"output_directory", "~/.cache/oly/${source}"},
-	    {"preview", true},  {"confirm", false},
-	    {"lang", "latex"},  {"language", "en"}};
+	    {"editor", editor},
+	    {"preview", true},
+	    {"confirm", false},
+	    {"lang", "latex"},
+	    {"language", "en"},
+	    {"output_directory", cache_home + "/oly/${source}"},
+	    {"OLY_TMPDIR", static_cast<std::string>(tmpdir) + "/oly/"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {

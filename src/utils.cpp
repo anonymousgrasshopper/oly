@@ -267,8 +267,9 @@ std::optional<YAML::Node> load(const std::string& yaml, std::string source) {
 
 namespace preview {
 void create_preview_file() {
-	fs::path preview_file_path("/tmp/oly/" + config["source"].as<std::string>() + "/" +
-	                           "preview" + filetype_extension());
+	fs::path preview_file_path(config["OLY_TMPDIR"].as<std::string>() +
+	                           config["source"].as<std::string>() + "/" + "preview" +
+	                           filetype_extension());
 	if (config["lang"].as<std::string>() == "latex") {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/preview.tex"

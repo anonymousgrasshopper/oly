@@ -16,7 +16,8 @@ Add::Add() {
 std::string Add::get_solution_body() const {
 	utils::preview::create_preview_file();
 	std::string input =
-	    utils::input_file("/tmp/oly/" + config["source"].as<std::string>() + "/solution" +
+	    utils::input_file(get<std::string>("OLY_TMPDIR") +
+	                          config["source"].as<std::string>() + "/solution" +
 	                          utils::filetype_extension(),
 	                      utils::expand_vars(config["contents"].as<std::string>()), false)
 	        .filter_top_lines(std::regex("^\\s*$"));
@@ -24,8 +25,8 @@ std::string Add::get_solution_body() const {
 }
 
 YAML::Node Add::get_solution_metadata() const {
-	utils::input_file file("/tmp/oly/" + config["source"].as<std::string>() +
-	                           "/metadata.yaml",
+	utils::input_file file(get<std::string>("OLY_TMPDIR") +
+	                           config["source"].as<std::string>() + "/metadata.yaml",
 	                       utils::expand_vars(config["metadata"].as<std::string>()));
 
 	auto metadata = utils::yaml::load(file.filepath);

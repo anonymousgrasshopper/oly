@@ -60,7 +60,8 @@ std::string Edit::get_solution(const fs::path& source) const {
 	std::string solution = parse_and_comment_metadata(source);
 	utils::preview::create_preview_file();
 
-	std::string input = utils::input_file("/tmp/oly/" + config["source"].as<std::string>() +
+	std::string input = utils::input_file(get<std::string>("OLY_TMPDIR") +
+	                                          config["source"].as<std::string>() +
 	                                          "/solution" + utils::filetype_extension(),
 	                                      solution, false)
 	                        .filter_top_lines(std::regex("^\\s*$"));
