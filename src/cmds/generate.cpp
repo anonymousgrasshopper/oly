@@ -178,7 +178,8 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			out << utils::expand_vars(latex_preamble);
 		}
 
-		if (!metadata["title"]) {
+		bool is_problem = bodies.size() > 1;
+		if (is_problem) {
 			if (positional_args.size() > 1)
 				out << "#problem";
 			else
@@ -189,13 +190,14 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		}
 		if (!bodies.empty())
 			out << bodies[0];
-		if (!metadata["title"]) {
+		if (is_problem)
 			out << "]";
-		}
 		out << "\n\n";
+
 		if (metadata["url"] and !metadata["url"].IsNull())
 			out << "#link(\"" << metadata["url"] << "\")[_" << metadata["url"] << " _]"
 			    << "\n\n";
+
 		for (size_t i = 1; i < bodies.size(); ++i) {
 			if (i == 1) {
 				out << bodies[i];
@@ -204,9 +206,8 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			}
 		}
 
-		if (&problem != &positional_args.back()) {
+		if (&problem != &positional_args.back())
 			out << "\n" << "#pagebreak()" << "\n\n";
-		}
 	}
 
 	out.close();
