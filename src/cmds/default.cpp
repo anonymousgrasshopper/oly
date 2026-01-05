@@ -6,6 +6,7 @@
 #include "oly/config.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 void Default::print_version() {
 #if defined(OLY_NAME) && defined(OLY_VERSION) && defined(OLY_BUILD_TYPE) &&              \
@@ -60,6 +61,7 @@ Default::Default() {
 
 		    shared["cmd"] = cmd_name;
 		    shared["scheme"] = "true";
+		    utils::set_log_level("WARNING");
 		    setenv("OLY", cmd_name.c_str(), 1);
 
 		    cmd->parse(args);
