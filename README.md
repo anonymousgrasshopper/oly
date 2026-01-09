@@ -38,6 +38,6 @@ Arguments:
 ```
 
 ## Configuration
-Configuration is done via a yaml file in `~.config/oly/config.yaml`.
+Configuration is done via a yaml file in `${XDG_CONFIG_HOME:-$HOME/.config}/oly/config.yaml`.
 
 If it does not exist yet, it will be created and opened in your editor with an example config.
