@@ -122,6 +122,15 @@ void Command::parse(std::vector<std::string> args) {
 				} else {
 					set(short_flag, true);
 				}
+				if (opt_ptr->has_callback) {
+					if (opt_ptr->requires_arg) {
+						// Pass the argument value to the callback
+						std::get<std::function<void(std::string)>>(opt_ptr->callback)(
+						    std::get<std::string>(opt_ptr->value));
+					} else {
+						std::get<std::function<void()>>(opt_ptr->callback)();
+					}
+				}
 			}
 		}
 
