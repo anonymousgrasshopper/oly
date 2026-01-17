@@ -1,3 +1,4 @@
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <optional>
@@ -240,14 +241,14 @@ int Generate::execute() {
 		try {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));
-		} catch (const std::runtime_error& e) {
+		} catch (const std::exception& e) {
 			Log::ERROR(e.what());
 		}
 	} else {
 		try {
 			create_typst_file(output_path / (source + ".typ"));
 			create_pdf_from_typst(output_path / (source + ".typ"));
-		} catch (const std::runtime_error& e) {
+		} catch (const std::exception& e) {
 			Log::ERROR(e.what());
 		}
 	}
