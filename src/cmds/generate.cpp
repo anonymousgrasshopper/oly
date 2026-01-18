@@ -80,7 +80,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 	std::ofstream out(latex_file_path);
 
 	constexpr char LATEX_PREAMBLE[] = {
-#embed "../../assets/preamble.tex"
+#embed "../../assets/tex/preamble.tex"
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
@@ -148,7 +148,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	std::ofstream out(typst_file_path);
 
 	constexpr char LATEX_PREAMBLE[] = {
-#embed "../../assets/preamble.typ"
+#embed "../../assets/typst/preamble.typ"
 	};
 	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
 	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);

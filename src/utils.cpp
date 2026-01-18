@@ -272,14 +272,14 @@ void create_preview_file() {
 	                           filetype_extension());
 	if (config["lang"].as<std::string>() == "latex") {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
-#embed "../assets/preview.tex"
+#embed "../assets/tex/preview.tex"
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
 		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
 		utils::create_file(preview_file_path, utils::expand_vars(default_config));
 	} else {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
-#embed "../assets/preview.typ"
+#embed "../assets/typst/preview.typ"
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
 		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);

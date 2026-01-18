@@ -112,14 +112,14 @@ static void add_defaults(YAML::Node& config) {
 	if (!config["preamble"]) {
 		if (config["lang"].as<std::string>() == "latex") {
 			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
-#embed "../assets/preamble.tex"
+#embed "../assets/tex/preamble.tex"
 			};
 			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
 			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
 			config["preamble"] = preamble;
 		} else {
 			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
-#embed "../assets/preamble.typ"
+#embed "../assets/typst/preamble.typ"
 			};
 			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
 			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
@@ -130,14 +130,14 @@ static void add_defaults(YAML::Node& config) {
 	if (!config["contents"]) {
 		if (config["lang"].as<std::string>() == "latex") {
 			constexpr char DEFAULT_CONTENTS_BYTES[] = {
-#embed "../assets/contents.tex"
+#embed "../assets/tex/contents.tex"
 			};
 			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
 			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
 			config["contents"] = contents;
 		} else {
 			constexpr char DEFAULT_CONTENTS_BYTES[] = {
-#embed "../assets/contents.typ"
+#embed "../assets/typst/contents.typ"
 			};
 			constexpr size_t DEFAULT_CONTENTS_SIZE = sizeof(DEFAULT_CONTENTS_BYTES);
 			std::string contents(DEFAULT_CONTENTS_BYTES, DEFAULT_CONTENTS_SIZE);
