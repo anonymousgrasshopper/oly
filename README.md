@@ -2,6 +2,8 @@
 A CLI for managing olympiad problem solutions.
 
 ## Installation
+You will need git and cmake to clone and build the project. Alternatively, you can
+grab an executable from [GitHub releases](https://github.com/anonymousgrasshopper/oly/releases).
 ```sh
 git clone https://github.com/anonymousgrasshopper/oly
 cd oly
@@ -9,8 +11,13 @@ cmake -DCMAKE_BUILD_TYPE=Release -B build
 cmake --build build
 sudo cp build/bin/oly /usr/local/bin/oly
 ```
+If you have [justfile](https://github.com/casey/just) installed, you can also
+just run `just install` in the repo.
+
 If you use typst, you will need to copy `./assets/typst/packages/local/oly` in `~/.local/share/typst/packages/local`.
+
 If you use Neovim, you can copy `./assets/extras/(tex|typst).lua` in your `after/ftplugin` directory.
+
 If you use Zsh, you can copy `./assets/extras/_oly` somewhere in your `$fpath`.
 
 ## Usage
@@ -38,6 +45,6 @@ Arguments:
 ```
 
 ## Configuration
-Configuration is done via a yaml file in `${XDG_CONFIG_HOME:-$HOME/.config}/oly/config.yaml`.
+Configuration is done via a yaml file at `${XDG_CONFIG_HOME:-$HOME/.config}/oly/config.yaml`.
 
 If it does not exist yet, it will be created and opened in your editor with an example config.
