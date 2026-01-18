@@ -92,11 +92,11 @@ static void add_defaults(YAML::Node& config) {
 	}
 
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
+	    {"lang", "latex"},
+	    {"language", "en"},
 	    {"editor", editor},
 	    {"preview", true},
 	    {"confirm", false},
-	    {"lang", "latex"},
-	    {"language", "en"},
 	    {"output_directory", cache_home + "/oly/${source}"},
 	    {"OLY_TMPDIR", static_cast<std::string>(tmpdir) + "/oly/"}};
 	for (auto [key, value] : default_options) {
