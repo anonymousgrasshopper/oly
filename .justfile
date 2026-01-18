@@ -15,6 +15,7 @@ relwithdeb:
 
 install: release
 	sudo cp build/bin/oly /usr/local/bin
+	oly --version
 
 synctypst:
 	rm -rf ./assets/typst/packages/local/oly
