@@ -45,6 +45,11 @@ bool is_yaml(const std::string& line);
 [[nodiscard]]
 bool should_ignore(const std::string& line);
 
+bool copy_dir(const fs::path& from, const std::string& to);
+
+bool copy_figures(const fs::path& tmp_path, const std::string& pb_name);
+bool save_figures(const fs::path& tmp_path, const std::string& pb_name);
+
 [[nodiscard]]
 std::vector<std::string> prompt_user_for_problems();
 

@@ -59,12 +59,18 @@ std::string Edit::uncomment_metadata(std::string& input) const {
 std::string Edit::get_solution(const fs::path& source) const {
 	std::string solution = parse_and_comment_metadata(source);
 	utils::preview::create_preview_file();
+	std::string pb_name = source.stem().string();
+	const fs::path tmp_path =
+	    static_cast<fs::path>(get<std::string>("OLY_TMPDIR")) / pb_name;
 
-	std::string input = utils::input_file(get<std::string>("OLY_TMPDIR") +
-	                                          config["source"].as<std::string>() +
-	                                          "/solution" + utils::filetype_extension(),
-	                                      solution, false)
-	                        .filter_top_lines(std::regex("^\\s*$"));
+	utils::copy_figures(tmp_path, pb_name);
+
+	std::string input =
+	    utils::input_file(tmp_path / ("solution" + utils::filetype_extension()), solution,
+	                      false)
+	        .filter_top_lines(std::regex("^\\s*$"));
+
+	utils::save_figures(tmp_path, pb_name);
 
 	return uncomment_metadata(input);
 }

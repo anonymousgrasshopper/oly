@@ -13,20 +13,17 @@ Add::Add() {
 	add("--overwrite,-o", "Overwrite previous database entry for the problem", false);
 }
 
-std::string Add::get_solution_body() const {
+std::string Add::get_solution_body(const fs::path& base_path) const {
 	utils::preview::create_preview_file();
 	std::string input =
-	    utils::input_file(get<std::string>("OLY_TMPDIR") +
-	                          config["source"].as<std::string>() + "/solution" +
-	                          utils::filetype_extension(),
+	    utils::input_file(base_path / ("solution" + utils::filetype_extension()),
 	                      utils::expand_vars(config["contents"].as<std::string>()), false)
 	        .filter_top_lines(std::regex("^\\s*$"));
 	return input;
 }
 
-YAML::Node Add::get_solution_metadata() const {
-	utils::input_file file(get<std::string>("OLY_TMPDIR") +
-	                           config["source"].as<std::string>() + "/metadata.yaml",
+YAML::Node Add::get_solution_metadata(const fs::path& base_path) const {
+	utils::input_file file(base_path / "metadata.yaml",
 	                       utils::expand_vars(config["metadata"].as<std::string>()));
 
 	auto metadata = utils::yaml::load(file.filepath);
@@ -58,10 +55,15 @@ void Add::add_problem(const fs::path& pb) const {
 		              "Or use --overwrite / -o to ignore this");
 	}
 	config["source"] = pb_name;
-	std::string body = get_solution_body();
-	YAML::Node metadata = get_solution_metadata();
+
+	const fs::path tmp_path =
+	    static_cast<fs::path>(get<std::string>("OLY_TMPDIR")) / pb_name;
+	std::string body = get_solution_body(tmp_path);
+	YAML::Node metadata = get_solution_metadata(tmp_path);
 
 	create_solution_file(pb, body, metadata);
+
+	utils::save_figures(tmp_path, pb_name);
 }
 
 int Add::execute() {

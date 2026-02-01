@@ -142,6 +142,44 @@ bool should_ignore(const std::string& line) {
 	return false;
 }
 
+bool copy_dir(const fs::path& from, const std::string& to) {
+	std::error_code ec;
+
+	if (!fs::exists(from, ec) || !fs::is_directory(from, ec)) {
+		return false;
+	}
+
+	if (!fs::exists(to, ec)) {
+		fs::create_directories(to, ec);
+		if (ec)
+			return false;
+	}
+
+	fs::copy(from, to, fs::copy_options::recursive | fs::copy_options::overwrite_existing,
+	         ec);
+
+	if (ec) {
+		Log::ERROR("Add::save_figures: Error copying: " + ec.message());
+		return false;
+	}
+
+	return true;
+}
+
+bool copy_figures(const fs::path& tmp_path, const std::string& pb_name) {
+	const fs::path from{fs::path(config["base_path"].as<std::string>()) / "figures" /
+	                    pb_name};
+	const fs::path to{tmp_path / "figures"};
+	return utils::copy_dir(from, to);
+}
+
+bool save_figures(const fs::path& tmp_path, const std::string& pb_name) {
+	const fs::path from{tmp_path / "figures"};
+	const fs::path to{fs::path(config["base_path"].as<std::string>()) / "figures" /
+	                  pb_name};
+	return utils::copy_dir(from, to);
+}
+
 std::vector<std::string> prompt_user_for_problems() {
 	for (auto program : {std::string("fzf"), std::string("fd")})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
