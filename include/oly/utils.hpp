@@ -28,12 +28,6 @@ std::string expand_env_vars(const std::string& str);
 [[nodiscard]]
 std::string filetype_extension();
 
-void create_file(const fs::path& filepath, const std::string& contents = "");
-
-void edit(const fs::path& filepath, std::string editor = "");
-
-void overwrite_file(const fs::path& filepath, const std::string& content);
-
 void set_log_level(std::string level);
 
 [[nodiscard]]
@@ -73,6 +67,14 @@ public:
 
 	void edit();
 };
+
+namespace file {
+void create(const fs::path& filepath, const std::string& contents = "");
+
+void edit(const fs::path& filepath, std::string editor = "");
+
+void overwrite(const fs::path& filepath, const std::string& content);
+} // namespace file
 
 namespace yaml {
 [[nodiscard]]

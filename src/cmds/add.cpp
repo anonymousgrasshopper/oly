@@ -44,7 +44,7 @@ void Add::create_solution_file(const fs::path& path, const std::string& body,
 
 	contents.append("\n\n");
 	contents.append(body);
-	utils::create_file(path, contents);
+	utils::file::create(path, contents);
 }
 
 void Add::add_problem(const fs::path& pb) const {

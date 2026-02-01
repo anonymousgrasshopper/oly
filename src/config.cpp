@@ -170,12 +170,12 @@ void load_config(std::string config_file_path) {
 	editor = get_editor();
 	while (!fs::exists(config_file)) {
 		create_default_config();
-		utils::edit(config_file, editor);
+		utils::file::edit(config_file, editor);
 	}
 
 	std::optional<YAML::Node> userconfig = utils::yaml::load(config_file);
 	while (!userconfig || !is_valid(userconfig.value())) {
-		utils::edit(config_file, editor);
+		utils::file::edit(config_file, editor);
 		userconfig = utils::yaml::load(config_file);
 	}
 

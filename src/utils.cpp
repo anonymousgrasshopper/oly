@@ -64,33 +64,6 @@ std::string filetype_extension() {
 	return config["lang"].as<std::string>() == "latex" ? ".tex" : ".typ";
 }
 
-void create_file(const fs::path& filepath, const std::string& contents) {
-	fs::create_directories(filepath.parent_path());
-	std::ofstream out(filepath);
-	out << contents;
-	out.close();
-}
-
-void edit(const fs::path& filepath, std::string editor) {
-	if (editor == "")
-		editor = config["editor"].as<std::string>();
-	std::string cmd = editor + " \"" + filepath.string() + "\"";
-	if (filepath.string().contains('"'))
-		throw std::invalid_argument("double quotes not allowed in file paths !");
-
-	std::system(cmd.c_str());
-}
-
-void overwrite_file(const fs::path& filepath, const std::string& content) {
-	std::ofstream file(filepath, std::ios::trunc);
-	if (!file) {
-		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
-	}
-
-	file << content;
-	file.close();
-}
-
 void set_log_level(std::string level) {
 	std::transform(level.begin(), level.end(), level.begin(),
 	               [](unsigned char c) { return std::toupper(c); });
@@ -274,6 +247,35 @@ void input_file::edit() {
 	std::system(cmd.c_str());
 }
 
+namespace file {
+void create(const fs::path& filepath, const std::string& contents) {
+	fs::create_directories(filepath.parent_path());
+	std::ofstream out(filepath);
+	out << contents;
+	out.close();
+}
+
+void edit(const fs::path& filepath, std::string editor) {
+	if (editor == "")
+		editor = config["editor"].as<std::string>();
+	std::string cmd = editor + " \"" + filepath.string() + "\"";
+	if (filepath.string().contains('"'))
+		throw std::invalid_argument("double quotes not allowed in file paths !");
+
+	std::system(cmd.c_str());
+}
+
+void overwrite(const fs::path& filepath, const std::string& content) {
+	std::ofstream file(filepath, std::ios::trunc);
+	if (!file) {
+		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
+	}
+
+	file << content;
+	file.close();
+}
+} // namespace file
+
 namespace yaml {
 std::optional<YAML::Node> load(const fs::path& filepath) {
 	try {
@@ -314,14 +316,14 @@ void create_preview_file() {
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
 		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-		utils::create_file(preview_file_path, utils::expand_vars(default_config));
+		utils::file::create(preview_file_path, utils::expand_vars(default_config));
 	} else {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/typst/preview.typ"
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
 		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-		utils::create_file(preview_file_path, utils::expand_vars(default_config));
+		utils::file::create(preview_file_path, utils::expand_vars(default_config));
 	}
 }
 } // namespace preview
