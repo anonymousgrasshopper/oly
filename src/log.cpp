@@ -6,6 +6,7 @@
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 bool operator<(severity a, severity b) {
 	return static_cast<unsigned>(a) < static_cast<unsigned>(b);

@@ -41,9 +41,6 @@ bool should_ignore(const std::string& line);
 
 bool copy_dir(const fs::path& from, const std::string& to);
 
-bool copy_figures(const fs::path& tmp_path, const std::string& pb_name);
-bool save_figures(const fs::path& tmp_path, const std::string& pb_name);
-
 [[nodiscard]]
 std::vector<std::string> prompt_user_for_problems();
 
@@ -87,6 +84,13 @@ std::optional<YAML::Node> load(const std::string& yaml, std::string source = "")
 namespace preview {
 void create_preview_file();
 }
+
+namespace figures {
+bool copy(const fs::path& tmp_path, const std::string& pb_name);
+
+bool save(const fs::path& tmp_path, const std::string& pb_name);
+} // namespace figures
+
 } // namespace utils
 
 std::string utils::expand_vars(const std::string& str, auto&& f)

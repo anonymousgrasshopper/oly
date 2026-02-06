@@ -35,7 +35,7 @@ bool Remove::prompt_before_deletion(const fs::path& path) {
 	return false;
 }
 
-void Remove::remove_pb(const fs::path& path) {
+void Remove::delete_problem(const fs::path& path) {
 	if (!fs::exists(path)) {
 		Log::ERROR(path.string() + " doesn't exist !");
 	} else {
@@ -57,7 +57,7 @@ int Remove::execute() {
 	}
 
 	for (const std::string& arg : positional_args) {
-		remove_pb(get_problem_path(arg));
+		delete_problem(get_problem_path(arg));
 	}
 	return 0;
 }

@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 class Show : public Command {
 private:
-	void print_statement(const std::string& pb) const;
+	void print_statement(const fs::path& source_path) const;
 	std::string get_statement(const fs::path& pb) const;
 
 public:

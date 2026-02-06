@@ -87,8 +87,9 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 	out << utils::expand_vars(latex_preamble);
 
 	for (const std::string& problem : positional_args) {
-		std::vector<std::string> bodies = get_solution_bodies(problem);
-		YAML::Node metadata = get_solution_metadata(problem);
+		const fs::path pb_path = get_problem_solution_path(problem);
+		std::vector<std::string> bodies = get_solution_bodies(pb_path);
+		YAML::Node metadata = get_solution_metadata(pb_path);
 
 		if (positional_args.size() > 1)
 			out << "\\begin{problem}";
@@ -137,9 +138,12 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	std::system(cmd.c_str());
 
 	// cleanup
-	if (get<bool>("--clean") || get<bool>("--no-tex")) {
+	if (get<bool>("--clean") || get<bool>("--no-source")) {
 		fs::remove(latex_file_path.replace_extension(".out"));
 		fs::remove(latex_file_path.replace_extension(".log"));
+	}
+	if (get<bool>("--no-source")) {
+		fs::remove(latex_file_path);
 	}
 }
 
@@ -157,7 +161,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	}
 
 	for (const std::string& problem : positional_args) {
-		const fs::path pb_path = get_problem_path(problem);
+		const fs::path pb_path = get_problem_solution_path(problem);
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
 		if (positional_args.size() == 1) {
@@ -211,12 +215,20 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (typst_file_path.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
+	// TODO: import all figures, and handle conflicts
+	utils::figures::copy(typst_file_path.parent_path(),
+	                     get_problem_name(positional_args.front()));
+
 	std::string preview_cmd = config["preview"].as<bool>()
 	                              ? "--open " + config["pdf_viewer"].as<std::string>()
 	                              : "";
 	std::string cmd = "typst compile --root=\"" + typst_file_path.parent_path().string() +
 	                  "\" " + preview_cmd + " \"" + typst_file_path.string() + '"';
 	std::system(cmd.c_str());
+
+	if (get<bool>("--no-source")) {
+		fs::remove(typst_file_path);
+	}
 }
 
 int Generate::execute() {

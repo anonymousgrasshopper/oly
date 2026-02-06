@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 
 class Add : public Command {
 private:
-	void add_problem(const fs::path& pb) const;
+	void add_problem(const std::string& source) const;
 
 	std::string user_file_input(const fs::path& filename,
 	                            const std::string& contents = "") const;

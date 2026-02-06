@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include <string>
 #include <unordered_map>
 #include <variant>
 
@@ -98,6 +99,7 @@ static void add_defaults(YAML::Node& config) {
 	    {"preview", true},
 	    {"confirm", false},
 	    {"output_directory", cache_home + "/oly/${source}"},
+	    {"figures_dir", "figures"},
 	    {"OLY_TMPDIR", static_cast<std::string>(tmpdir) + "/oly/"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {

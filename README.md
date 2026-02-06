@@ -10,9 +10,24 @@ cd oly
 cmake -DCMAKE_BUILD_TYPE=Release -B build
 cmake --build build
 sudo cp build/bin/oly /usr/local/bin/oly
+
 ```
 If you have [justfile](https://github.com/casey/just) installed, you can also
 just run `just install` in the repo.
+
+```sh
+# if you use typst
+cp -r assets/typst ~/.local/share/
+
+# if you use zsh
+[[ -d /usr/local/share/zsh/site-functions ]] || sudo mkdir -p /usr/local/share/zsh/site-functions/
+sudo cp assets/extras/_oly /usr/local/share/zsh/site-functions/
+
+# if you want typst integration with 'oly gen' (see below)
+copy assets/typst/oly-scheme-handler/oly-handler ~/.local/bin/
+copy assets/typst/oly-scheme-handler/oly.desktop ~/.local/share/applications/
+xdg-mime default oly.desktop x-scheme-handler/oly
+```
 
 If you use typst, you will need to copy `./assets/typst/packages/local/oly` in `~/.local/share/typst/packages/local`.
 
@@ -48,3 +63,13 @@ Arguments:
 Configuration is done via a yaml file at `${XDG_CONFIG_HOME:-$HOME/.config}/oly/config.yaml`.
 
 If it does not exist yet, it will be created and opened in your editor with an example config.
+
+## Using the typst integration
+The `oly` header file creates an eponymous command which takes a problem name
+as its first argument and an optional content as its second argument. It
+creates a link that, when clicked, will automatically generate and open the
+given problem through the `oly gen` command. In order to make this work,
+follow the following steps:
+- copy `assets/typst/oly-scheme-handler/oly-handler` in your `$PATH`
+- copy `assets/typst/oly-scheme-handler/oly.desktop` in `~/.local/share/applications/`
+- run `xdg-mime default oly.desktop x-scheme-handler/oly`

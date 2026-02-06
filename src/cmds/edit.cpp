@@ -58,27 +58,31 @@ std::string Edit::uncomment_metadata(std::string& input) const {
 
 std::string Edit::get_solution(const fs::path& source) const {
 	std::string solution = parse_and_comment_metadata(source);
+
 	utils::preview::create_preview_file();
-	std::string pb_name = source.stem().string();
+
+	std::string pb_name = config["source"].as<std::string>();
+
 	const fs::path tmp_path =
 	    static_cast<fs::path>(get<std::string>("OLY_TMPDIR")) / pb_name;
 
-	utils::copy_figures(tmp_path, pb_name);
+	utils::figures::copy(tmp_path, pb_name);
 
 	std::string input =
 	    utils::input_file(tmp_path / ("solution" + utils::filetype_extension()), solution,
 	                      false)
 	        .filter_top_lines(std::regex("^\\s*$"));
 
-	utils::save_figures(tmp_path, pb_name);
+	utils::figures::save(tmp_path, pb_name);
 
 	return uncomment_metadata(input);
 }
 
-void Edit::edit_problem(const fs::path& source) const {
-	config["source"] = source.stem().string();
-	std::string sol = get_solution(source);
-	utils::file::overwrite(source, sol);
+void Edit::edit_problem(const std::string& pb) const {
+	const fs::path source_path = get_problem_solution_path(pb);
+	config["source"] = get_problem_name(pb);
+	std::string sol = get_solution(source_path);
+	utils::file::overwrite(source_path, sol);
 }
 
 int Edit::execute() {
@@ -91,7 +95,7 @@ int Edit::execute() {
 	}
 
 	for (std::string source : positional_args)
-		edit_problem(get_problem_path(source));
+		edit_problem(source);
 
 	return 0;
 }

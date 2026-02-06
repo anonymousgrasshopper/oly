@@ -39,6 +39,7 @@
   }
   math.lr[$⟦ lhs ; rhs ⟧$]
 }
+#let card = math.abs
 #let proj(point) = {
   math.attach([$=$], t: [$#point$])
 }
@@ -59,6 +60,11 @@
 #let Box = {
   h(1fr)
   text(size: 1.4em, $square$)
+}
+
+#let oly(name, ..arg) = {
+  let text = arg.at(0, default: name)
+  link("oly://gen?name=" + name, text)
 }
 
 // main setup

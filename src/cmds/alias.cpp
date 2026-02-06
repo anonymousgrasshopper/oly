@@ -21,10 +21,11 @@ int Alias::execute() {
 	load_config_file();
 
 	if (positional_args.size() == 0) {
-		Log::ERROR("Expected source and and at least a destination", logopt::HELP);
+		Log::ERROR("Expected source and at least one destination",
+		           logopt::HELP | logopt::NO_PREFIX);
 		return 1;
 	} else if (positional_args.size() == 1) {
-		Log::ERROR("No destination provided", logopt::HELP);
+		Log::ERROR("No destination provided", logopt::HELP | logopt::NO_PREFIX);
 		return 1;
 	}
 

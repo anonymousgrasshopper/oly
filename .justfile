@@ -13,10 +13,16 @@ relwithdeb:
 	@cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B build
 	@cmake --build build
 
-install: release
+install:
 	sudo cp build/bin/oly /usr/local/bin
 	oly --version
 
-synctypst:
+synctyp:
 	rm -rf ./assets/typst/packages/local/oly
 	cp -r ~/.local/share/typst/packages/local/oly ./assets/typst/packages/local/
+
+	rm -r ./assets/typst/oly-scheme-handler/oly-handler
+	cp ~/.local/bin/oly-handler ./assets/typst/oly-scheme-handler/
+
+	rm -r ./assets/typst/oly-scheme-handler/oly.desktop
+	cp ~/.local/share/applications/oly.desktop ./assets/typst/oly-scheme-handler/

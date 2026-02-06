@@ -6,6 +6,7 @@
 #include <stdexcept>
 
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
@@ -139,29 +140,17 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	return true;
 }
 
-bool copy_figures(const fs::path& tmp_path, const std::string& pb_name) {
-	const fs::path from{fs::path(config["base_path"].as<std::string>()) / "figures" /
-	                    pb_name};
-	const fs::path to{tmp_path / "figures"};
-	return utils::copy_dir(from, to);
-}
-
-bool save_figures(const fs::path& tmp_path, const std::string& pb_name) {
-	const fs::path from{tmp_path / "figures"};
-	const fs::path to{fs::path(config["base_path"].as<std::string>()) / "figures" /
-	                  pb_name};
-	return utils::copy_dir(from, to);
-}
-
 std::vector<std::string> prompt_user_for_problems() {
 	for (auto program : {std::string("fzf"), std::string("fd")})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
 
-	std::string cmd =
-	    "fd -tf . --base-directory " + config["base_path"].as<std::string>() +
-	    " --print0 --color=never --strip-cwd-prefix=always | fzf --read0 --print0 --multi" +
-	    " --preview 'oly show '" + config["base_path"].as<std::string>() + "/{}''";
+	std::string cmd = "fd -tf . --base-directory " + config["base_path"].as<std::string>() +
+	                  " --print0 --color=never --strip-cwd-prefix=always --extension=typ "
+	                  "--extension=tex"
+	                  "| fzf --read0 --print0 --multi" +
+	                  " --preview 'oly show '" + config["base_path"].as<std::string>() +
+	                  "/{}''";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe)
@@ -327,4 +316,20 @@ void create_preview_file() {
 	}
 }
 } // namespace preview
+
+namespace figures {
+bool copy(const fs::path& tmp_path, const std::string& pb_name) {
+	const fs::path from{get_problem_path(pb_name) /
+	                    config["figures_dir"].as<std::string>()};
+	const fs::path to{tmp_path / config["figures_dir"].as<std::string>()};
+	return utils::copy_dir(from, to);
+}
+
+bool save(const fs::path& tmp_path, const std::string& pb_name) {
+	const fs::path from{tmp_path / config["figures_dir"].as<std::string>()};
+	const fs::path to{get_problem_path(pb_name) / config["figures_dir"].as<std::string>()};
+	return utils::copy_dir(from, to);
+}
+}; // namespace figures
+
 } // namespace utils

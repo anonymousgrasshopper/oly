@@ -47,7 +47,8 @@ void Add::create_solution_file(const fs::path& path, const std::string& body,
 	utils::file::create(path, contents);
 }
 
-void Add::add_problem(const fs::path& pb) const {
+void Add::add_problem(const std::string& source) const {
+	const fs::path pb = get_problem_path(source);
 	std::string pb_name = pb.stem().string();
 	if (!get<bool>("--overwrite") && fs::exists(pb)) {
 		Log::CRITICAL("cannot add " + pb_name + ": entry already present in database" + "\n" +
@@ -61,21 +62,20 @@ void Add::add_problem(const fs::path& pb) const {
 	std::string body = get_solution_body(tmp_path);
 	YAML::Node metadata = get_solution_metadata(tmp_path);
 
-	create_solution_file(pb, body, metadata);
-
-	utils::save_figures(tmp_path, pb_name);
+	utils::figures::save(tmp_path, pb_name);
+	create_solution_file(get_problem_name(source), body, metadata);
 }
 
 int Add::execute() {
 	load_config_file();
 
 	if (positional_args.size() == 0) {
-		Log::ERROR("Expected problem name", logopt::HELP);
+		Log::ERROR("Expected problem name", logopt::HELP | logopt::NO_PREFIX);
 		return 1;
 	}
 
 	for (std::string source : positional_args)
-		add_problem(get_problem_path(source));
+		add_problem(source);
 
 	return 0;
 }

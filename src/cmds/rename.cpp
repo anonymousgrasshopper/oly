@@ -34,6 +34,9 @@ int Rename::execute() {
 	} else if (positional_args.size() == 1) {
 		Log::CRITICAL("missing destination file operand after '" + positional_args[0] + "'",
 		              logopt::HELP | logopt::NO_PREFIX);
+	} else if (positional_args.size() > 2) {
+		Log::CRITICAL("too many argumens provided: expected exactly two",
+		              logopt::HELP | logopt::NO_PREFIX);
 	}
 
 	fs::path target(get_problem_path(positional_args.front()));

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+url="$1"
+
+rest="${url#oly://}"
+cmd="${rest%%\?*}"
+query="${rest#*\?}"
+name="${query#name=}"
+
+oly "$cmd" "$name"

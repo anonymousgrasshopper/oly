@@ -10,6 +10,9 @@ author: Leonhard Euler
 # the base path where solutions are stored
 base_path: ~/Mathematics/Solutions
 
+# the path where figures are stored, inside of base_path
+figures_dir: figures
+
 # the markup language the solutions are typed in
 # must be one of latex or typst (default latex)
 lang: latex
