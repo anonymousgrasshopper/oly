@@ -63,7 +63,7 @@ void Add::add_problem(const std::string& source) const {
 	YAML::Node metadata = get_solution_metadata(tmp_path);
 
 	utils::figures::save(tmp_path, pb_name);
-	create_solution_file(get_problem_name(source), body, metadata);
+	create_solution_file(get_problem_solution_path(source), body, metadata);
 }
 
 int Add::execute() {
