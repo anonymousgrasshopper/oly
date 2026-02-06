@@ -54,8 +54,7 @@ contest_format:
 
 # added right after \documentclass in the preview file in latex
 # meant to specify which latex packages to use
-# packages: '\usepackage[sexy,diagrams]{evan}
-# '
+# packages: '\usepackage[whatever]{somepackage}'
 
 # You can also override preamble, contents, and metadata.
 # preamble is what gets put in the preview file

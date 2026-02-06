@@ -105,7 +105,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		else
 			out << "\\end{problem*}";
 		out << "\n\n";
-		if (metadata["url"])
+		if (metadata["url"] and !metadata["url"].IsNull())
 			out << "\\noindent\\emph{Link}: \\url{" << metadata["url"].as<std::string>() << "}"
 			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i)
