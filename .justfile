@@ -13,7 +13,7 @@ relwithdeb:
 	@cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B build
 	@cmake --build build
 
-install:
+install: release
 	sudo cp build/bin/oly /usr/local/bin
 	oly --version
 
