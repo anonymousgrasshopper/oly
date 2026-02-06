@@ -9,10 +9,12 @@ local context state state_descr line
 # Global options
 # -------------------------
 local -a global_opts=(
-	'(-h --help)'{-h,--help}'[Show help message]'
-	'(-v --version)'{-v,--version}'[Print this binary'"'"'s version]'
 	'(-c --config-file)'{-c,--config-file}'[Specify config file]:file:_files'
+	'(-h --help)'{-h,--help}'[Show help message]'
 	'--log-level[Set the log level]:level:(CRITICAL ERROR WARNING INFO HINT DEBUG TRACE)'
+	'--lang[Choose markup language to use]:lang:(latex typst)'
+	'--language[Choose which language to use]'
+	'(-v --version)'{-v,--version}'[Print this binary'"'"'s version]'
 	'--verify-config[Verify configuration file]'
 )
 
@@ -46,8 +48,8 @@ local -a opts_gen=(
 	'(--preview --no-preview)--preview[Open the generated PDF]'
 	'(--preview --no-preview)--no-preview[Do not open the generated PDF]'
 	'--clean[Remove auxiliary files]'
-	'--no-pdf[Only generate a TeX file]'
-	'--no-tex[Remove the TeX file and imply --clean]'
+	'--no-pdf[Only generate a source file]'
+	'--no-source[Remove the source file and induce --clean]'
 	'--cwd[Create files in the current directory]'
 )
 
@@ -94,12 +96,12 @@ args)
 	# After a subcommand (or while typing its args), offer that subcommand's options + globals.
 	case $subcmd in
 	add) _arguments $global_opts ${opts_add[@]} ;;
-	gen) _arguments $global_opts ${opts_gen[@]} ;;
-	rm) _arguments $global_opts ${opts_rm[@]} ;;
-	alias) _arguments $global_opts ${opts_alias[@]} ;;
 	edit) _arguments $global_opts ${opts_edit[@]} ;;
+	gen) _arguments $global_opts ${opts_gen[@]} ;;
 	search) _arguments $global_opts ${opts_search[@]} ;;
 	show) _arguments $global_opts ${opts_show[@]} ;;
+	alias) _arguments $global_opts ${opts_alias[@]} ;;
+	rm) _arguments $global_opts ${opts_rm[@]} ;;
 	mv) _arguments $global_opts ${opts_mv[@]} ;;
 	*)
 		# No subcommand yet (or none detected): still offer global options.
