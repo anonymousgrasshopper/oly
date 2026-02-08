@@ -29,7 +29,7 @@ constexpr const static std::string get_color(const std::string& hex_code) {
 		}
 	};
 	int r = 16 * digit(hex_code[1]) + digit(hex_code[2]);
-	int g = 16 * digit(hex_code[3]) + digit(hex_code[2]);
+	int g = 16 * digit(hex_code[3]) + digit(hex_code[4]);
 	int b = 16 * digit(hex_code[5]) + digit(hex_code[6]);
 	return std::format("\x1b[38;2;{};{};{}m", r, g, b);
 }
