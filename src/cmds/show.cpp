@@ -25,7 +25,7 @@ constexpr const static std::string get_color(const std::string& hex_code) {
 		} else if (std::isdigit(c)) {
 			return c - '0';
 		} else {
-			throw std::invalid_argument(hex_code + "is not a valid hex code !");
+			throw std::invalid_argument(hex_code + " is not a valid hex code !");
 		}
 	};
 	int r = 16 * digit(hex_code[1]) + digit(hex_code[2]);
