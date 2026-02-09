@@ -1,20 +1,23 @@
+cp_bin:
+	sudo cp build/bin/oly /usr/local/bin
+
 build:
 	@cmake --build build
+	@just cp_bin
 
 release:
 	@cmake -DCMAKE_BUILD_TYPE=Release -B build
-	@cmake --build build
+	@just build
 
 debug:
 	@cmake -DCMAKE_BUILD_TYPE=Debug -B build
-	@cmake --build build
+	@just build
 
 relwithdeb:
 	@cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B build
-	@cmake --build build
+	@just build
 
-install: release
-	sudo cp build/bin/oly /usr/local/bin
+install: release cp_bin
 	oly --version
 
 synctyp:
