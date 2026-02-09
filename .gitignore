@@ -1,7 +1,7 @@
-build/
-.cache/
+/build
+/.cache
+
+/todo.md
+/test.lua
 
 *.pdf
-
-todo.md
-test.lua
