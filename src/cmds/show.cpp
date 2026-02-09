@@ -86,11 +86,18 @@ std::string Show::get_statement(const fs::path& pb) const {
 	return colorize(pb_statement);
 }
 
-void Show::print_statement(const fs::path& source_path) const {
+bool Show::print_statement(const fs::path& source_path) const {
 	if (!fs::exists(source_path)) {
 		Log::ERROR(source_path.string() + " does not exist !");
+		return false;
 	} else {
-		std::cout << get_statement(source_path);
+		try {
+			std::cout << get_statement(source_path);
+		} catch (std::runtime_error& e) {
+			Log::ERROR(e.what());
+			return false;
+		}
+		return true;
 	}
 }
 
@@ -103,11 +110,12 @@ int Show::execute() {
 		}
 	}
 
+	bool success = true;
 	for (const std::string& pb : positional_args) {
-		print_statement(get_problem_solution_path(pb));
+		success = success && print_statement(get_problem_solution_path(pb));
 		if (&pb != &positional_args.back()) {
 			std::cout << std::endl;
 		}
 	}
-	return 0;
+	return success ? 0 : 1;
 }
