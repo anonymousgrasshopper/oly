@@ -34,7 +34,7 @@ static std::string get_contest(const std::string& source) {
 	std::string contest;
 	std::smatch match;
 
-	std::regex contest_regex(R"(\b([A-Za-z](?:[A-Za-z ]*)[A-Za-z])\b)");
+	std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
 		if (config["abbreviations"][contest]) {
@@ -83,7 +83,7 @@ static std::string get_year(const std::string& source) {
 }
 
 static std::string get_problem(const std::string& source) {
-	// Problem: single digit, preceded by non-digit or letter, not followed by digit
+	// Problem: single digit, possibly preceded by a letter, not followed by a digit
 	std::string problem;
 	std::smatch match;
 
@@ -102,9 +102,10 @@ static std::string get_problem(const std::string& source) {
 }
 
 static std::string get_date(const std::string& source) {
-	// Date: between 2 and 3 sequences of at most two digits with slashes separating them
+	// Date: two sequaences of one or two digits optionally followed by a year
+	// which is 2 or 4 digits, separated with slashes or dashes
 	std::smatch match;
-	std::regex date_regex(R"((\d{1,2})/(\d{1,2})(?:/(\d{2,4}))?)");
+	std::regex date_regex(R"((\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?)");
 
 	int day, month, year;
 
