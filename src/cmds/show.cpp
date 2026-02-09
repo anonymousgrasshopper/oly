@@ -4,8 +4,10 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 #include "oly/cmds/show.hpp"
+#include "oly/config.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
@@ -14,7 +16,7 @@ namespace fs = std::filesystem;
 
 Show::Show() {}
 
-constexpr const static std::string get_color(const std::string& hex_code) {
+constexpr const static std::string hex_to_rgb(const std::string& hex_code) {
 	if (hex_code.length() != 7) {
 		throw std::invalid_argument(hex_code + "is not a valid hex code !");
 	}
@@ -34,27 +36,66 @@ constexpr const static std::string get_color(const std::string& hex_code) {
 	return std::format("\x1b[38;2;{};{};{}m", r, g, b);
 }
 
+constexpr const static std::string get_color(const std::string& field) {
+	static const std::map<std::string, std::string> default_hex{
+	    {"math_mode", hex_to_rgb("#7fb4ca")},
+	    {"operator", hex_to_rgb("#c0a36e")},
+	    {"digit", hex_to_rgb("#d27e99")},
+	    {"punctuation", hex_to_rgb("#9cabca")},
+	};
+	if (config["colorscheme"] && config["colorscheme"][field] &&
+	    config["colorscheme"][field].IsScalar()) {
+		return hex_to_rgb(config["colorscheme"][field].as<std::string>());
+	} else {
+		return default_hex.at(field);
+	}
+}
+
 constexpr const static std::string colorize(const std::string& input) {
-	// replace $ by escape codes
-	const static std::string MATH_MODE_OPEN = get_color("#7fb4ca");
 	const static std::string COLOR_RESET = "\x1b[0m";
-	const static std::set<char> operators = {'+', '-', '*', '<', '>', '!', '='};
-	const static std::string OPERATOR_COLOR = get_color("#c0a36e");
+	const static std::string MATH_MODE_OPEN = get_color("math_mode");
+	const static std::string OPERATOR_COLOR = get_color("operator");
+	const static std::string DIGIT_COLOR = get_color("digit");
+	const static std::string PUNCTUATION_COLOR = get_color("punctuation");
+	const static std::set<char> operators = {'+', '-', '*', '^', '_', '<', '>', '!', '='};
+	const static std::set<char> punctuation = {'.', ';', ':', '(', ')', '[', ']', '{', '}'};
 	bool in_math_mode = false;
 	std::string formatted = "";
+	bool escaped = false;
 	for (const char& c : input) {
-		if (c == '$') {
+		if (c == '$' && not escaped) {
 			formatted += in_math_mode ? COLOR_RESET : MATH_MODE_OPEN;
 			in_math_mode = !in_math_mode;
-		} else if (operators.contains(c)) {
+		} else if (c == '\\' && not escaped) {
+			escaped = true;
+		} else if (c == '\\' && escaped) {
+			formatted += '\\';
+		} else if (escaped) {
+			formatted += "⏎";
+		} else if (operators.contains(c) && in_math_mode) {
 			formatted += OPERATOR_COLOR;
 			formatted += c;
 			formatted += MATH_MODE_OPEN;
+		} else if (punctuation.contains(c) && in_math_mode) {
+			formatted += PUNCTUATION_COLOR;
+			formatted += c;
+			formatted += MATH_MODE_OPEN;
+		} else if (std::isdigit(c)) {
+			formatted += DIGIT_COLOR;
+			formatted += c;
+			formatted += in_math_mode ? MATH_MODE_OPEN : COLOR_RESET;
 		} else {
 			formatted += c;
 		}
 	}
 	return formatted;
+}
+
+constexpr const static std::string trim_trailing_newlines(std::string& input) {
+	while (input.back() == '\n') {
+		input = input.substr(0, input.length() - 1);
+	}
+	return input + '\n';
 }
 
 std::string Show::get_statement(const fs::path& pb) const {
@@ -74,7 +115,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 	}
 	while (getline(file, line)) {
 		if (utils::is_separator(line)) {
-			return colorize(pb_statement);
+			return colorize(trim_trailing_newlines(pb_statement));
 		} else {
 			pb_statement += (line + '\n');
 		}
@@ -83,7 +124,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 		pb_statement.pop_back();
 	}
 
-	return colorize(pb_statement);
+	return colorize(trim_trailing_newlines(pb_statement));
 }
 
 bool Show::print_statement(const fs::path& source_path) const {
