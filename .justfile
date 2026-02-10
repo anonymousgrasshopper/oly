@@ -29,3 +29,9 @@ synctyp:
 
 	rm -r ./assets/typst/oly-scheme-handler/oly.desktop
 	cp ~/.local/share/applications/oly.desktop ./assets/typst/oly-scheme-handler/
+
+test:
+	./test.lua
+
+lint:
+	@-run-clang-tidy -p build -source-filter='^.*/oly/(src|include).*' -quiet
