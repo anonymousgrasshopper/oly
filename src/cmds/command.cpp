@@ -148,31 +148,33 @@ void Command::load_config_file() {
 void Command::print_help() const {
 	if (config["cmd"].as<std::string>() == "default") {
 		utils::print_help();
-		return;
-	}
-	std::string cmd = config["cmd"].as<std::string>();
+	} else {
+		std::string cmd = config["cmd"].as<std::string>();
 
-	std::vector<std::string> alias_strings;
-	alias_strings.reserve(storage.size());
-	size_t max_len = 0;
+		std::vector<std::string> alias_strings;
+		alias_strings.reserve(storage.size());
+		size_t max_len = 0;
 
-	for (const auto& opt : storage) {
-		std::string joined;
-		for (size_t i = 0; i < opt->names.size(); ++i) {
-			joined += opt->names[i];
-			if (i + 1 < opt->names.size())
-				joined += ", ";
+		for (const auto& opt : storage) {
+			std::string joined;
+			for (size_t i = 0; i < opt->names.size(); ++i) {
+				joined += opt->names[i];
+				if (i + 1 < opt->names.size())
+					joined += ", ";
+			}
+			max_len = std::max(max_len, joined.size());
+			alias_strings.push_back(std::move(joined));
 		}
-		max_len = std::max(max_len, joined.size());
-		alias_strings.push_back(std::move(joined));
+
+		std::println("available arguments for {}:", cmd);
+
+		for (size_t i = 0; i < storage.size(); ++i) {
+			const auto& opt = storage[i];
+			const auto& alias_str = alias_strings[i];
+
+			std::println("{:<{}} - {}", alias_str, max_len + 5, opt->desc);
+		}
 	}
 
-	std::println("available arguments for {}:", cmd);
-
-	for (size_t i = 0; i < storage.size(); ++i) {
-		const auto& opt = storage[i];
-		const auto& alias_str = alias_strings[i];
-
-		std::println("{:<{}} - {}", alias_str, max_len + 5, opt->desc);
-	}
+	std::exit(0);
 }
