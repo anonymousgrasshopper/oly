@@ -19,7 +19,7 @@ Generate::Generate() {
 	add("--no-pdf", "only generate a LaTeX file", false);
 	add("--no-source", "remove the source file and induce --clean", false);
 	add("--cwd", "create the files in the current directory",
-	    [] { config["output_directory"] = std::string(getenv("PWD")); });
+	    [] { config["output_directory"] = fs::current_path().string(); });
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
