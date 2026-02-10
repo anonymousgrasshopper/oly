@@ -34,7 +34,7 @@ static std::string get_contest(const std::string& source) {
 	std::string contest;
 	std::smatch match;
 
-	std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
+	static std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
 		if (config["abbreviations"][contest]) {
@@ -64,7 +64,7 @@ static std::string get_year(const std::string& source) {
 	std::string year;
 	std::smatch match;
 
-	std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
+	static std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
 	if (std::regex_search(source, match, year_regex)) {
 		if (match.str(1).size() == 4) {
 			year = match.str(1);
@@ -83,18 +83,18 @@ static std::string get_year(const std::string& source) {
 }
 
 static std::string get_problem(const std::string& source) {
-	// Problem: single digit, possibly preceded by a letter, not followed by a digit
+	// Problem: single digit, possibly preceded by a letter or a slash, followed by
+	// whitespace or end of string
 	std::string problem;
 	std::smatch match;
 
-	std::regex problem_regex(R"((\b[A-Za-z]?\d\b))");
+	static std::regex problem_regex(R"((^|\s)(([A-Za-z]|/)?(\d))(?=\s|$))");
 	if (std::regex_search(source, match, problem_regex)) {
-		if (match.str(1).size() == 1) {
-			problem = "P" + match.str(1);
-		} else if (match.str(1).size() == 2) {
-			problem = match.str(1);
-			problem[0] = std::toupper(problem[0]);
-			config["topic"] = get_topic(problem[0]);
+		if (!match[3].matched) {
+			problem = "P" + match[4].str();
+		} else {
+			problem = match[3].str() + match[4].str();
+			config["topic"] = get_topic(match[3].str()[0]);
 		}
 	}
 
@@ -105,7 +105,7 @@ static std::string get_date(const std::string& source) {
 	// Date: two sequaences of one or two digits optionally followed by a year
 	// which is 2 or 4 digits, separated with slashes or dashes
 	std::smatch match;
-	std::regex date_regex(R"((\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?)");
+	static std::regex date_regex(R"((\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?)");
 
 	int day, month, year;
 
