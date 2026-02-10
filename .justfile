@@ -1,5 +1,5 @@
 cp_bin:
-	sudo cp build/bin/oly /usr/local/bin
+	-sudo cp build/bin/oly /usr/local/bin
 
 build:
 	@cmake --build build
@@ -31,7 +31,7 @@ synctyp:
 	cp ~/.local/share/applications/oly.desktop ./assets/typst/oly-scheme-handler/
 
 test:
-	./test.lua
+	-./test.lua
 
 lint:
 	@-run-clang-tidy -p build -source-filter='^.*/oly/(src|include).*' -quiet
