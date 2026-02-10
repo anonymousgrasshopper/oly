@@ -21,20 +21,20 @@ local function highlight_metadata(first, last)
 	for lnum, line in ipairs(lines) do
 		lnum = lnum + first
 
-		if line:match("^%%?%s*$") then
+		if line:match("^%s*$") or line:match("^/%*") then
 			goto continue
 		end
 
-		local commentstring, keyword = line:match("^(%%%s*)([a-zA-Z]+):")
+		local whitespace, keyword, _ = line:match("^(%s*)([a-zA-Z]+):%s*(.*)")
 		if not keyword then
-			if vim.api.nvim_win_get_cursor(0)[1] == lnum then -- editing the current line
+			if vim.api.nvim_win_get_cursor(0)[1] == lnum then
 				goto continue
 			end
 			break
 		end
 
 		-- Highlight full line
-		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #commentstring + #keyword + 1, {
+		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #whitespace + #keyword + 1, {
 			end_col = #line,
 			hl_group = "Text",
 			spell = false,
@@ -43,8 +43,8 @@ local function highlight_metadata(first, last)
 
 		-- Highlight keyword
 		local group = valid_keywords[keyword] and "Identifier" or "Error"
-		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #commentstring, {
-			end_col = #commentstring + #keyword,
+		vim.api.nvim_buf_set_extmark(buf, ns_metadata, lnum - 1, #whitespace, {
+			end_col = #whitespace + #keyword,
 			hl_group = group,
 			spell = false,
 			priority = 101,
@@ -82,7 +82,7 @@ local function highlight_hrule(first, last)
 	local lines = vim.api.nvim_buf_get_lines(buf, first, last, false)
 
 	for lnum, line in ipairs(lines) do
-		if line:match("^\\hrulebar%s*$") then
+		if line:match("^#hrule%s*$") then
 			vim.api.nvim_buf_set_extmark(buf, ns_hrule, first + lnum - 1, 0, {
 				virt_text = { { string.rep("─", 80), "Indent" } },
 				virt_text_pos = "overlay",
@@ -94,8 +94,9 @@ end
 
 if vim.env.OLY and not vim.b[buf].oly_highlight then
 	vim.b[buf].oly_highlight = true
+	vim.b[buf].typst_root = vim.fn.expand("%:p:h") .. "/preview.typ"
 
-	vim.opt.autochdir = true
+	vim.cmd.cd(vim.fn.expand("%:p:h"))
 
 	highlight_metadata(0, -1)
 	highlight_hrule(0, -1)
