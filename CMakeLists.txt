@@ -48,7 +48,7 @@ target_compile_definitions(oly PRIVATE
 
 target_compile_features(oly PRIVATE cxx_std_26)
 
-target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic -Wno-c23-extensions)
 
 target_include_directories(oly PRIVATE ${PROJECT_SOURCE_DIR}/include)
 

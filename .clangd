@@ -1,0 +1,17 @@
+CompileFlags:
+  Add: [-Wall, -Wextra]
+
+Completion:
+  ArgumentLists: Delimiters
+
+Hover:
+  ShowAKA: true
+
+Diagnostics:
+  Suppress: [unused-parameter,c23-extensions]
+
+---
+If:
+  PathMatch: .*\.(cpp|hpp)$
+CompileFlags:
+  Add: [-std=c++26]
