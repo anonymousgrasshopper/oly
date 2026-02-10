@@ -318,16 +318,15 @@ void create_preview_file() {
 } // namespace preview
 
 namespace figures {
-bool copy(const fs::path& tmp_path, const std::string& pb_name) {
-	const fs::path from{get_problem_path(pb_name) /
-	                    config["figures_dir"].as<std::string>()};
+bool copy(const fs::path& tmp_path, const fs::path& pb_path) {
+	const fs::path from{pb_path / config["figures_dir"].as<std::string>()};
 	const fs::path to{tmp_path / config["figures_dir"].as<std::string>()};
 	return utils::copy_dir(from, to);
 }
 
-bool save(const fs::path& tmp_path, const std::string& pb_name) {
+bool save(const fs::path& tmp_path, const fs::path& pb_path) {
 	const fs::path from{tmp_path / config["figures_dir"].as<std::string>()};
-	const fs::path to{get_problem_path(pb_name) / config["figures_dir"].as<std::string>()};
+	const fs::path to{pb_path / config["figures_dir"].as<std::string>()};
 	return utils::copy_dir(from, to);
 }
 }; // namespace figures

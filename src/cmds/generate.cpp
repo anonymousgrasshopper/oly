@@ -217,7 +217,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 
 	// TODO: import all figures, and handle conflicts
 	utils::figures::copy(typst_file_path.parent_path(),
-	                     get_problem_name(positional_args.front()));
+	                     get_problem_path(positional_args.front()));
 
 	std::string preview_cmd = config["preview"].as<bool>()
 	                              ? "--open " + config["pdf_viewer"].as<std::string>()

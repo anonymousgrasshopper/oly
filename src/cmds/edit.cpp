@@ -66,23 +66,23 @@ std::string Edit::get_solution(const fs::path& source) const {
 	const fs::path tmp_path =
 	    static_cast<fs::path>(get<std::string>("OLY_TMPDIR")) / pb_name;
 
-	utils::figures::copy(tmp_path, pb_name);
+	utils::figures::copy(tmp_path, source.parent_path());
 
 	std::string input =
 	    utils::input_file(tmp_path / ("solution" + utils::filetype_extension()), solution,
 	                      false)
 	        .filter_top_lines(std::regex("^\\s*$"));
 
-	utils::figures::save(tmp_path, pb_name);
+	utils::figures::save(tmp_path, source.parent_path());
 
 	return uncomment_metadata(input);
 }
 
 void Edit::edit_problem(const std::string& pb) const {
-	const fs::path source_path = get_problem_solution_path(pb);
+	const fs::path solution_path = get_problem_solution_path(pb);
 	config["source"] = get_problem_name(pb);
-	std::string sol = get_solution(source_path);
-	utils::file::overwrite(source_path, sol);
+	std::string sol = get_solution(solution_path);
+	utils::file::overwrite(solution_path, sol);
 }
 
 int Edit::execute() {

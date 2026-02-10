@@ -86,9 +86,9 @@ void create_preview_file();
 }
 
 namespace figures {
-bool copy(const fs::path& tmp_path, const std::string& pb_name);
+bool copy(const fs::path& tmp_path, const fs::path& pb_path);
 
-bool save(const fs::path& tmp_path, const std::string& pb_name);
+bool save(const fs::path& tmp_path, const fs::path& pb_path);
 } // namespace figures
 
 } // namespace utils
