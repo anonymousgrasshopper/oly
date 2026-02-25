@@ -120,7 +120,12 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	std::error_code ec;
 
 	if (!fs::exists(from, ec) || !fs::is_directory(from, ec)) {
-		return false;
+		if (fs::exists(to, ec)) {
+			fs::remove(to, ec);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	if (!fs::exists(to, ec)) {
@@ -133,7 +138,7 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	         ec);
 
 	if (ec) {
-		Log::ERROR("Add::save_figures: Error copying: " + ec.message());
+		Log::ERROR("utils::copy_dir: Error copying: " + ec.message());
 		return false;
 	}
 
