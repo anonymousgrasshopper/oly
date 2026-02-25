@@ -6,7 +6,6 @@
 #include <stdexcept>
 
 #include "oly/config.hpp"
-#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
