@@ -36,7 +36,7 @@ void print_help() {
 std::string expand_vars(const std::string& str, bool expand_config_vars,
                         bool expand_env_vars) {
 	auto formatter = [&](const std::string& match) -> std::string {
-		if (expand_config_vars && config[match]) {
+		if (expand_config_vars && config[match] && config[match].IsScalar()) {
 			return config[match].as<std::string>();
 		} else if (expand_env_vars) {
 			const char* s = getenv(match.c_str());

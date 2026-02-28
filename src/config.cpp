@@ -41,21 +41,34 @@ static bool is_valid(const YAML::Node& config) {
 	bool valid = true;
 	std::vector<std::string> required_fields = {"author", "base_path", "pdf_viewer"};
 	std::vector<std::string> missing_fields;
+	std::vector<std::string> wrong_type;
 
-	for (const std::string& field : required_fields)
-		if (!config[field])
+	for (const std::string& field : required_fields) {
+		if (!config[field]) {
 			missing_fields.push_back(field);
+		} else if (!(config[field].IsScalar())) {
+			wrong_type.push_back(field);
+		}
+	}
 
-	if (!missing_fields.empty()) {
-		std::string missing = missing_fields[0];
-		for (size_t i = 1; i < missing_fields.size(); i++) {
-			if (i == missing_fields.size() - 1) {
-				missing.append(" and " + missing_fields[i]);
+	auto concatenate = [](std::vector<std::string> a) -> std::string {
+		std::string str = a[0];
+		for (size_t i = 1; i < a.size(); i++) {
+			if (i == a.size() - 1) {
+				str.append(" and " + a[i]);
 			} else {
-				missing.append(", " + missing_fields[i]);
+				str.append(", " + a[i]);
 			}
 		}
-		Log::ERROR(missing + " must be configured in config.yaml");
+		return str;
+	};
+	if (!missing_fields.empty()) {
+		Log::ERROR(concatenate(missing_fields) + " must be configured in config.yaml");
+		valid = false;
+	}
+	if (!wrong_type.empty()) {
+		std::string msg = wrong_type.size() == 1 ? " must be a string" : " must be strings";
+		Log::ERROR(concatenate(wrong_type) + msg);
 		valid = false;
 	}
 
