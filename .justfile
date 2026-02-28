@@ -1,5 +1,5 @@
 cp_bin:
-	-sudo cp build/bin/oly /usr/local/bin
+	-cp build/bin/oly ~/.local/bin/
 
 build:
 	@cmake --build build
