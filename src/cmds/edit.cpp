@@ -1,3 +1,4 @@
+#include <exception>
 #include <fstream>
 
 #include "oly/cmds/edit.hpp"
@@ -34,7 +35,16 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	while (getline(solution_file, line)) {
 		solution += (line + '\n');
 	}
-	utils::yaml::merge_metadata(YAML::Load(metadata));
+
+	// empty typst files
+	if (solution == "/*\n")
+		solution += "*/\n";
+
+	try {
+		utils::yaml::merge_metadata(YAML::Load(metadata));
+	} catch (std::exception& e) {
+		Log::ERROR(e.what());
+	}
 
 	return solution;
 }
