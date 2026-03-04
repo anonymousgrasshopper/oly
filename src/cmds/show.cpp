@@ -62,31 +62,35 @@ constexpr const static std::string colorize(const std::string& input) {
 	bool in_math_mode = false;
 	std::string formatted = "";
 	bool escaped = false;
-	for (const char& c : input) {
-		if (c == '$' && not escaped) {
-			formatted += in_math_mode ? COLOR_RESET : MATH_MODE_OPEN;
-			in_math_mode = !in_math_mode;
-		} else if (c == '\\' && not escaped) {
-			escaped = true;
-		} else if (c == '\\' && escaped) {
-			formatted += '\\';
-		} else if (escaped) {
-			formatted += "⏎";
-		} else if (operators.contains(c) && in_math_mode) {
-			formatted += OPERATOR_COLOR;
-			formatted += c;
-			formatted += MATH_MODE_OPEN;
-		} else if (punctuation.contains(c) && in_math_mode) {
-			formatted += PUNCTUATION_COLOR;
-			formatted += c;
-			formatted += MATH_MODE_OPEN;
-		} else if (std::isdigit(c)) {
-			formatted += DIGIT_COLOR;
-			formatted += c;
-			formatted += in_math_mode ? MATH_MODE_OPEN : COLOR_RESET;
-		} else {
-			formatted += c;
+	if (config["lang"].as<std::string>() == "typst") {
+		for (const char& c : input) {
+			if (c == '$' && not escaped) {
+				formatted += in_math_mode ? COLOR_RESET : MATH_MODE_OPEN;
+				in_math_mode = !in_math_mode;
+			} else if (c == '\\' && not escaped) {
+				escaped = true;
+			} else if (c == '\\' && escaped) {
+				formatted += '\\';
+			} else if (escaped) {
+				formatted += "⏎";
+			} else if (operators.contains(c) && in_math_mode) {
+				formatted += OPERATOR_COLOR;
+				formatted += c;
+				formatted += MATH_MODE_OPEN;
+			} else if (punctuation.contains(c) && in_math_mode) {
+				formatted += PUNCTUATION_COLOR;
+				formatted += c;
+				formatted += MATH_MODE_OPEN;
+			} else if (std::isdigit(c)) {
+				formatted += DIGIT_COLOR;
+				formatted += c;
+				formatted += in_math_mode ? MATH_MODE_OPEN : COLOR_RESET;
+			} else {
+				formatted += c;
+			}
 		}
+	} else {
+		formatted = input;
 	}
 	return formatted;
 }
