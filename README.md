@@ -16,9 +16,9 @@ To build the project yourself, you can
 ```sh
 git clone https://github.com/anonymousgrasshopper/oly
 cd oly
-cmake -DCMAKE_BUILD_TYPE=Release -B build
-cmake --build build
-sudo cp build/bin/oly /usr/local/bin/oly
+cmake -DCMAKE_BUILD_TYPE=Release -B build/Release
+cmake --build build/Release
+sudo cp build/bin/oly /usr/local/bin/oly # or anywhere in $PATH
 ```
 If you have [just](https://github.com/casey/just) installed, you can also
 just run `just install` in the repo to do the above.

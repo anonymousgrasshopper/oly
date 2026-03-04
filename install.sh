@@ -38,8 +38,8 @@ if [[ -z "$BUILD_DIR" ]]; then
 fi
 cd "$BUILD_DIR"
 
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
+cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
+cmake --build build/Release --parallel
 
 declare -A files
 files["build/bin/oly"]="$INSTALL_DIR"

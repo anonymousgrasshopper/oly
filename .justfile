@@ -1,23 +1,17 @@
-cp_bin:
-	-cp build/bin/oly ~/.local/bin/
-
-build:
-	@cmake --build build
-	@just cp_bin
-
 release:
-	@cmake -DCMAKE_BUILD_TYPE=Release -B build
-	@just build
+	@cmake -DCMAKE_BUILD_TYPE=Release -B build/Release
+	@cmake --build build/Release
 
 debug:
-	@cmake -DCMAKE_BUILD_TYPE=Debug -B build
-	@just build
+	@cmake -DCMAKE_BUILD_TYPE=Debug -B build/Debug
+	@cmake --build build/Debug
 
 relwithdeb:
-	@cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B build
-	@just build
+	@cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -B build/RelWithDebInfo
+	@cmake --build build/RelWithDebInfo
 
-install: release cp_bin
+install: release
+	-cp build/bin/oly ~/.local/bin/
 	oly --version
 
 sync_assets:
