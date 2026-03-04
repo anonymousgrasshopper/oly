@@ -9,8 +9,6 @@
 #include <variant>
 #include <vector>
 
-#include "oly/config.hpp"
-
 struct Option {
 	std::vector<std::string> names;
 	std::string desc;
@@ -126,12 +124,8 @@ void Command::add(std::string flags, std::string desc, Callable&& callback) {
 }
 
 template <typename T> T Command::get(const std::string& opt) const {
-	if (opt.starts_with('-')) {
-		auto it = lookup.find(opt);
-		if (it == lookup.end())
-			throw std::invalid_argument{"Unknown option: " + opt};
-		return std::get<T>(it->second->value);
-	} else {
-		return config[opt].as<T>();
-	}
+	auto it = lookup.find(opt);
+	if (it == lookup.end())
+		throw std::invalid_argument{"Unknown option: " + opt};
+	return std::get<T>(it->second->value);
 }

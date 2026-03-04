@@ -50,13 +50,13 @@ int main(int argc, char* argv[]) {
 	}
 
 	if (has_cmd_name) {
-		config["cmd"] = args[0];
+		shared["cmd"] = args[0];
 		args.erase(args.begin());
 	} else {
-		config["cmd"] = "default";
+		shared["cmd"] = "default";
 	}
 
-	setenv("OLY", config["cmd"].as<std::string>().c_str(), 1);
+	setenv("OLY", shared["cmd"].c_str(), 1);
 
 	cmd->parse(args);
 	return cmd->execute();

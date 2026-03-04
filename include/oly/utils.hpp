@@ -79,6 +79,8 @@ std::optional<YAML::Node> load(const fs::path& filepath);
 
 [[nodiscard]]
 std::optional<YAML::Node> load(const std::string& yaml, std::string source = "");
+
+void merge_metadata(const YAML::Node& extend, bool override = true);
 } // namespace yaml
 
 namespace preview {

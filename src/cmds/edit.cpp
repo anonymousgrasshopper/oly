@@ -16,16 +16,16 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	std::string solution;
 	std::string line;
 	std::string metadata;
-	if (get<std::string>("lang") == "typst")
+	if (opts.lang == configuration::lang::typst)
 		solution += "/*\n";
 	while (getline(solution_file, line)) {
 		if (!utils::is_yaml(line)) {
-			if (get<std::string>("lang") == "typst")
+			if (opts.lang == configuration::lang::typst)
 				solution += "*/\n";
 			solution += (line + '\n');
 			break;
 		} else {
-			if (get<std::string>("lang") == "latex")
+			if (opts.lang == configuration::lang::latex)
 				solution += "% ";
 			solution += (line + '\n');
 			metadata += (line + '\n');
@@ -34,13 +34,13 @@ std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) cons
 	while (getline(solution_file, line)) {
 		solution += (line + '\n');
 	}
-	configuration::merge_config(YAML::Load(metadata));
+	utils::yaml::merge_metadata(YAML::Load(metadata));
 
 	return solution;
 }
 
 std::string Edit::uncomment_metadata(std::string& input) const {
-	if (get<std::string>("lang") == "typst") {
+	if (opts.lang == configuration::lang::typst) {
 		if (input.starts_with("/*\n")) {
 			input = input.substr(3);
 		}
@@ -61,10 +61,9 @@ std::string Edit::get_solution(const fs::path& source) const {
 
 	utils::preview::create_preview_file();
 
-	std::string pb_name = config["source"].as<std::string>();
+	std::string pb_name = shared["source"];
 
-	const fs::path tmp_path =
-	    static_cast<fs::path>(get<std::string>("OLY_TMPDIR")) / pb_name;
+	const fs::path tmp_path = static_cast<fs::path>(opts.tmpdir / pb_name);
 
 	utils::figures::copy(tmp_path, source.parent_path());
 
@@ -80,7 +79,7 @@ std::string Edit::get_solution(const fs::path& source) const {
 
 void Edit::edit_problem(const std::string& pb) const {
 	const fs::path solution_path = get_problem_solution_path(pb);
-	config["source"] = get_problem_name(pb);
+	shared["source"] = get_problem_name(pb);
 	std::string sol = get_solution(solution_path);
 	utils::file::overwrite(solution_path, sol);
 }

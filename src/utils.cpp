@@ -36,8 +36,8 @@ void print_help() {
 std::string expand_vars(const std::string& str, bool expand_config_vars,
                         bool expand_env_vars) {
 	auto formatter = [&](const std::string& match) -> std::string {
-		if (expand_config_vars && config[match] && config[match].IsScalar()) {
-			return config[match].as<std::string>();
+		if (expand_config_vars && metadata[match] && metadata[match].IsScalar()) {
+			return metadata[match].as<std::string>();
 		} else if (expand_env_vars) {
 			const char* s = getenv(match.c_str());
 			return (s == NULL ? "" : s);
@@ -61,7 +61,7 @@ std::string expand_env_vars(const std::string& str) {
 }
 
 std::string filetype_extension() {
-	return config["lang"].as<std::string>() == "latex" ? ".tex" : ".typ";
+	return opts.lang == configuration::lang::latex ? ".tex" : ".typ";
 }
 
 void set_log_level(std::string level) {
@@ -90,7 +90,7 @@ void set_log_level(std::string level) {
 
 bool is_separator(const std::string& line) {
 	std::regex separator_pattern;
-	if (config["lang"].as<std::string>() == "latex") {
+	if (opts.lang == configuration::lang::latex) {
 		separator_pattern = R"(^\\hrulebar\s*$)";
 	} else {
 		separator_pattern = R"(^#hrule\s*$)";
@@ -104,7 +104,7 @@ bool is_yaml(const std::string& line) {
 }
 
 bool should_ignore(const std::string& line) {
-	if (config["lang"].as<std::string>() == "typst") {
+	if (opts.lang == configuration::lang::typst) {
 		if (line.starts_with("#import")) {
 			return true;
 		}
@@ -149,12 +149,11 @@ std::vector<std::string> prompt_user_for_problems() {
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
 
-	std::string cmd = "fd -tf . --base-directory " + config["base_path"].as<std::string>() +
+	std::string cmd = "fd -tf . --base-directory " + opts.base_path.string() +
 	                  " --print0 --color=never --strip-cwd-prefix=always --extension=typ "
 	                  "--extension=tex"
 	                  "| fzf --read0 --print0 --multi" +
-	                  " --preview 'oly show '" + config["base_path"].as<std::string>() +
-	                  "/{}''";
+	                  " --preview 'oly show '" + opts.base_path.string() + "/{}''";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe)
@@ -169,7 +168,7 @@ std::vector<std::string> prompt_user_for_problems() {
 	while ((n = fread(buf, 1, sizeof(buf), pipe)) > 0) {
 		for (size_t i = 0; i < n; ++i) {
 			if (buf[i] == '\0') {
-				result.push_back(config["base_path"].as<std::string>() + "/" + current);
+				result.push_back(opts.base_path.string() + "/" + current);
 				current.clear();
 			} else {
 				current.push_back(buf[i]);
@@ -233,7 +232,7 @@ std::string input_file::filter_top_lines(const std::regex& reg) {
 }
 
 void input_file::edit() {
-	std::string cmd = config["editor"].as<std::string>() + " \"" + filepath.string() + "\"";
+	std::string cmd = opts.editor + " \"" + filepath.string() + "\"";
 	if (filepath.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
@@ -250,7 +249,7 @@ void create(const fs::path& filepath, const std::string& contents) {
 
 void edit(const fs::path& filepath, std::string editor) {
 	if (editor == "")
-		editor = config["editor"].as<std::string>();
+		editor = opts.editor;
 	std::string cmd = editor + " \"" + filepath.string() + "\"";
 	if (filepath.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
@@ -296,14 +295,28 @@ std::optional<YAML::Node> load(const std::string& yaml, std::string source) {
 	}
 	return std::nullopt;
 }
+
+void merge_metadata(const YAML::Node& extend, bool override) {
+	if (!extend.IsDefined())
+		return;
+
+	if (extend.IsMap()) {
+		for (auto it : extend) {
+			const std::string key = it.first.as<std::string>();
+			const YAML::Node& value = it.second;
+			if (override || !metadata[key]) {
+				metadata[key] = value;
+			}
+		}
+	}
+}
 } // namespace yaml
 
 namespace preview {
 void create_preview_file() {
-	fs::path preview_file_path(config["OLY_TMPDIR"].as<std::string>() +
-	                           config["source"].as<std::string>() + "/" + "preview" +
-	                           filetype_extension());
-	if (config["lang"].as<std::string>() == "latex") {
+	fs::path preview_file_path(opts.tmpdir / shared["source"] /
+	                           ("preview" + filetype_extension()));
+	if (opts.lang == configuration::lang::latex) {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/tex/preview.tex"
 		};
@@ -323,14 +336,14 @@ void create_preview_file() {
 
 namespace figures {
 bool copy(const fs::path& tmp_path, const fs::path& pb_path) {
-	const fs::path from{pb_path / config["figures_dir"].as<std::string>()};
-	const fs::path to{tmp_path / config["figures_dir"].as<std::string>()};
+	const fs::path from{pb_path / opts.figures_dir};
+	const fs::path to{tmp_path / opts.figures_dir};
 	return utils::copy_dir(from, to);
 }
 
 bool save(const fs::path& tmp_path, const fs::path& pb_path) {
-	const fs::path from{tmp_path / config["figures_dir"].as<std::string>()};
-	const fs::path to{pb_path / config["figures_dir"].as<std::string>()};
+	const fs::path from{tmp_path / opts.figures_dir};
+	const fs::path to{pb_path / opts.figures_dir};
 	return utils::copy_dir(from, to);
 }
 }; // namespace figures

@@ -31,11 +31,12 @@ Command::Command() {
 		if (lang != "latex" && lang != "typst") {
 			Log::CRITICAL("lang needs to be one of latex or typst !");
 		} else {
-			config["lang"] = lang;
+			opts.lang =
+			    lang == "latex" ? configuration::lang::latex : configuration::lang::typst;
 		}
 	});
 	add("--language", "Choose which language to use",
-	    [&](std::string language) { config["language"] = language; });
+	    [&](std::string language) { opts.language = language; });
 }
 
 Command::~Command() = default;
@@ -146,10 +147,10 @@ void Command::load_config_file() {
 }
 
 void Command::print_help() const {
-	if (config["cmd"].as<std::string>() == "default") {
+	if (shared["cmd"] == "default") {
 		utils::print_help();
 	} else {
-		std::string cmd = config["cmd"].as<std::string>();
+		std::string cmd = shared["cmd"];
 
 		std::vector<std::string> alias_strings;
 		alias_strings.reserve(storage.size());

@@ -37,10 +37,10 @@ static std::string get_contest(const std::string& source) {
 	static std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
-		if (config["abbreviations"][contest]) {
-			contest = config["abbreviations"][contest].as<std::string>();
+		if (opts.abbreviations.contains(contest)) {
+			contest = opts.abbreviations[contest];
 		} else {
-			if (!config["contest_format"][contest]) {
+			if (!opts.contest_format.contains(contest)) {
 				if (contest.length() <= 4 && contest.find(' ') == std::string::npos) {
 					std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
 					// } else {
@@ -94,7 +94,7 @@ static std::string get_problem(const std::string& source) {
 			problem = "P" + match[4].str();
 		} else {
 			problem = match[3].str() + match[4].str();
-			config["topic"] = get_topic(match[3].str()[0]);
+			shared["topic"] = get_topic(match[3].str()[0]);
 		}
 	}
 
@@ -150,7 +150,7 @@ static fs::path get_path(const std::string& source) {
 		return source_to_path[source];
 
 	std::string contest{parsers::get_contest(source)};
-	if (config["contest_format"][contest]) {
+	if (opts.contest_format.contains(contest)) {
 		auto expander = [&](const std::string& var) -> std::string {
 			if (var == "date") {
 				return parsers::get_date(source);
@@ -166,8 +166,7 @@ static fs::path get_path(const std::string& source) {
 				return "";
 			}
 		};
-		source_to_path[source] =
-		    utils::expand_vars(config["contest_format"][contest].as<std::string>(), expander);
+		source_to_path[source] = utils::expand_vars(opts.contest_format[contest], expander);
 	} else if (contest.length()) {
 		std::string year{parsers::get_year(source)};
 		if (year.length()) {
@@ -196,9 +195,9 @@ fs::path get_problem_path(const std::string& source) {
 		source_path = source;
 		std::string extension = source_path.extension();
 		if (extension == ".tex") {
-			config["lang"] = "latex";
+			opts.lang = configuration::lang::latex;
 		} else if (extension == ".typ") {
-			config["lang"] = "typst";
+			opts.lang = configuration::lang::typst;
 		}
 		return source_path.parent_path();
 	} else if (source.starts_with("~/")) {
@@ -207,9 +206,9 @@ fs::path get_problem_path(const std::string& source) {
 			source_path = std::string(home) + source.substr(1);
 			std::string extension = source_path.extension();
 			if (extension == ".tex") {
-				config["lang"] = "latex";
+				opts.lang = configuration::lang::latex;
 			} else if (extension == ".typ") {
-				config["lang"] = "typst";
+				opts.lang = configuration::lang::typst;
 			}
 			return source_path.parent_path();
 		} else {
@@ -219,9 +218,7 @@ fs::path get_problem_path(const std::string& source) {
 		source_path = get_path(source);
 	}
 
-	return fs::path(
-	    fs::path(utils::expand_env_vars(config["base_path"].as<std::string>())) /
-	    source_path);
+	return fs::path(fs::path(utils::expand_env_vars(opts.base_path)) / source_path);
 }
 
 fs::path get_problem_solution_path(const std::string& source) {

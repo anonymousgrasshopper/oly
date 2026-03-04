@@ -11,9 +11,8 @@
 namespace fs = std::filesystem;
 
 Remove::Remove() {
-	add("--confirm,-i", "prompt before deleting file", [] { config["confirm"] = true; });
-	add("--force,-f", "do not prompt before deleting file",
-	    [] { config["confirm"] = false; });
+	add("--confirm,-i", "prompt before deleting file", [] { opts.confirm = true; });
+	add("--force,-f", "do not prompt before deleting file", [] { opts.confirm = false; });
 }
 
 bool Remove::prompt_before_deletion(const fs::path& path) {
@@ -40,7 +39,7 @@ void Remove::delete_problem(const fs::path& path) {
 		Log::ERROR(path.string() + " doesn't exist !");
 	} else {
 		if (prompt_before_deletion(path)) {
-			if (!fs::remove(path)) {
+			if (!fs::remove_all(path)) {
 				Log::ERROR(path.string() + " couldn't be removed...");
 			}
 		}

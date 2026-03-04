@@ -13,13 +13,13 @@
 namespace fs = std::filesystem;
 
 Generate::Generate() {
-	add("--preview", "open the generated pdf", [] { config["preview"] = true; });
-	add("--no-preview", "do not open the generated pdf", [] { config["preview"] = false; });
+	add("--preview", "open the generated pdf", [] { opts.preview = true; });
+	add("--no-preview", "do not open the generated pdf", [] { opts.preview = false; });
 	add("--clean", "remove the auxiliary files", false);
 	add("--no-pdf", "only generate a LaTeX file", false);
 	add("--no-source", "remove the source file and induce --clean", false);
 	add("--cwd", "create the files in the current directory",
-	    [] { config["output_directory"] = fs::current_path().string(); });
+	    [] { opts.output_directory = fs::current_path().string(); });
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -96,7 +96,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		else
 			out << "\\begin{problem*}";
 		if (metadata["source"])
-			out << " [" + config["source"].as<std::string>() + "]";
+			out << " [" + shared["source"] + "]";
 		out << "\n";
 		if (bodies.size() > 0)
 			out << bodies[0];
@@ -122,17 +122,15 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	for (auto program : {std::string("latexmk"), config["pdf_viewer"].as<std::string>()})
+	for (auto program : {std::string("latexmk"), opts.pdf_viewer})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
 
 	if (latex_file_path.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
-	std::string preview_cmd = config["preview"].as<bool>()
-	                              ? "-pv -e '$pdf_previewer=q[" +
-	                                    config["pdf_viewer"].as<std::string>() + " %S];' "
-	                              : "";
+	std::string preview_cmd =
+	    opts.preview ? "-pv -e '$pdf_previewer=q[" + opts.pdf_viewer + " %S];' " : "";
 	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
 	                  '"' + " -quiet " + preview_cmd + '"' + latex_file_path.string() + '"';
 	std::system(cmd.c_str());
@@ -165,7 +163,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		std::vector<std::string> bodies = get_solution_bodies(pb_path);
 		YAML::Node metadata = get_solution_metadata(pb_path);
 		if (positional_args.size() == 1) {
-			configuration::merge_config(metadata);
+			utils::yaml::merge_metadata(metadata);
 			out << utils::expand_vars(latex_preamble);
 		}
 
@@ -208,7 +206,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	for (auto program : {std::string("typst"), config["pdf_viewer"].as<std::string>()})
+	for (auto program : {std::string("typst"), opts.pdf_viewer})
 		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
 			Log::CRITICAL(program + " is not executable");
 
@@ -219,9 +217,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	utils::figures::copy(typst_file_path.parent_path(),
 	                     get_problem_path(positional_args.front()));
 
-	std::string preview_cmd = config["preview"].as<bool>()
-	                              ? "--open " + config["pdf_viewer"].as<std::string>()
-	                              : "";
+	std::string preview_cmd = opts.preview ? "--open " + opts.pdf_viewer : "";
 	std::string cmd = "typst compile --root=\"" + typst_file_path.parent_path().string() +
 	                  "\" " + preview_cmd + " \"" + typst_file_path.string() + '"';
 	std::system(cmd.c_str());
@@ -245,11 +241,11 @@ int Generate::execute() {
 		source += get_problem_name(problem) + " - ";
 	}
 	source = source.substr(0, source.length() - 3);
-	config["source"] = source;
+	shared["source"] = source;
 
-	fs::path output_path(utils::expand_vars(config["output_directory"].as<std::string>()));
+	fs::path output_path(utils::expand_vars(opts.output_directory));
 
-	if (config["lang"].as<std::string>() == "latex") {
+	if (opts.lang == configuration::lang::latex) {
 		try {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));

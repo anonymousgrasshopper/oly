@@ -57,7 +57,7 @@ colorscheme:
 
 # where temporary files are written
 # defaults to ${TMPDIR:-/tmp}/oly
-# OLY_TMPDIR: /tmp/oly
+# tmpdir: /tmp/oly
 
 # added right after \documentclass in the preview file in latex
 # meant to specify which latex packages to use

@@ -43,9 +43,8 @@ constexpr const static std::string get_color(const std::string& field) {
 	    {"digit", hex_to_rgb("#d27e99")},
 	    {"punctuation", hex_to_rgb("#9cabca")},
 	};
-	if (config["colorscheme"] && config["colorscheme"][field] &&
-	    config["colorscheme"][field].IsScalar()) {
-		return hex_to_rgb(config["colorscheme"][field].as<std::string>());
+	if (opts.colorscheme.contains(field)) {
+		return hex_to_rgb(opts.colorscheme[field]);
 	} else {
 		return default_hex.at(field);
 	}
@@ -62,7 +61,7 @@ constexpr const static std::string colorize(const std::string& input) {
 	bool in_math_mode = false;
 	std::string formatted = "";
 	bool escaped = false;
-	if (config["lang"].as<std::string>() == "typst") {
+	if (opts.lang == configuration::lang::typst) {
 		for (const char& c : input) {
 			if (c == '$' && not escaped) {
 				formatted += in_math_mode ? COLOR_RESET : MATH_MODE_OPEN;
