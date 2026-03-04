@@ -78,52 +78,50 @@ struct Options {
 	std::string contents;
 	std::string metadata;
 
-	void update(const std::string& key, const YAML::Node& node) {
-		if (key == "author") {
-			author = node.as<std::string>();
-		} else if (key == "base_path") {
-			base_path = fs::path(node.as<std::string>());
-		} else if (key == "figures_dir") {
-			figures_dir = fs::path(node.as<std::string>());
-		} else if (key == "lang") {
-			auto s = node.as<std::string>();
+	void update(const YAML::Node& node) {
+		if (node["author"])
+			author = node["author"].as<std::string>();
+		if (node["base_path"])
+			base_path = fs::path(node["base_path"].as<std::string>());
+		if (node["figures_dir"])
+			figures_dir = fs::path(node["figures_dir"].as<std::string>());
+		if (node["lang"]) {
+			auto s = node["lang"].as<std::string>();
 			if (s == "latex")
 				lang = configuration::lang::latex;
 			else if (s == "typst")
 				lang = configuration::lang::typst;
 			else
 				throw std::runtime_error("Invalid value for 'lang': " + s);
-		} else if (key == "language") {
-			language = node.as<std::string>();
-		} else if (key == "editor") {
-			editor = node.as<std::string>();
-		} else if (key == "pdf_viewer") {
-			pdf_viewer = node.as<std::string>();
-		} else if (key == "preview") {
-			preview = node.as<bool>();
-		} else if (key == "confirm") {
-			confirm = node.as<bool>();
-		} else if (key == "abbreviations") {
-			abbreviations = node.as<std::map<std::string, std::string>>();
-		} else if (key == "contest_format") {
-			contest_format = node.as<std::map<std::string, std::string>>();
-		} else if (key == "colorscheme") {
-			colorscheme = node.as<std::map<std::string, std::string>>();
-		} else if (key == "output_directory") {
-			output_directory = fs::path(node.as<std::string>());
-		} else if (key == "tmpdir") {
-			tmpdir = fs::path(node.as<std::string>());
-		} else if (key == "packages") {
-			packages = node.as<std::string>();
-		} else if (key == "preamble") {
-			preamble = node.as<std::string>();
-		} else if (key == "contents") {
-			contents = node.as<std::string>();
-		} else if (key == "metadata") {
-			metadata = node.as<std::string>();
-		} else {
-			throw std::runtime_error("Unknown configuration key: " + key);
 		}
+		if (node["language"])
+			language = node["language"].as<std::string>();
+		if (node["editor"])
+			editor = node["editor"].as<std::string>();
+		if (node["pdf_viewer"])
+			pdf_viewer = node["pdf_viewer"].as<std::string>();
+		if (node["preview"])
+			preview = node["preview"].as<bool>();
+		if (node["confirm"])
+			confirm = node["confirm"].as<bool>();
+		if (node["abbreviations"])
+			abbreviations = node["abbreviations"].as<std::map<std::string, std::string>>();
+		if (node["contest_format"])
+			contest_format = node["contest_format"].as<std::map<std::string, std::string>>();
+		if (node["colorscheme"])
+			colorscheme = node["colorscheme"].as<std::map<std::string, std::string>>();
+		if (node["output_directory"])
+			output_directory = fs::path(node["output_directory"].as<std::string>());
+		if (node["tmpdir"])
+			tmpdir = fs::path(node["tmpdir"].as<std::string>());
+		if (node["packages"])
+			packages = node["packages"].as<std::string>();
+		if (node["preamble"])
+			preamble = node["preamble"].as<std::string>();
+		if (node["contents"])
+			contents = node["contents"].as<std::string>();
+		if (node["metadata"])
+			metadata = node["metadata"].as<std::string>();
 	}
 };
 

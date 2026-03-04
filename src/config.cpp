@@ -109,13 +109,8 @@ static void add_defaults(YAML::Node& config) {
 	}
 
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    // {"lang", "latex"},
-	    // {"language", "en"},
 	    {"editor", editor},
-	    // {"preview", true},
-	    // {"confirm", false},
 	    {"output_directory", cache_home + "/oly/${source}"},
-	    // {"figures_dir", "figures"},
 	    {"tmpdir", static_cast<std::string>(tmpdir) + "/oly/"}};
 	for (auto [key, value] : default_options) {
 		if (!config[key]) {
@@ -181,23 +176,6 @@ static void add_defaults(YAML::Node& config) {
 	}
 }
 
-static bool update_config(const YAML::Node& node) {
-	if (!node.IsDefined() || !node.IsMap())
-		return false;
-
-	for (auto it : node) {
-		const std::string key = it.first.as<std::string>();
-		const YAML::Node& value = it.second;
-		try {
-			opts.update(key, value);
-		} catch (const std::exception& e) {
-			Log::ERROR(e.what(), logopt::WAIT);
-			return false;
-		}
-	}
-	return true;
-}
-
 namespace configuration {
 void load_config(std::string config_file_path) {
 	config_file = utils::expand_env_vars(config_file_path);
@@ -208,16 +186,20 @@ void load_config(std::string config_file_path) {
 		utils::file::edit(config_file, editor);
 	}
 
-load:
 	std::optional<YAML::Node> userconfig = utils::yaml::load(config_file);
 	while (!userconfig || !is_valid(userconfig.value())) {
+	edit:
 		utils::file::edit(config_file, editor);
 		userconfig = utils::yaml::load(config_file);
 	}
 
 	utils::yaml::merge_metadata(userconfig.value(), false);
 	add_defaults(userconfig.value());
-	if (!update_config(userconfig.value()))
-		goto load;
+	try {
+		opts.update(userconfig.value());
+	} catch (const std::exception& e) {
+		Log::ERROR(e.what(), logopt::WAIT);
+		goto edit;
+	}
 }
 } // namespace configuration
