@@ -48,6 +48,8 @@ static constexpr std::string severity_name(severity lvl) {
 		return "DEBUG";
 	case severity::TRACE:
 		return "TRACE";
+	default:
+		return "";
 	}
 }
 static constexpr std::string severity_color(severity lvl) {
@@ -66,6 +68,8 @@ static constexpr std::string severity_color(severity lvl) {
 		return "\x1b[38;2;113;124;124m";
 	case severity::TRACE:
 		return "\x1b[38;2;220;215;186m";
+	default:
+		return "";
 	}
 }
 constexpr const std::string COLOR_RESET = "\x1b[0m";
