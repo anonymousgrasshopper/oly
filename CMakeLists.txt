@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
 project(oly VERSION 0.1.1 LANGUAGES CXX)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+	add_custom_target(link_compile_commands ALL
+		COMMAND ${CMAKE_COMMAND} -E create_symlink
+			${CMAKE_BINARY_DIR}/compile_commands.json
+			${CMAKE_SOURCE_DIR}/build/compile_commands.json
+	)
+endif()
 
 include(FetchContent)
 
@@ -49,9 +52,3 @@ target_compile_options(oly PRIVATE -Wall -Wextra -Wpedantic)
 target_include_directories(oly PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(oly PRIVATE yaml-cpp)
-
-set_target_properties(oly PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-	ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-	LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-)
