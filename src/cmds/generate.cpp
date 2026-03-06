@@ -213,9 +213,10 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (typst_file_path.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
-	// TODO: import all figures, and handle conflicts
-	utils::figures::copy(typst_file_path.parent_path(),
-	                     get_problem_path(positional_args.front()));
+	// BUG: unhandled conflicts (figures with the same name)
+	for (std::string problem : positional_args) {
+		utils::figures::copy(typst_file_path.parent_path(), get_problem_path(problem));
+	}
 
 	std::string preview_cmd = opts.preview ? "--open " + opts.pdf_viewer : "";
 	std::string cmd = "typst compile --root=\"" + typst_file_path.parent_path().string() +
@@ -243,7 +244,7 @@ int Generate::execute() {
 	source = source.substr(0, source.length() - 3);
 	shared["source"] = source;
 
-	fs::path output_path(utils::expand_vars(opts.output_directory));
+	fs::path output_path(fs::path(utils::expand_vars(opts.output_directory)) / source);
 
 	if (opts.lang == configuration::lang::latex) {
 		try {
