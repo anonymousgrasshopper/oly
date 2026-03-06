@@ -11,7 +11,7 @@ relwithdeb:
 	@cmake --build build/RelWithDebInfo
 
 install: release
-	-cp build/bin/oly ~/.local/bin/
+	-cp build/Release/oly ~/.local/bin/
 	oly --version
 
 sync_assets:
