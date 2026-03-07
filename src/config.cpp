@@ -16,7 +16,6 @@
 
 namespace fs = std::filesystem;
 
-static fs::path config_file;
 static std::string editor;
 
 static std::string get_editor() {
@@ -28,8 +27,13 @@ static std::string get_editor() {
 	return editor;
 }
 
-static void create_default_config() {
-	fs::create_directories(config_file.parent_path());
+static void create_default_config(const fs::path& config_file) {
+	try {
+		fs::create_directories(config_file.parent_path());
+	} catch (const std::exception& e) {
+		Log::CRITICAL("std::filesystem::create_directories(" +
+		              config_file.parent_path().string() + ")\n" + e.what());
+	}
 	constexpr char DEFAULT_CONFIG_BYTES[] = {
 #embed "../assets/config.yaml"
 	};
@@ -178,11 +182,11 @@ static void add_defaults(YAML::Node& config) {
 
 namespace configuration {
 void load_config(std::string config_file_path) {
-	config_file = utils::expand_env_vars(config_file_path);
+	const fs::path config_file = fs::absolute(utils::expand_env_vars(config_file_path));
 
 	editor = get_editor();
 	while (!fs::exists(config_file)) {
-		create_default_config();
+		create_default_config(config_file);
 		utils::file::edit(config_file, editor);
 	}
 
