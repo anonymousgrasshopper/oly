@@ -38,7 +38,7 @@ void Remove::delete_problem(const fs::path& path) {
 	if (!fs::exists(path)) {
 		Log::ERROR(path.string() + " doesn't exist !");
 	} else {
-		if (prompt_before_deletion(path)) {
+		if (!opts.confirm || prompt_before_deletion(path)) {
 			if (!fs::remove_all(path)) {
 				Log::ERROR(path.string() + " couldn't be removed...");
 			}
