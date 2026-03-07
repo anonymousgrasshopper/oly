@@ -39,10 +39,18 @@ set(SOURCES
 
 add_executable(oly ${SOURCES})
 
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 target_compile_definitions(oly PRIVATE
 	OLY_NAME="${PROJECT_NAME}"
 	OLY_VERSION="${PROJECT_VERSION}"
 	OLY_BUILD_TYPE="$<CONFIG>"
+	OLY_COMMIT_HASH="${GIT_COMMIT_HASH}"
 )
 
 target_compile_features(oly PRIVATE cxx_std_26)
