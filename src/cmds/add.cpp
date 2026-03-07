@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <string>
+#include <vector>
 
 #include "oly/cmds/add.hpp"
 #include "oly/config.hpp"
@@ -64,8 +65,9 @@ void Add::add_problem(const std::string& source) const {
 	create_solution_file(get_problem_solution_path(source), body, metadata);
 }
 
-int Add::execute() {
-	load_config_file();
+int Add::execute(std::vector<std::string>& args) {
+	load_config_file(args);
+	parse(args);
 
 	if (positional_args.size() == 0) {
 		Log::ERROR("Expected problem name", logopt::HELP | logopt::NO_PREFIX);

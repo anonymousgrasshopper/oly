@@ -20,7 +20,7 @@ private:
 
 public:
 	Add();
-	int execute() override;
+	int execute(std::vector<std::string>& args) override;
 
 	static constexpr const std::string cmd_name = "add";
 };

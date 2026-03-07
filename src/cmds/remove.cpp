@@ -46,8 +46,9 @@ void Remove::delete_problem(const fs::path& path) {
 	}
 }
 
-int Remove::execute() {
-	load_config_file();
+int Remove::execute(std::vector<std::string>& args) {
+	load_config_file(args);
+	parse(args);
 
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {

@@ -1,6 +1,7 @@
 #include <print>
 
 #include "oly/cmds/default.hpp"
+#include "oly/config.hpp"
 
 void Default::print_version() {
 #if defined(OLY_NAME) && defined(OLY_VERSION) && defined(OLY_BUILD_TYPE) &&              \
@@ -18,11 +19,12 @@ Default::Default() {
 	add("--version,-v", "print program version and related info",
 	    [this] { this->print_version(); });
 	add("--verify-config", "check config file", [this] {
-		this->load_config_file();
+		configuration::load_config(get<std::string>("--config-file"));
 		std::println("All good !");
 	});
 }
 
-int Default::execute() {
+int Default::execute(std::vector<std::string>& args) {
+	parse(args);
 	return 0;
 }

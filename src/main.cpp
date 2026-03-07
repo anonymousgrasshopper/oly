@@ -58,6 +58,5 @@ int main(int argc, char* argv[]) {
 
 	setenv("OLY", shared["cmd"].c_str(), 1);
 
-	cmd->parse(args);
-	return cmd->execute();
+	return cmd->execute(args);
 }

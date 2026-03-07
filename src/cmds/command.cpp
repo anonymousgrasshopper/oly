@@ -41,7 +41,7 @@ Command::Command() {
 
 Command::~Command() = default;
 
-int Command::execute() {
+int Command::execute(std::vector<std::string>& args) {
 	return 0;
 }
 
@@ -64,7 +64,7 @@ void Command::set(const std::string& flag, std::variant<bool, std::string> val) 
 	it->second->value = std::move(val);
 }
 
-void Command::parse(std::vector<std::string> args) {
+void Command::parse(const std::vector<std::string>& args) {
 	for (size_t i = 0; i < args.size(); ++i) {
 		const std::string& arg = args[i];
 
@@ -73,12 +73,13 @@ void Command::parse(std::vector<std::string> args) {
 			auto eq_pos = arg.find('=');
 			if (eq_pos == std::string::npos)
 				eq_pos = arg.find(':');
-			std::string flag = (eq_pos != std::string::npos) ? arg.substr(0, eq_pos) : arg;
+			const std::string flag =
+			    (eq_pos != std::string::npos) ? arg.substr(0, eq_pos) : arg;
 
 			if (!has(flag))
 				Log::CRITICAL("Unknown flag : " + flag, logopt::HELP | logopt::NO_PREFIX);
 
-			auto opt_ptr = lookup[flag];
+			const auto opt_ptr = lookup[flag];
 			if (opt_ptr->requires_arg) {
 				if (eq_pos != std::string::npos) {
 					set(flag, arg.substr(eq_pos + 1));
@@ -105,11 +106,11 @@ void Command::parse(std::vector<std::string> args) {
 		// Short options: -f or -abc
 		else if (arg.size() > 1 && arg[0] == '-' && arg[1] != '-') {
 			for (size_t j = 1; j < arg.size(); ++j) {
-				std::string short_flag = "-" + std::string(1, arg[j]);
+				const std::string short_flag = "-" + std::string(1, arg[j]);
 				if (!has(short_flag))
 					Log::CRITICAL("Unknown flag : " + short_flag, logopt::HELP | logopt::NO_PREFIX);
 
-				auto opt_ptr = lookup[short_flag];
+				const auto opt_ptr = lookup[short_flag];
 				if (opt_ptr->requires_arg) {
 					if (j + 1 < arg.size()) {
 						set(short_flag, arg.substr(j + 1));
@@ -142,7 +143,18 @@ void Command::parse(std::vector<std::string> args) {
 	}
 }
 
-void Command::load_config_file() {
+void Command::load_config_file(const std::vector<std::string>& args) {
+	for (size_t i = 0; i < args.size(); ++i) {
+		const std::string flag = args[i];
+		if (flag == "--config-file" || flag == "-c") {
+			if (i == args.size() - 1) {
+				Log::CRITICAL(args[i] + " requires an argument",
+				              logopt::HELP | logopt::NO_PREFIX);
+			} else {
+				set(flag, args[++i]);
+			}
+		}
+	}
 	configuration::load_config(get<std::string>("--config-file"));
 }
 
@@ -150,7 +162,7 @@ void Command::print_help() const {
 	if (shared["cmd"] == "default") {
 		utils::print_help();
 	} else {
-		std::string cmd = shared["cmd"];
+		const std::string cmd = shared["cmd"];
 
 		std::vector<std::string> alias_strings;
 		alias_strings.reserve(storage.size());

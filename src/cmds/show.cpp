@@ -145,8 +145,9 @@ bool Show::print_statement(const fs::path& source_path) const {
 	}
 }
 
-int Show::execute() {
-	load_config_file();
+int Show::execute(std::vector<std::string>& args) {
+	load_config_file(args);
+	parse(args);
 
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {

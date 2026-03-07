@@ -44,7 +44,7 @@ public:
 
 	virtual ~Command();
 
-	virtual int execute();
+	virtual int execute(std::vector<std::string>& args);
 
 	template <typename T>
 	  requires((std::same_as<std::remove_cvref_t<T>, bool> ||
@@ -69,9 +69,9 @@ public:
 
 	void set(const std::string& flag, std::variant<bool, std::string> val);
 
-	void parse(std::vector<std::string> args);
+	void parse(const std::vector<std::string>& args);
 
-	void load_config_file();
+	void load_config_file(const std::vector<std::string>& args);
 
 	void print_help() const;
 };

@@ -10,7 +10,7 @@ private:
 
 public:
 	Alias();
-	int execute() override;
+	int execute(std::vector<std::string>& args) override;
 
 	static constexpr const std::string cmd_name = "alias";
 };
