@@ -8,7 +8,7 @@
 	title: eastern,
 	headers: rgb("#bf0040"),
 	partfill: rgb("#002299"),
-	label: red,
+	label: rgb("#7f0000"),
 	hyperlink: blue,
 	strong: rgb("#000055"),
 	env: (
