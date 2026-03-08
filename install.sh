@@ -42,7 +42,7 @@ cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
 cmake --build build/Release --parallel
 
 declare -A files
-files["build/bin/oly"]="$INSTALL_DIR"
+files["build/Release/oly"]="$INSTALL_DIR"
 files["assets/typst/packages/local/oly"]="$SHARE_DIR/typst/packages/local"
 files["assets/extras/_oly"]="$ZSH_SITE_FUNCTIONS"
 files["assets/typst/oly-scheme-handler/oly-handler"]="$INSTALL_DIR"
