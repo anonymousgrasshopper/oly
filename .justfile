@@ -28,4 +28,7 @@ test:
 	-./test.lua
 
 lint:
-	@-run-clang-tidy -p build -source-filter='^.*/oly/(src|include).*' -quiet
+	@-run-clang-tidy -p build \
+		-extra-arg=-Wno-c23-extensions \
+		-source-filter='^.*/oly/(src|include).*' \
+		-quiet

@@ -41,7 +41,7 @@ Command::Command() {
 
 Command::~Command() = default;
 
-int Command::execute(std::vector<std::string>& args) {
+int Command::execute(std::vector<std::string>&) {
 	return 0;
 }
 
