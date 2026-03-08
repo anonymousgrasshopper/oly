@@ -15,19 +15,14 @@ install: release
 	oly --version
 
 sync_assets:
-	rm -rf ./assets/typst/packages/local/oly
-	cp -r ~/.local/share/typst/packages/local/oly ./assets/typst/packages/local/
+	rsync -r ~/.local/share/typst/packages/local/oly ./assets/typst/packages/local/
 
-	rm ./assets/typst/oly-scheme-handler/oly-handler
-	cp ~/.local/bin/oly-handler ./assets/typst/oly-scheme-handler/
+	rsync ~/.local/bin/oly-handler ./assets/typst/oly-scheme-handler/
 
-	rm ./assets/typst/oly-scheme-handler/oly.desktop
-	cp ~/.local/share/applications/oly.desktop ./assets/typst/oly-scheme-handler/
+	rsync ~/.local/share/applications/oly.desktop ./assets/typst/oly-scheme-handler/
 
-	rm ./assets/extras/typst.lua
-	cp ~/.config/nvim/after/ftplugin/typst/oly.lua ./assets/extras/typst.lua
-	rm ./assets/extras/tex.lua
-	cp ~/.config/nvim/after/ftplugin/tex.lua ./assets/extras/tex.lua
+	rsync ~/.config/nvim/after/ftplugin/typst/oly.lua ./assets/extras/typst.lua
+	rsync ~/.config/nvim/after/ftplugin/tex.lua ./assets/extras/tex.lua
 
 test:
 	-./test.lua
