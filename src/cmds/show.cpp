@@ -1,10 +1,13 @@
-#include <cctype>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <stdexcept>
 #include <string>
+#include <vector>
+
+#include <tree_sitter/api.h>
 
 #include "oly/cmds/show.hpp"
 #include "oly/config.hpp"
@@ -16,85 +19,139 @@ namespace fs = std::filesystem;
 
 Show::Show() {}
 
-constexpr const static std::string hex_to_rgb(const std::string& hex_code) {
-	if (hex_code.length() != 7) {
-		throw std::invalid_argument(hex_code + "is not a valid hex code !");
+// external C symbols from the tree-sitter parsers
+extern "C" const TSLanguage* tree_sitter_latex();
+extern "C" const TSLanguage* tree_sitter_typst();
+
+// treesitter queries
+constexpr const char LATEX_QUERIES[] = {
+#embed "../../assets/tex/highlights.scm"
+};
+constexpr size_t LATEX_QUERIES_SIZE = sizeof(LATEX_QUERIES);
+std::string latex_queries(LATEX_QUERIES, LATEX_QUERIES_SIZE);
+constexpr const char TYPST_QUERIES[] = {
+#embed "../../assets/typst/highlights.scm"
+};
+constexpr size_t TYPST_QUERIES_SIZE = sizeof(TYPST_QUERIES);
+std::string typst_queries(TYPST_QUERIES, TYPST_QUERIES_SIZE);
+
+// escape sequences
+const std::string ANSI_BOLD = "\x1b[1m";
+const std::string ANSI_ITALIC = "\x1b[3m";
+const std::string ANSI_RESET = "\x1b[0m";
+
+std::string to_ansi(std::string color_str) {
+	if (color_str == "bold") {
+		return ANSI_BOLD;
+	} else if (color_str == "italic") {
+		return ANSI_ITALIC;
+	}
+	uint8_t r = 255, g = 255, b = 255;
+
+	if (color_str.starts_with('#') && color_str.length() == 7) {
+		auto digit = [](char c) -> int {
+			if (c >= '0' && c <= '9')
+				return c - '0';
+			if (c >= 'a' && c <= 'f')
+				return c - 'a' + 10;
+			if (c >= 'A' && c <= 'F')
+				return c - 'A' + 10;
+			return 0;
+		};
+		r = 16 * digit(color_str[1]) + digit(color_str[2]);
+		g = 16 * digit(color_str[3]) + digit(color_str[4]);
+		b = 16 * digit(color_str[5]) + digit(color_str[6]);
+	} else {
+		uint32_t dec = 0;
+		std::from_chars(color_str.data(), color_str.data() + color_str.size(), dec);
+		r = (dec >> 16) & 0xFF;
+		g = (dec >> 8) & 0xFF;
+		b = dec & 0xFF;
+		b = dec & 0xFF;
 	}
 
-	auto digit = [&](const char& c) -> int {
-		if (std::isalpha(c)) {
-			return std::toupper(c) - 'A' + 10;
-		} else if (std::isdigit(c)) {
-			return c - '0';
-		} else {
-			throw std::invalid_argument(hex_code + " is not a valid hex code !");
-		}
-	};
-	int r = 16 * digit(hex_code[1]) + digit(hex_code[2]);
-	int g = 16 * digit(hex_code[3]) + digit(hex_code[4]);
-	int b = 16 * digit(hex_code[5]) + digit(hex_code[6]);
 	return std::format("\x1b[38;2;{};{};{}m", r, g, b);
 }
 
-constexpr const static std::string get_color(const std::string& field) {
-	static const std::map<std::string, std::string> default_hex{
-	    {"math_mode", hex_to_rgb("#7fb4ca")},
-	    {"operator", hex_to_rgb("#c0a36e")},
-	    {"digit", hex_to_rgb("#d27e99")},
-	    {"punctuation", hex_to_rgb("#9cabca")},
-	};
-	if (opts.colorscheme.contains(field)) {
-		return hex_to_rgb(opts.colorscheme[field]);
-	} else {
-		return default_hex.at(field);
-	}
+const static std::string map_capture(const std::string& name) {
+	return opts.colorscheme.contains(name) ? to_ansi(opts.colorscheme[name]) : "";
 }
 
-constexpr const static std::string colorize(const std::string& input) {
-	const static std::string COLOR_RESET = "\x1b[0m";
-	const static std::string MATH_MODE_OPEN = get_color("math_mode");
-	const static std::string OPERATOR_COLOR = get_color("operator");
-	const static std::string DIGIT_COLOR = get_color("digit");
-	const static std::string PUNCTUATION_COLOR = get_color("punctuation");
-	const static std::set<char> operators = {'+', '-', '*', '^', '_', '<', '>', '!', '='};
-	const static std::set<char> punctuation = {'.', ';', ':', '(', ')', '[', ']', '{', '}'};
-	bool in_math_mode = false;
-	std::string formatted = "";
-	bool escaped = false;
-	if (opts.lang == configuration::lang::typst) {
-		for (const char& c : input) {
-			if (c == '$' && not escaped) {
-				formatted += in_math_mode ? COLOR_RESET : MATH_MODE_OPEN;
-				in_math_mode = !in_math_mode;
-			} else if (c == '\\' && not escaped) {
-				escaped = true;
-			} else if (c == '\\' && escaped) {
-				formatted += '\\';
-			} else if (escaped) {
-				formatted += "⏎";
-			} else if (operators.contains(c) && in_math_mode) {
-				formatted += OPERATOR_COLOR;
-				formatted += c;
-				formatted += MATH_MODE_OPEN;
-			} else if (punctuation.contains(c) && in_math_mode) {
-				formatted += PUNCTUATION_COLOR;
-				formatted += c;
-				formatted += MATH_MODE_OPEN;
-			} else if (std::isdigit(c)) {
-				formatted += DIGIT_COLOR;
-				formatted += c;
-				formatted += in_math_mode ? MATH_MODE_OPEN : COLOR_RESET;
-			} else {
-				formatted += c;
+const static std::string colorize(const std::string& input) {
+	if (input.empty())
+		return input;
+
+	static TSParser* parser = ts_parser_new();
+
+	TSQuery* query = nullptr;
+	const TSLanguage* lang;
+
+	static auto get_query = [](const TSLanguage* l, const std::string& src) {
+		uint32_t offset;
+		TSQueryError err;
+		return ts_query_new(l, src.c_str(), src.length(), &offset, &err);
+	};
+	if (opts.lang == configuration::lang::latex) {
+		// hella slow for some reason
+		static TSQuery* q_latex = get_query(tree_sitter_latex(), latex_queries);
+		query = q_latex;
+		lang = tree_sitter_latex();
+	} else if (opts.lang == configuration::lang::typst) {
+		static TSQuery* q_typst = get_query(tree_sitter_typst(), typst_queries);
+		query = q_typst;
+		lang = tree_sitter_typst();
+	}
+
+	if (!query)
+		return input;
+
+	ts_parser_set_language(parser, lang);
+
+	TSTree* tree = ts_parser_parse_string(parser, nullptr, input.c_str(), input.length());
+	TSNode root = ts_tree_root_node(tree);
+
+	std::vector<std::string> color_buffer(input.length(), "");
+	TSQueryCursor* cursor = ts_query_cursor_new();
+	ts_query_cursor_exec(cursor, query, root);
+
+	TSQueryMatch match;
+	while (ts_query_cursor_next_match(cursor, &match)) {
+		for (uint16_t i = 0; i < match.capture_count; ++i) {
+			uint32_t name_len;
+			const char* name_ptr =
+			    ts_query_capture_name_for_id(query, match.captures[i].index, &name_len);
+			std::string esc = map_capture(std::string(name_ptr, name_len));
+
+			if (esc.empty())
+				continue;
+
+			uint32_t start = ts_node_start_byte(match.captures[i].node);
+			uint32_t end = ts_node_end_byte(match.captures[i].node);
+			for (uint32_t j = start; j < end && j < color_buffer.size(); ++j) {
+				color_buffer[j] = esc;
 			}
 		}
-	} else {
-		formatted = input;
 	}
-	return formatted;
+
+	// 3. String Reconstruction
+	std::string result;
+	result.reserve(input.length() * 1.2);
+	std::string last_color = "";
+	for (size_t i = 0; i < input.length(); ++i) {
+		if (color_buffer[i] != last_color) {
+			result += color_buffer[i].empty() ? "\x1b[0m" : color_buffer[i];
+			last_color = color_buffer[i];
+		}
+		result += input[i];
+	}
+	result += "\x1b[0m";
+
+	ts_query_cursor_delete(cursor);
+	ts_tree_delete(tree);
+	return result;
 }
 
-constexpr const static std::string trim_trailing_newlines(std::string& input) {
+const static std::string trim_trailing_newlines(std::string& input) {
 	while (input.back() == '\n') {
 		input = input.substr(0, input.length() - 1);
 	}
