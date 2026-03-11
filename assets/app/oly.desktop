@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=oly
-Exec=oly-handler %u
+Exec=oly --scheme %u
 Type=Application
 Terminal=true
 MimeType=x-scheme-handler/oly;
