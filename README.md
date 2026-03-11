@@ -31,8 +31,7 @@ cp -r assets/typst ~/.local/share/
 sudo cp assets/extras/_oly /usr/local/share/zsh/site-functions/
 
 # if you want the 'oly gen' scheme handler
-copy assets/typst/oly-scheme-handler/oly-handler ~/.local/bin/
-copy assets/typst/oly-scheme-handler/oly.desktop ~/.local/share/applications/
+copy assets/oly-scheme-handler/oly.desktop ~/.local/share/applications/
 xdg-mime default oly.desktop x-scheme-handler/oly
 
 # if you use Neovim
@@ -75,6 +74,6 @@ as its first argument and an optional content as its second argument. It
 creates a link that, when clicked, will automatically generate and open the
 given problem through the `oly gen` command. In order to make this work,
 follow these steps:
-- copy `assets/typst/oly-scheme-handler/oly-handler` in your `$PATH`
-- copy `assets/typst/oly-scheme-handler/oly.desktop` in `~/.local/share/applications/`
+- copy `assets/oly-scheme-handler/oly.desktop` in `~/.local/share/applications/`
+- (optional) copy `assets/oly-scheme-handler/oly.svg` in `~/.local/share/icons/scalable/hicolor/apps`
 - run `xdg-mime default oly.desktop x-scheme-handler/oly`
