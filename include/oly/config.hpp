@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 
 namespace configuration {
-void load_config(std::string config_file_path = "");
+void load_config(std::string config_file_path);
 
 enum class lang { latex, typst };
 } // namespace configuration
