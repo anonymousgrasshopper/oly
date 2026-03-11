@@ -45,7 +45,7 @@ Default::Default() {
 			    Log::INFO("received request: " + request);
 		    }
 
-		    std::string url = request.substr(6);
+		    std::string url = request.substr(std::min(size_t(6), request.size()));
 		    size_t mark = url.find("?");
 		    size_t equals = url.find("=", mark);
 		    if (mark == std::string::npos || equals == std::string::npos)
