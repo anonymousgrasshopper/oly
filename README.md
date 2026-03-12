@@ -5,7 +5,7 @@ A CLI for managing olympiad problem solutions.
 You will need git and cmake to clone and build the project. Alternatively, you can
 grab an executable from [GitHub releases](https://github.com/anonymousgrasshopper/oly/releases).
 
-We provide an install script which will install the executable, the Zsh
+We provide an install script which will build the project, install the executable, the Zsh
 completion, the typst header, the desktop entry file and will register `oly`
 as a handler for its own URI scheme `oly://`.
 ```sh
@@ -20,8 +20,8 @@ cmake -DCMAKE_BUILD_TYPE=Release -B build/Release
 cmake --build build/Release --parallel
 cp build/bin/oly ~/.local/bin/oly # or anywhere in $PATH
 ```
-If you have [just](https://github.com/casey/just) installed, you can also
-just run `just install` in the repo to do the above.
+If you have [just](https://github.com/casey/just) installed, you can also run
+`just install` in the repo to do the above.
 
 ```sh
 # All of this is already done for you if you use the installation script
@@ -66,7 +66,7 @@ Arguments:
 ```
 
 If you have `oly.desktop` installed (see above), then you can run `oly` from
-your app launcher; it will then open a terminal with `oly` running inside it,
+your app launcher; it will open a terminal with `oly` running inside,
 prompting you for a problem name and then editing this problem if it is already in
 the database, adding it if not.
 
@@ -79,5 +79,5 @@ If it does not exist yet, it will be created and opened in your editor with an e
 The `oly` typst header file creates an eponymous command which takes a problem name
 as its first argument and an optional content as its second argument. It
 creates a link that, when clicked, will automatically generate and open the
-given problem through the `oly gen` command. This will only work if you
+given problem through the `oly gen` command. This will only work if
 the desktop entry file for `oly` is installed (see above).
