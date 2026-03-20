@@ -52,6 +52,7 @@ Available subcommands:
     gen                          - generate a PDF from a problem
     search                       - search problems by contest, metadata...
     show                         - print a problem statement
+    list                         - list problems in the database
     alias                        - link a problem to another one
     rm                           - remove a problem and its solution file
     mv                           - rename a problem

@@ -75,10 +75,10 @@ void overwrite(const fs::path& filepath, const std::string& content);
 
 namespace yaml {
 [[nodiscard]]
-std::optional<YAML::Node> load(const fs::path& filepath);
+std::optional<YAML::Node> load(const fs::path& filepath) noexcept;
 
 [[nodiscard]]
-std::optional<YAML::Node> load(const std::string& yaml, std::string source = "");
+std::optional<YAML::Node> load(const std::string& yaml, std::string source = "") noexcept;
 
 void merge_metadata(const YAML::Node& extend, bool override = true);
 } // namespace yaml

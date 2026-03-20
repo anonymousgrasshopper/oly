@@ -27,6 +27,7 @@ local -a subcommands=(
 	'gen:Generate a LaTeX or PDF file from a problem'
 	'search:Search problems by contest, metadata...'
 	'show:Print a problem statement'
+	'list:List problems in the database'
 	'alias:Link a problem to another one'
 	'rm:Remove a problem and its solution file'
 	'mv:Rename a problem'
@@ -43,6 +44,7 @@ local -a opts_alias=()  # no options
 local -a opts_edit=()   # no options
 local -a opts_search=() # no options
 local -a opts_show=()   # no options
+local -a opts_list=()   # no options
 
 local -a opts_gen=(
 	'(--preview --no-preview)--preview[Open the generated PDF]'
@@ -61,6 +63,15 @@ local -a opts_rm=(
 local -a opts_mv=(
 	'(-a --alias)'{-a,--alias}'[alias the new file to the old one]'
 )
+
+# -------------------------
+# Dynamic problem list
+# -------------------------
+_oly_problems() {
+	local -a problems
+	problems=("${(@f)$(oly list 2>/dev/null)}")
+	_describe -t problems 'problem' problems
+}
 
 # -------------------------
 # Helper: detect subcommand (first non-option after command)
@@ -96,13 +107,44 @@ args)
 	# After a subcommand (or while typing its args), offer that subcommand's options + globals.
 	case $subcmd in
 	add) _arguments $global_opts ${opts_add[@]} ;;
-	edit) _arguments $global_opts ${opts_edit[@]} ;;
-	gen) _arguments $global_opts ${opts_gen[@]} ;;
+	edit)
+		_arguments \
+			$global_opts \
+			${opts_edit[@]} \
+			'*:problem:_oly_problems'
+		;;
+	gen)
+		_arguments \
+			$global_opts \
+			${opts_gen[@]} \
+			'*:problem:_oly_problems'
+		;;
 	search) _arguments $global_opts ${opts_search[@]} ;;
-	show) _arguments $global_opts ${opts_show[@]} ;;
-	alias) _arguments $global_opts ${opts_alias[@]} ;;
-	rm) _arguments $global_opts ${opts_rm[@]} ;;
-	mv) _arguments $global_opts ${opts_mv[@]} ;;
+	show)
+		_arguments \
+			$global_opts \
+			'*:problem:_oly_problems'
+		;;
+	list) _arguments $global_opts ${opts_list[@]} ;;
+	alias)
+		_arguments \
+			$global_opts \
+			'1:source:_oly_problems' \
+			'2:target:_oly_problems'
+		;;
+	rm)
+		_arguments \
+			$global_opts \
+			${opts_rm[@]} \
+			'*:problem:_oly_problems'
+		;;
+	mv)
+		_arguments \
+			$global_opts \
+			${opts_mv[@]} \
+			'1:old problem:_oly_problems' \
+			'2:new name:'
+		;;
 	*)
 		# No subcommand yet (or none detected): still offer global options.
 		_arguments $global_opts

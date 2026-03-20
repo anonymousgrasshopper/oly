@@ -6,6 +6,7 @@
 #include "oly/cmds/default.hpp"
 #include "oly/cmds/edit.hpp"
 #include "oly/cmds/generate.hpp"
+#include "oly/cmds/list.hpp"
 #include "oly/cmds/remove.hpp"
 #include "oly/cmds/rename.hpp"
 #include "oly/cmds/search.hpp"
@@ -21,6 +22,8 @@ std::unique_ptr<Command> get_cmd(const std::string& cmd_name) {
 		cmd = std::make_unique<Edit>();
 	} else if (cmd_name == Generate::cmd_name) {
 		cmd = std::make_unique<Generate>();
+	} else if (cmd_name == List::cmd_name) {
+		cmd = std::make_unique<List>();
 	} else if (cmd_name == Search::cmd_name) {
 		cmd = std::make_unique<Search>();
 	} else if (cmd_name == Show::cmd_name) {
