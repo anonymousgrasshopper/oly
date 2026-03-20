@@ -191,7 +191,8 @@ input_file::input_file(fs::path filepath, std::string contents, bool remove)
 };
 input_file::~input_file() {
 	if (remove && fs::exists(filepath)) {
-		fs::remove(filepath);
+		std::error_code ec;
+		fs::remove(filepath, ec);
 	}
 }
 
