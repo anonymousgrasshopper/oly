@@ -8,7 +8,6 @@ local groupe_names = {
 	"@keyword",
 	"@keyword.repeat",
 	"@keyword.conditional",
-	"@keyword.repeat",
 	"@number",
 	"@string",
 	"@boolean",
