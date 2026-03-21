@@ -134,8 +134,12 @@ struct Options {
 			abbreviations = node["abbreviations"].as<std::map<std::string, std::string>>();
 		if (node["contest_format"])
 			contest_format = node["contest_format"].as<std::map<std::string, std::string>>();
-		if (node["colorscheme"])
-			colorscheme = node["colorscheme"].as<std::map<std::string, std::string>>();
+		if (node["colorscheme"]) {
+			auto user_colors = node["colorscheme"].as<std::map<std::string, std::string>>();
+			for (auto& [key, value] : user_colors) {
+				colorscheme[key] = value;
+			}
+		}
 		if (node["output_directory"])
 			output_directory = fs::path(node["output_directory"].as<std::string>());
 		if (node["tmpdir"])
