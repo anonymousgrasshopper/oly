@@ -45,8 +45,8 @@ declare -A files
 files["build/Release/oly"]="$INSTALL_DIR"
 files["assets/typst/packages/local/oly"]="$SHARE_DIR/typst/packages/local"
 files["assets/extras/_oly"]="$ZSH_SITE_FUNCTIONS"
-files["assets/typst/oly-scheme-handler/oly-handler"]="$INSTALL_DIR"
-files["assets/typst/oly-scheme-handler/oly.desktop"]="$SHARE_DIR/applications"
+files["assets/app/oly.desktop"]="$SHARE_DIR/applications"
+files["assets/app/oly.svg"]="$SHARE_DIR/icons/hicolor/scalable/apps"
 for file in "${!files[@]}"; do
 	dir="${files["$file"]}"
 	if [[ ! -d "$dir" ]]; then

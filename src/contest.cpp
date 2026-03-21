@@ -34,7 +34,7 @@ static std::string get_contest(const std::string& source) {
 	std::string contest;
 	std::smatch match;
 
-	static std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
+	static std::regex contest_regex(R"(\b([^0-9/\-_ ](?:[^0-9/\-_]*)[^0-9/\-_ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
 		if (opts.abbreviations.contains(contest)) {
@@ -64,13 +64,12 @@ static std::string get_year(const std::string& source) {
 	std::string year;
 	std::smatch match;
 
-	static std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
-	if (std::regex_search(source, match, year_regex)) {
-		if (match.str(1).size() == 4) {
-			year = match.str(1);
-		} else if (match.str(1).size() == 2) {
-			year = "20" + match.str(1);
-		}
+	static std::regex year_regex_4(R"((\b\d{4}\b))");
+	static std::regex year_regex_2(R"((\b\d{2}\b))");
+	if (std::regex_search(source, match, year_regex_4)) {
+		year = match.str(1);
+	} else if (std::regex_search(source, match, year_regex_2)) {
+		year = "20" + match.str(1);
 	} else {
 		// No year found → use current year
 		auto now = std::chrono::system_clock::now();
@@ -144,6 +143,7 @@ static std::string get_date(const std::string& source) {
 } // namespace parsers
 
 static std::map<std::string, fs::path> source_to_path;
+static std::map<std::string, fs::path> source_to_name;
 
 static fs::path get_path(const std::string& source) {
 	if (source_to_path.contains(source))
@@ -228,6 +228,51 @@ fs::path get_problem_solution_path(const std::string& source) {
 }
 
 std::string get_problem_name(const std::string& source) {
-	fs::path path = get_problem_path(source);
-	return path.stem().string();
+	if (source_to_name.contains(source))
+		return source_to_name[source];
+
+	std::string contest{parsers::get_contest(source)};
+	if (opts.contest_format.contains(contest)) {
+		std::string name = contest + " ";
+		auto expander = [&](std::string var) -> std::string {
+			bool space = false;
+			if (!var.empty() && var.back() == ' ') {
+				space = true;
+				var = var.substr(0, var.length() - 1);
+			}
+
+			auto lookup = [&]() -> std::string {
+				if (var == "date") {
+					return parsers::get_date(source);
+				} else if (var == "contest") {
+					return contest;
+				} else if (var == "year") {
+					return parsers::get_year(source);
+				} else if (var == "problem") {
+					return parsers::get_problem(source);
+				} else {
+					return "";
+				}
+			};
+
+			name += space ? lookup() + " " : lookup();
+			return "";
+		};
+
+		auto _ = utils::expand_vars(opts.contest_format[contest], expander);
+		source_to_name[source] = name;
+	} else if (contest.length()) {
+		std::string year{parsers::get_year(source)};
+		if (year.length()) {
+			std::string problem{parsers::get_problem(source)};
+			if (problem.length()) {
+				source_to_name[source] = contest + " " + year + " " + problem;
+			}
+		}
+	}
+
+	if (!source_to_name.contains(source))
+		source_to_name[source] = source;
+
+	return source_to_name[source];
 }

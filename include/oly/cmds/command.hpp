@@ -15,6 +15,7 @@ struct Option {
 	std::variant<bool, std::string> value;
 	std::variant<std::function<void()>, std::function<void(std::string)>> callback;
 	bool requires_arg;
+	bool optional_arg;
 	bool has_callback;
 
 	Option(std::string d, std::variant<bool, std::string>&& v)
@@ -54,7 +55,8 @@ public:
 
 	template <typename Callable>
 	  requires std::invocable<Callable, std::string>
-	void add(std::string flags, std::string desc, Callable&& callback);
+	void add(std::string flags, std::string desc, Callable&& callback,
+	         bool requires_arg = true);
 
 	template <std::invocable Callable>
 	void add(std::string flags, std::string desc, Callable&& callback);
@@ -95,10 +97,13 @@ void Command::add(std::string flags, std::string desc, T&& default_value) {
 
 template <typename Callable>
   requires std::invocable<Callable, std::string>
-void Command::add(std::string flags, std::string desc, Callable&& callback) {
+void Command::add(std::string flags, std::string desc, Callable&& callback,
+                  bool requires_arg) {
 	auto opt = std::make_shared<Option>(
 	    std::move(desc),
 	    std::function<void(std::string)>(std::forward<Callable>(callback)));
+
+	opt->optional_arg = !requires_arg;
 
 	std::stringstream ss(flags);
 	std::string flag;

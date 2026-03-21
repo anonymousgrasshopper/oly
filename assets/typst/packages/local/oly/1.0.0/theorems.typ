@@ -22,6 +22,7 @@
 		let name = none
 		if args != none and args.pos().len() > 0 {
 			name = args.pos().first()
+			supplement = name
 		}
 		if refnumbering == auto {
 			refnumbering = numbering
@@ -151,7 +152,7 @@
 #let thmplain = thmbox.with(
 	padding: (top: 0em, bottom: 0em),
 	breakable: true,
-	inset: (top: 0em, left: 0em, right: 0em),
+	inset: (top: 0em, left: 1.2em, right: 1.2em),
 	namefmt: name => emph([(#name)]),
 	titlefmt: emph,
 )
@@ -232,6 +233,13 @@
 		}
 		if it.element.kind != "thmenv" {
 			return it
+		}
+
+		if it.element.caption != none {
+			return link(
+				it.target,
+				it.element.supplement,
+			)
 		}
 
 		let supplement = it.element.supplement

@@ -20,9 +20,10 @@ void print_help() {
     gen                          - generate a PDF from a problem
     search                       - search problems by contest, metadata...
     show                         - print a problem statement
+    list                         - list problems in the database
     alias                        - link a problem to another one
     rm                           - remove a problem and its solution file
-		mv                           - rename a problem
+    mv                           - rename a problem
   Run oly <cmd> --help for more information regarding a specific subcommand
 )");
 	std::println(R"(Arguments:
@@ -190,7 +191,8 @@ input_file::input_file(fs::path filepath, std::string contents, bool remove)
 };
 input_file::~input_file() {
 	if (remove && fs::exists(filepath)) {
-		fs::remove(filepath);
+		std::error_code ec;
+		fs::remove(filepath, ec);
 	}
 }
 
@@ -271,7 +273,7 @@ void overwrite(const fs::path& filepath, const std::string& content) {
 } // namespace file
 
 namespace yaml {
-std::optional<YAML::Node> load(const fs::path& filepath) {
+std::optional<YAML::Node> load(const fs::path& filepath) noexcept {
 	try {
 		YAML::Node data = YAML::LoadFile(filepath);
 		return data;
@@ -285,7 +287,7 @@ std::optional<YAML::Node> load(const fs::path& filepath) {
 	return std::nullopt;
 }
 
-std::optional<YAML::Node> load(const std::string& yaml, std::string source) {
+std::optional<YAML::Node> load(const std::string& yaml, std::string source) noexcept {
 	try {
 		YAML::Node data = YAML::Load(yaml);
 		return data;

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 4.0) # I have no idea what to put so let's be safe
-project(oly VERSION 0.1.1 LANGUAGES C CXX)
+cmake_minimum_required(VERSION 4.0)
+project(oly VERSION 0.2.0 LANGUAGES C CXX)
 
 # compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -95,6 +95,8 @@ set(SOURCES
 	src/cmds/default.cpp
 	src/cmds/edit.cpp
 	src/cmds/generate.cpp
+	src/cmds/get_cmd.cpp
+	src/cmds/list.cpp
 	src/cmds/remove.cpp
 	src/cmds/rename.cpp
 	src/cmds/search.cpp

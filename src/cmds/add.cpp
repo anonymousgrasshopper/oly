@@ -49,7 +49,7 @@ void Add::create_solution_file(const fs::path& path, const std::string& body,
 
 void Add::add_problem(const std::string& source) const {
 	const fs::path pb = get_problem_path(source);
-	std::string pb_name = pb.stem().string();
+	std::string pb_name = get_problem_name(source);
 	if (!get<bool>("--overwrite") && fs::exists(pb)) {
 		Log::CRITICAL("cannot add " + pb_name + ": entry already present in database" + "\n" +
 		              "Use oly edit " + pb_name + " to edit it" + "\n" +

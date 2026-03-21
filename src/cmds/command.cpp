@@ -3,6 +3,7 @@
 #include <print>
 #include <stdexcept>
 #include <string>
+#include <variant>
 #include <vector>
 
 #include "oly/cmds/command.hpp"
@@ -27,7 +28,7 @@ Command::Command() {
 	add("--help,-h", "Show help", [this]() { Command::print_help(); });
 	add("--log-level", "Specify log level (default INFO)",
 	    [](std::string level) { utils::set_log_level(level); });
-	add("--lang", "Choose markup language to use", [&](std::string lang) {
+	add("--lang", "Choose markup language to use", [](std::string lang) {
 		if (lang != "latex" && lang != "typst") {
 			Log::CRITICAL("lang needs to be one of latex or typst !");
 		} else {
@@ -84,19 +85,28 @@ void Command::parse(const std::vector<std::string>& args) {
 				if (eq_pos != std::string::npos) {
 					set(flag, arg.substr(eq_pos + 1));
 				} else {
-					if (i + 1 == args.size())
-						Log::CRITICAL(flag + " requires an argument",
-						              logopt::HELP | logopt::NO_PREFIX);
-					set(flag, args[++i]);
+					if (i + 1 == args.size()) {
+						if (opt_ptr->optional_arg) {
+							set(flag, true);
+						} else {
+							Log::CRITICAL(flag + " requires an argument",
+							              logopt::HELP | logopt::NO_PREFIX);
+						}
+					} else {
+						set(flag, args[++i]);
+					}
 				}
 			} else {
 				set(flag, true);
 			}
 			if (opt_ptr->has_callback) {
-				if (opt_ptr->requires_arg) {
+				if (opt_ptr->requires_arg &&
+				    std::holds_alternative<std::string>(opt_ptr->value)) {
 					// Pass the argument value to the callback
 					std::get<std::function<void(std::string)>>(opt_ptr->callback)(
 					    std::get<std::string>(opt_ptr->value));
+				} else if (opt_ptr->optional_arg) {
+					std::get<std::function<void(std::string)>>(opt_ptr->callback)("");
 				} else {
 					std::get<std::function<void()>>(opt_ptr->callback)();
 				}
