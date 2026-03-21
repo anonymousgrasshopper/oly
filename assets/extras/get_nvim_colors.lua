@@ -39,9 +39,10 @@ for _, group in ipairs(groupe_names) do
 	local name = group:sub(2)
 	local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
 	local fg = hl.fg
+	local hex = fg and string.format("#%x", fg)
 	local bold = hl.bold and "bold" or nil
 	local italic = hl.italic and "italic" or nil
-	str = str .. name .. ': "' .. (fg or bold or italic or "") .. '"\n'
+	str = str .. name .. ': "' .. (hex or bold or italic or "") .. '"\n'
 end
 
 print(str)
