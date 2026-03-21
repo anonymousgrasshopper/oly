@@ -53,10 +53,36 @@ struct Options {
 
 	// customize the colors used by the show command
 	std::map<std::string, std::string> colorscheme{
-	    {"math_mode", "#7fb4ca"},
-	    {"operator", "#c0a36e"},
-	    {"digit", "#d27e99"},
-	    {"punctuation", "#9cabca"},
+	    {"punctuation.special", "8369354"},
+	    {"punctuation.delimiter", "10267594"},
+	    {"punctuation.bracket", "10267594"},
+	    {"operator", "12624750"},
+	    {"keyword.import", "14968950"},
+	    {"keyword", "9797560"},
+	    {"keyword.repeat", "9797560"},
+	    {"keyword.conditional", "9797560"},
+	    {"keyword.repeat", "9797560"},
+	    {"number", "13794969"},
+	    {"string", "10009452"},
+	    {"boolean", "16752742"},
+	    {"constant", "16752742"},
+	    {"variable.member", "15123332"},
+	    {"function.call", "8297688"},
+	    {"markup.heading.1", "8297688"},
+	    {"markup.heading.2", "8297688"},
+	    {"markup.heading.3", "8297688"},
+	    {"markup.heading.4", "8297688"},
+	    {"markup.heading.5", "8297688"},
+	    {"markup.heading.6", "8297688"},
+	    {"markup.strong", "strong"},
+	    {"markup.italic", "italic"},
+	    {"markup.link.url", "8369354"},
+	    {"markup.raw", "10009452"},
+	    {"label", "9797560"},
+	    {"markup.raw.block", "10009452"},
+	    {"markup.link.label", "8369354"},
+	    {"markup.link", "8369354"},
+	    {"markup.math", "16752742"},
 	};
 
 	// where to output the generated pdf
@@ -108,8 +134,12 @@ struct Options {
 			abbreviations = node["abbreviations"].as<std::map<std::string, std::string>>();
 		if (node["contest_format"])
 			contest_format = node["contest_format"].as<std::map<std::string, std::string>>();
-		if (node["colorscheme"])
-			colorscheme = node["colorscheme"].as<std::map<std::string, std::string>>();
+		if (node["colorscheme"]) {
+			auto user_colors = node["colorscheme"].as<std::map<std::string, std::string>>();
+			for (auto& [key, value] : user_colors) {
+				colorscheme[key] = value;
+			}
+		}
 		if (node["output_directory"])
 			output_directory = fs::path(node["output_directory"].as<std::string>());
 		if (node["tmpdir"])

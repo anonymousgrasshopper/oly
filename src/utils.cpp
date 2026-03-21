@@ -300,7 +300,7 @@ std::optional<YAML::Node> load(const std::string& yaml, std::string source) noex
 	return std::nullopt;
 }
 
-void merge_metadata(const YAML::Node& extend, bool override) {
+void merge(YAML::Node& base, const YAML::Node& extend, bool override) {
 	if (!extend.IsDefined())
 		return;
 
@@ -308,11 +308,14 @@ void merge_metadata(const YAML::Node& extend, bool override) {
 		for (auto it : extend) {
 			const std::string key = it.first.as<std::string>();
 			const YAML::Node& value = it.second;
-			if (override || !metadata[key]) {
-				metadata[key] = value;
+			if (override || !base[key]) {
+				base[key] = value;
 			}
 		}
 	}
+}
+void merge_metadata(const YAML::Node& extend, bool override) {
+	utils::yaml::merge(metadata, extend, override);
 }
 } // namespace yaml
 
