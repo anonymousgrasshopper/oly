@@ -43,24 +43,29 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(tree-sitter ts-latex ts-typst)
 
 message(STATUS "Generating Tree-sitter LaTeX parser...")
-execute_process(
+add_custom_command(
+    OUTPUT
+        ${ts-latex_SOURCE_DIR}/src/parser.c
+        ${ts-latex_SOURCE_DIR}/src/scanner.c
     COMMAND tree-sitter generate
     WORKING_DIRECTORY ${ts-latex_SOURCE_DIR}
-    RESULT_VARIABLE TS_GEN_RESULT
+    DEPENDS
+        ${ts-latex_SOURCE_DIR}/grammar.js
+    COMMENT "Generating Tree-sitter LaTeX parser"
+)
+add_custom_target(ts_latex_gen
+    DEPENDS
+        ${ts-latex_SOURCE_DIR}/src/parser.c
+        ${ts-latex_SOURCE_DIR}/src/scanner.c
 )
 
-if(NOT TS_GEN_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to generate tree-sitter-latex parser. Is tree-sitter-cli installed?")
-endif()
-
+# disable warnings for these files
 set(TS_NOISY_SOURCES
     ${ts-latex_SOURCE_DIR}/src/parser.c
     ${ts-latex_SOURCE_DIR}/src/scanner.c
     ${ts-typst_SOURCE_DIR}/src/parser.c
     ${ts-typst_SOURCE_DIR}/src/scanner.c
 )
-
-# disable warnings for just these files
 if(MSVC)
 	set_source_files_properties(${TS_NOISY_SOURCES} PROPERTIES COMPILE_FLAGS "/w")
 else()
@@ -97,6 +102,8 @@ set(SOURCES
 )
 
 add_executable(oly ${SOURCES})
+
+add_dependencies(oly ts_latex_gen)
 
 target_compile_definitions(oly PRIVATE
 	OLY_NAME="${PROJECT_NAME}"
