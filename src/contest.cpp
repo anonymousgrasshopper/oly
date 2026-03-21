@@ -34,7 +34,7 @@ static std::string get_contest(const std::string& source) {
 	std::string contest;
 	std::smatch match;
 
-	static std::regex contest_regex(R"(\b([^0-9/ ](?:[^0-9/]*)[^0-9/ ])\b)");
+	static std::regex contest_regex(R"(\b([^0-9/\-_ ](?:[^0-9/\-_]*)[^0-9/\-_ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
 		if (opts.abbreviations.contains(contest)) {
@@ -64,13 +64,12 @@ static std::string get_year(const std::string& source) {
 	std::string year;
 	std::smatch match;
 
-	static std::regex year_regex(R"((\b\d{2}\b|\b\d{4}\b))");
-	if (std::regex_search(source, match, year_regex)) {
-		if (match.str(1).size() == 4) {
-			year = match.str(1);
-		} else if (match.str(1).size() == 2) {
-			year = "20" + match.str(1);
-		}
+	static std::regex year_regex_4(R"((\b\d{4}\b))");
+	static std::regex year_regex_2(R"((\b\d{2}\b))");
+	if (std::regex_search(source, match, year_regex_4)) {
+		year = match.str(1);
+	} else if (std::regex_search(source, match, year_regex_2)) {
+		year = "20" + match.str(1);
 	} else {
 		// No year found → use current year
 		auto now = std::chrono::system_clock::now();
