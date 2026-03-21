@@ -399,3 +399,5 @@
 
 ; ((line_comment) @keyword.directive @nospell
 ;   (#lua-match? @keyword.directive "^%%&"))
+
+; vim: ft=query

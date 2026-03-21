@@ -139,3 +139,8 @@
 
 ; comments
 (comment) @comment @spell
+
+(shorthand) @operator                      ; <= >= <=> !=
+(symbol) @operator                         ; + - * < >
+
+; vim: ft=query
