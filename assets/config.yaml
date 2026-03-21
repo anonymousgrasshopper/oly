@@ -36,20 +36,21 @@ confirm: true
 
 # map contest names to other ones
 abbreviations:
-  Shortlist: ISL
+    Shortlist: ISL
 
 # directory structure to store contests
 # available variables are: date, contest, year, problem and source
 contest_format:
-  Club: "Club/${date}"
-  Test: "POFM/Tests/${year}/${contest} ${year} ${problem}"
+    Club: "Club/${date}"
+    Test: "POFM/Tests/${year}/${contest} ${year} ${problem}"
 
 # customize the colors used by the show command
+# see there for the full list of options:
+# https://github.com/anonymousgrasshopper/oly/tree/main/include/oly/config.hpp#L55-L86
 colorscheme:
-  math_mode: "#7fb4ca"
-  operator: "#c0a36e"
-  digit: "#d27e99"
-  punctuation: "#9cabca"
+    punctuation.special: "#7fb4ca"
+    constant: "#7e9cd8"
+    markup.math: "#7fb4ca"
 
 # where to output the generated pdf
 # defaults to ${XDG_CACHE_HOME:-~/.cache}/oly/${source}
