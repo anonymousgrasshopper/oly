@@ -306,20 +306,16 @@ int Generate::execute(std::vector<std::string>& args) {
 
 	fs::path output_path(fs::path(utils::expand_vars(opts.output_directory)) / source);
 
-	if (opts.lang == configuration::lang::latex) {
-		try {
+	try {
+		if (opts.lang == configuration::lang::latex) {
 			create_latex_file(output_path / (source + ".tex"));
 			create_pdf_from_latex(output_path / (source + ".tex"));
-		} catch (const std::exception& e) {
-			Log::ERROR(e.what());
-		}
-	} else {
-		try {
+		} else {
 			create_typst_file(output_path / (source + ".typ"));
 			create_pdf_from_typst(output_path / (source + ".typ"));
-		} catch (const std::exception& e) {
-			Log::ERROR(e.what());
 		}
+	} catch (const std::exception& e) {
+		Log::ERROR(e.what());
 	}
 
 	return 0;
