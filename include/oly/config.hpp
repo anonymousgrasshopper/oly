@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 
+#include "oly/log.hpp"
 #include "yaml-cpp/yaml.h"
 
 namespace fs = std::filesystem;
@@ -52,37 +53,34 @@ struct Options {
 	std::map<std::string, std::string> contest_format{};
 
 	// customize the colors used by the show command
-	std::map<std::string, std::string> colorscheme{
-	    {"punctuation.special", "8369354"},
-	    {"punctuation.delimiter", "10267594"},
-	    {"punctuation.bracket", "10267594"},
-	    {"operator", "12624750"},
-	    {"keyword.import", "14968950"},
-	    {"keyword", "9797560"},
-	    {"keyword.repeat", "9797560"},
-	    {"keyword.conditional", "9797560"},
-	    {"keyword.repeat", "9797560"},
-	    {"number", "13794969"},
-	    {"string", "10009452"},
-	    {"boolean", "16752742"},
-	    {"constant", "16752742"},
-	    {"variable.member", "15123332"},
-	    {"function.call", "8297688"},
-	    {"markup.heading.1", "8297688"},
-	    {"markup.heading.2", "8297688"},
-	    {"markup.heading.3", "8297688"},
-	    {"markup.heading.4", "8297688"},
-	    {"markup.heading.5", "8297688"},
-	    {"markup.heading.6", "8297688"},
-	    {"markup.strong", "strong"},
-	    {"markup.italic", "italic"},
-	    {"markup.link.url", "8369354"},
-	    {"markup.raw", "10009452"},
-	    {"label", "9797560"},
-	    {"markup.raw.block", "10009452"},
-	    {"markup.link.label", "8369354"},
-	    {"markup.link", "8369354"},
-	    {"markup.math", "16752742"},
+	std::map<std::string, int> colorscheme{
+	    {"punctuation.special", 0x7fb4ca},
+	    {"punctuation.delimiter", 0x9cabca},
+	    {"punctuation.bracket", 0x9cabca},
+	    {"operator", 0xc0a36e},
+	    {"keyword.import", 0xe46876},
+	    {"keyword", 0x957fb8},
+	    {"keyword.repeat", 0x957fb8},
+	    {"keyword.conditional", 0x957fb8},
+	    {"number", 0xd27e99},
+	    {"string", 0x98bb6c},
+	    {"boolean", 0xffa066},
+	    {"constant", 0xffa066},
+	    {"variable.member", 0xe6c384},
+	    {"function.call", 0x7e9cd8},
+	    {"markup.heading.1", 0x7e9cd8},
+	    {"markup.heading.2", 0x7e9cd8},
+	    {"markup.heading.3", 0x7e9cd8},
+	    {"markup.heading.4", 0x7e9cd8},
+	    {"markup.heading.5", 0x7e9cd8},
+	    {"markup.heading.6", 0x7e9cd8},
+	    {"markup.link.url", 0x7fb4ca},
+	    {"markup.raw", 0x98bb6c},
+	    {"label", 0x957fb8},
+	    {"markup.raw.block", 0x98bb6c},
+	    {"markup.link.label", 0x7fb4ca},
+	    {"markup.link", 0x7fb4ca},
+	    {"markup.math", 0xffa066},
 	};
 
 	// where to output the generated pdf
@@ -136,8 +134,12 @@ struct Options {
 			contest_format = node["contest_format"].as<std::map<std::string, std::string>>();
 		if (node["colorscheme"]) {
 			auto user_colors = node["colorscheme"].as<std::map<std::string, std::string>>();
-			for (auto& [key, value] : user_colors) {
-				colorscheme[key] = value;
+			for (auto& [key, hex_str] : user_colors) {
+				if (hex_str.length() == 7 && hex_str.at(0) == '#') {
+					std::istringstream(hex_str.erase(0, 1)) >> std::hex >> colorscheme[key];
+				} else {
+					Log::ERROR(hex_str + " is not a valid hex color code !");
+				}
 			}
 		}
 		if (node["output_directory"])

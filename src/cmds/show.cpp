@@ -38,42 +38,22 @@ std::string typst_queries(TYPST_QUERIES, TYPST_QUERIES_SIZE);
 // escape sequences
 const std::string ANSI_BOLD = "\x1b[1m";
 const std::string ANSI_ITALIC = "\x1b[3m";
-const std::string ANSI_RESET = "\x1b[0m";
 
-std::string to_ansi(std::string color_str) {
-	if (color_str == "bold") {
-		return ANSI_BOLD;
-	} else if (color_str == "italic") {
-		return ANSI_ITALIC;
-	}
-	uint8_t r = 255, g = 255, b = 255;
-
-	if (color_str.starts_with('#') && color_str.length() == 7) {
-		auto digit = [](char c) -> int {
-			if (c >= '0' && c <= '9')
-				return c - '0';
-			if (c >= 'a' && c <= 'f')
-				return c - 'a' + 10;
-			if (c >= 'A' && c <= 'F')
-				return c - 'A' + 10;
-			return 0;
-		};
-		r = 16 * digit(color_str[1]) + digit(color_str[2]);
-		g = 16 * digit(color_str[3]) + digit(color_str[4]);
-		b = 16 * digit(color_str[5]) + digit(color_str[6]);
-	} else {
-		uint32_t dec = 0;
-		std::from_chars(color_str.data(), color_str.data() + color_str.size(), dec);
-		r = (dec >> 16) & 0xFF;
-		g = (dec >> 8) & 0xFF;
-		b = dec & 0xFF;
-		b = dec & 0xFF;
-	}
+std::string to_ansi(int color) {
+	uint8_t r, g, b;
+	r = (color >> 16) & 0xFF;
+	g = (color >> 8) & 0xFF;
+	b = color & 0xFF;
 
 	return std::format("\x1b[38;2;{};{};{}m", r, g, b);
 }
 
 const static std::string map_capture(const std::string& name) {
+	if (name == "markup.strong") {
+		return ANSI_BOLD;
+	} else if (name == "markup.italic") {
+		return ANSI_ITALIC;
+	}
 	return opts.colorscheme.contains(name) ? to_ansi(opts.colorscheme[name]) : "";
 }
 
@@ -133,7 +113,7 @@ const static std::string colorize(const std::string& input) {
 		}
 	}
 
-	// 3. String Reconstruction
+	// reconstruct string
 	std::string result;
 	result.reserve(input.length() * 1.2);
 	std::string last_color = "";
