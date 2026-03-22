@@ -47,6 +47,8 @@ contest_format:
 # customize the colors used by the show command
 # see there for the full list of options:
 # https://github.com/anonymousgrasshopper/oly/tree/main/include/oly/config.hpp#L55-L86
+# you can generate a colorscheme from a (Neo)Vim one using
+# https://github.com/anonymousgrasshopper/oly/blob/main/assets/extras/get_nvim_colors.lua
 colorscheme:
     punctuation.special: "#7fb4ca"
     constant: "#7e9cd8"
