@@ -1,8 +1,13 @@
 #include <exception>
+#include <fcntl.h>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <stdexcept>
+#include <string>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
 
 #include "oly/cmds/generate.hpp"
 #include "oly/config.hpp"
@@ -15,11 +20,45 @@ namespace fs = std::filesystem;
 Generate::Generate() {
 	add("--preview", "open the generated pdf", [] { opts.preview = true; });
 	add("--no-preview", "do not open the generated pdf", [] { opts.preview = false; });
-	add("--clean", "remove the auxiliary files", false);
-	add("--no-pdf", "only generate a LaTeX file", false);
+	add("--clean", "remove auxiliary files", false);
+	add("--no-pdf", "only generate a source file", false);
 	add("--no-source", "remove the source file and induce --clean", false);
-	add("--cwd", "create the files in the current directory",
-	    [] { opts.output_directory = fs::current_path().string(); });
+	add("--cwd", "create the pdf in the current directory", false);
+}
+
+static int run(const std::vector<std::string>& args, bool silent = false) {
+	std::vector<char*> c_args;
+	for (const auto& s : args)
+		c_args.push_back(const_cast<char*>(s.c_str()));
+	c_args.push_back(nullptr);
+
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		// child
+		if (silent) {
+			int devnull = open("/dev/null", O_WRONLY);
+			if (devnull != -1) {
+				dup2(devnull, STDOUT_FILENO);
+				dup2(devnull, STDERR_FILENO);
+				close(devnull);
+			}
+		}
+
+		execvp(c_args[0], c_args.data());
+		_exit(127); // exec failed
+	}
+
+	int status;
+	waitpid(pid, &status, 0);
+
+	if (WIFEXITED(status))
+		return WEXITSTATUS(status);
+
+	if (WIFSIGNALED(status))
+		return 128 + WTERMSIG(status);
+
+	return -1;
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -122,26 +161,36 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	for (auto program : {std::string("latexmk"), opts.pdf_viewer})
-		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
-			Log::CRITICAL(program + " is not executable");
+	if (run({"which", "latexmk"}, true))
+		Log::CRITICAL("latexmk is not executable");
+	if (opts.preview && run({"which", opts.pdf_viewer}, true))
+		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
-	if (latex_file_path.string().contains('"'))
-		throw std::invalid_argument("double quotes not allowed in file paths !");
-
-	std::string preview_cmd =
-	    opts.preview ? "-pv -e '$pdf_previewer=q[" + opts.pdf_viewer + " %S];' " : "";
-	std::string cmd = "latexmk -pdf -outdir=\"" + latex_file_path.parent_path().string() +
-	                  '"' + " -quiet " + preview_cmd + '"' + latex_file_path.string() + '"';
-	std::system(cmd.c_str());
+	std::vector<std::string> cmd{
+	    "latexmk",
+	    "-pdf",
+	    "-silent",
+	};
+	if (opts.preview) {
+		cmd.push_back("-pv");
+		cmd.push_back("-e");
+		cmd.push_back("'$pdf_previewer=q[" + opts.pdf_viewer + " %S];'");
+	}
+	std::string outdir = get<bool>("--cwd") ? fs::current_path().string()
+	                                        : latex_file_path.parent_path().string();
+	cmd.push_back("-outdir=" + outdir);
+	cmd.push_back(latex_file_path.string());
+	run(cmd);
 
 	// cleanup
-	if (get<bool>("--clean") || get<bool>("--no-source")) {
-		fs::remove(latex_file_path.replace_extension(".out"));
-		fs::remove(latex_file_path.replace_extension(".log"));
-	}
-	if (get<bool>("--no-source")) {
-		fs::remove(latex_file_path);
+	if (get<bool>("--clean") || get<bool>("--cwd") || get<bool>("--no-source")) {
+		std::error_code ec;
+		std::vector<std::string> exts{"aux", "fdb_latexmk", "fls", "log", "pre"};
+		if (get<bool>("--no-source"))
+			exts.push_back("tex");
+
+		for (const std::string& ext : exts)
+			fs::remove(outdir / latex_file_path.filename().replace_extension(ext), ec);
 	}
 }
 
@@ -206,22 +255,32 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	for (auto program : {std::string("typst"), opts.pdf_viewer})
-		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
-			Log::CRITICAL(program + " is not executable");
-
-	if (typst_file_path.string().contains('"'))
-		throw std::invalid_argument("double quotes not allowed in file paths !");
+	if (run({"which", "typst"}, true))
+		Log::CRITICAL("typst is not executable");
+	if (opts.preview && run({"which", opts.pdf_viewer}, true))
+		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	// BUG: unhandled conflicts (figures with the same name)
 	for (std::string problem : positional_args) {
 		utils::figures::copy(typst_file_path.parent_path(), get_problem_path(problem));
 	}
 
-	std::string preview_cmd = opts.preview ? "--open " + opts.pdf_viewer : "";
-	std::string cmd = "typst compile --root=\"" + typst_file_path.parent_path().string() +
-	                  "\" " + preview_cmd + " \"" + typst_file_path.string() + '"';
-	std::system(cmd.c_str());
+	std::vector<std::string> cmd{
+	    "typst",
+	    "compile",
+	    "--root",
+	    typst_file_path.parent_path().string(),
+	};
+	if (opts.preview) {
+		cmd.push_back("--open");
+		cmd.push_back(opts.pdf_viewer);
+	}
+	cmd.push_back(typst_file_path.string());
+	if (get<bool>("--cwd")) {
+		fs::path pdf = typst_file_path.filename().replace_extension("pdf");
+		cmd.push_back((fs::current_path() / pdf).string());
+	}
+	run(cmd);
 
 	if (get<bool>("--no-source")) {
 		fs::remove(typst_file_path);

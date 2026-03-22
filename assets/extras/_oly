@@ -1,13 +1,8 @@
 #compdef oly
-#
-# Zsh users: place this somewhere in your $fpath to get shell completion for
-# oly commands.
 
 local context state state_descr line
 
-# -------------------------
 # Global options
-# -------------------------
 local -a global_opts=(
 	'(-c --config-file)'{-c,--config-file}'[Specify config file]:file:_files'
 	'(-h --help)'{-h,--help}'[Show help message]'
@@ -18,9 +13,7 @@ local -a global_opts=(
 	'--verify-config[Verify configuration file]'
 )
 
-# -------------------------
 # Subcommands
-# -------------------------
 local -a subcommands=(
 	'add:Add a problem to the database'
 	'edit:Edit an entry in the database'
@@ -33,9 +26,7 @@ local -a subcommands=(
 	'mv:Rename a problem'
 )
 
-# -------------------------
-# Subcommand-specific options (arrays, so specs expand correctly)
-# -------------------------
+# Subcommand-specific options
 local -a opts_add=(
 	'(-o --overwrite)'{-o,--overwrite}'[Overwrite previous database entry]'
 )
@@ -52,7 +43,7 @@ local -a opts_gen=(
 	'--clean[Remove auxiliary files]'
 	'--no-pdf[Only generate a source file]'
 	'--no-source[Remove the source file and induce --clean]'
-	'--cwd[Create files in the current directory]'
+	'--cwd[Create the pdf in the current directory]'
 )
 
 local -a opts_rm=(
@@ -64,19 +55,15 @@ local -a opts_mv=(
 	'(-a --alias)'{-a,--alias}'[alias the new file to the old one]'
 )
 
-# -------------------------
 # Dynamic problem list
-# -------------------------
 _oly_problems() {
 	local -a problems
 	problems=("${(@f)$(oly list 2>/dev/null)}")
 	_describe -t problems 'problem' problems
 }
 
-# -------------------------
 # Helper: detect subcommand (first non-option after command)
 # Handles globals anywhere, and respects `--` end-of-options.
-# -------------------------
 local subcmd=""
 {
 	local i w
@@ -90,9 +77,7 @@ local subcmd=""
 	done
 }
 
-# -------------------------
 # Dispatcher
-# -------------------------
 _arguments -C \
 	$global_opts \
 	'1:subcommand:->subcmd' \

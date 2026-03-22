@@ -12,7 +12,7 @@ void Alias::link(const fs::path& from, const fs::path& to) {
 	try {
 		fs::create_directories(to.parent_path());
 		fs::create_symlink(from, to);
-	} catch (const std::filesystem::filesystem_error& e) {
+	} catch (const fs::filesystem_error& e) {
 		Log::ERROR(e.what());
 	}
 }
