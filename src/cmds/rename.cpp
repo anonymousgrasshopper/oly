@@ -7,7 +7,7 @@
 namespace fs = std::filesystem;
 
 Rename::Rename() {
-	add("--alias,-a", "alias the new file to the old one", false);
+	add("--alias,-a", "Alias the new file to the old one", false);
 }
 
 void Rename::move(const fs::path& from, const fs::path& to) {

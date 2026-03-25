@@ -15,12 +15,12 @@
 namespace fs = std::filesystem;
 
 Generate::Generate() {
-	add("--preview", "open the generated pdf", [] { opts.preview = true; });
-	add("--no-preview", "do not open the generated pdf", [] { opts.preview = false; });
-	add("--clean", "remove auxiliary files", false);
-	add("--no-pdf", "only generate a source file", false);
-	add("--no-source", "remove the source file and induce --clean", false);
-	add("--cwd", "create the pdf in the current directory", false);
+	add("--preview", "Open the generated pdf", [] { opts.preview = true; });
+	add("--no-preview", "Do not open the generated pdf", [] { opts.preview = false; });
+	add("--clean", "Remove auxiliary files", false);
+	add("--no-pdf", "Only generate a source file", false);
+	add("--no-source", "Remove the source file and induce --clean", false);
+	add("--cwd", "Create the pdf in the current directory", false);
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {

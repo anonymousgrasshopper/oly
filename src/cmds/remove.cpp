@@ -11,8 +11,8 @@
 namespace fs = std::filesystem;
 
 Remove::Remove() {
-	add("--confirm,-i", "prompt before deleting file", [] { opts.confirm = true; });
-	add("--force,-f", "do not prompt before deleting file", [] { opts.confirm = false; });
+	add("--confirm,-i", "Prompt before deleting file", [] { opts.confirm = true; });
+	add("--force,-f", "Do not prompt before deleting file", [] { opts.confirm = false; });
 }
 
 bool Remove::prompt_before_deletion(const fs::path& path) {
