@@ -17,7 +17,9 @@
 
 namespace fs = std::filesystem;
 
-Show::Show() {}
+Show::Show() {
+	add("--color", "Wether to colorize ouput or not", "auto");
+}
 
 // external C symbols from the tree-sitter parsers
 extern "C" const TSLanguage* tree_sitter_latex();
@@ -138,6 +140,22 @@ const static std::string trim_trailing_newlines(std::string& input) {
 	return input + '\n';
 }
 
+std::string Show::process(std::string& input) const {
+	input = trim_trailing_newlines(input);
+	std::string color_opt = get<std::string>("--color");
+	if (color_opt == "auto") {
+		color_opt = isatty(STDOUT_FILENO) ? "always" : "never";
+	}
+	if (color_opt == "always") {
+		input = colorize(input);
+	} else if (color_opt != "never") {
+		Log::WARNING(
+		    "Invalid value for --color: should be one of auto, never or always (received " +
+		    color_opt + ")");
+	}
+	return input;
+}
+
 std::string Show::get_statement(const fs::path& pb) const {
 	std::ifstream file(pb);
 	if (!file.is_open())
@@ -155,7 +173,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 	}
 	while (getline(file, line)) {
 		if (utils::is_separator(line)) {
-			return colorize(trim_trailing_newlines(pb_statement));
+			return process(pb_statement);
 		} else {
 			pb_statement += (line + '\n');
 		}
@@ -164,7 +182,7 @@ std::string Show::get_statement(const fs::path& pb) const {
 		pb_statement.pop_back();
 	}
 
-	return colorize(trim_trailing_newlines(pb_statement));
+	return process(pb_statement);
 }
 
 bool Show::print_statement(const fs::path& source_path) const {

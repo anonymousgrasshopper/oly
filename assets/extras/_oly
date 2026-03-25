@@ -27,15 +27,14 @@ local -a subcommands=(
 )
 
 # Subcommand-specific options
+local -a opts_edit=()   # no options
+local -a opts_search=() # no options
+local -a opts_list=()   # no options
+local -a opts_alias=()  # no options
+
 local -a opts_add=(
 	'(-o --overwrite)'{-o,--overwrite}'[Overwrite previous database entry]'
 )
-
-local -a opts_alias=()  # no options
-local -a opts_edit=()   # no options
-local -a opts_search=() # no options
-local -a opts_show=()   # no options
-local -a opts_list=()   # no options
 
 local -a opts_gen=(
 	'(--preview --no-preview)--preview[Open the generated PDF]'
@@ -44,6 +43,10 @@ local -a opts_gen=(
 	'--no-pdf[Only generate a source file]'
 	'--no-source[Remove the source file and induce --clean]'
 	'--cwd[Create the pdf in the current directory]'
+)
+
+local -a opts_show=(
+	'--color[Wether to colorize ouput or not]:color:(always never auto)'
 )
 
 local -a opts_rm=(
