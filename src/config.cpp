@@ -15,8 +15,6 @@
 
 namespace fs = std::filesystem;
 
-static std::string editor;
-
 static std::string get_editor() {
 	const char* editor = std::getenv("EDITOR");
 	if (!editor)
@@ -95,7 +93,6 @@ static void add_defaults(YAML::Node& config) {
 	}
 
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
-	    {"editor", editor},
 	    {"output_directory", cache_home + "/oly/${source}"},
 	    {"tmpdir", static_cast<std::string>(tmpdir) + "/oly/"}};
 	for (auto [key, value] : default_options) {
