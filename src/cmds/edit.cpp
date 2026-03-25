@@ -80,7 +80,7 @@ std::string Edit::get_solution(const fs::path& source) const {
 	std::string input =
 	    utils::input_file(tmp_path / ("solution" + utils::filetype_extension()), solution,
 	                      false)
-	        .filter_top_lines(std::regex("^\\s*$"));
+	        .lines(true);
 
 	utils::figures::save(tmp_path, source.parent_path());
 
@@ -91,7 +91,7 @@ void Edit::edit_problem(const std::string& pb) const {
 	const fs::path solution_path = get_problem_solution_path(pb);
 	shared["source"] = get_problem_name(pb);
 	std::string sol = get_solution(solution_path);
-	utils::file::overwrite(solution_path, sol);
+	utils::file::create(solution_path, sol);
 }
 
 int Edit::execute(std::vector<std::string>& args) {

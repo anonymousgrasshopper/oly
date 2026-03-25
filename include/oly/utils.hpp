@@ -1,6 +1,5 @@
 #pragma once
 
-#include <deque>
 #include <filesystem>
 #include <regex>
 #include <string>
@@ -45,32 +44,25 @@ bool copy_dir(const fs::path& from, const std::string& to);
 std::vector<std::string> prompt_user_for_problems();
 
 struct input_file {
-private:
-	void create_file();
-	bool remove;
-
-public:
 	fs::path filepath;
 	std::string contents;
+	bool remove;
 
+	input_file(fs::path filepath, bool remove = false);
 	input_file(fs::path filepath, std::string contents, bool remove = true);
 	~input_file();
 
-	[[nodiscard]]
-	std::deque<std::string> lines();
-
-	[[nodiscard]]
-	std::string filter_top_lines(const std::regex& reg);
-
+	void create();
 	void edit();
+
+	[[nodiscard]]
+	std::string lines(bool ignore_blank = false);
 };
 
 namespace file {
 void create(const fs::path& filepath, const std::string& contents = "");
 
-void edit(const fs::path& filepath, std::string editor = "");
-
-void overwrite(const fs::path& filepath, const std::string& content);
+void edit(const fs::path& filepath);
 } // namespace file
 
 namespace yaml {

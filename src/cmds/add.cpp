@@ -19,7 +19,7 @@ std::string Add::get_solution_body(const fs::path& base_path) const {
 	std::string input =
 	    utils::input_file(base_path / ("solution" + utils::filetype_extension()),
 	                      utils::expand_vars(opts.contents), false)
-	        .filter_top_lines(std::regex("^\\s*$"));
+	        .lines(true);
 	return input;
 }
 

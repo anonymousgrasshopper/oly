@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
-#include <fstream>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -25,23 +24,6 @@ static std::string get_editor() {
 	if (!editor)
 		editor = "vim";
 	return editor;
-}
-
-static void create_default_config(const fs::path& config_file) {
-	try {
-		fs::create_directories(config_file.parent_path());
-	} catch (const std::exception& e) {
-		Log::CRITICAL("std::filesystem::create_directories(" +
-		              config_file.parent_path().string() + ")\n" + e.what());
-	}
-	constexpr char DEFAULT_CONFIG_BYTES[] = {
-#embed "../assets/config.yaml"
-	};
-	constexpr size_t DEFAULT_CONFIG_SIZE = sizeof(DEFAULT_CONFIG_BYTES);
-	std::string default_config(DEFAULT_CONFIG_BYTES, DEFAULT_CONFIG_SIZE);
-	std::ofstream out(config_file);
-	out << default_config;
-	out.close();
 }
 
 static bool is_valid(const YAML::Node& config) {
@@ -184,26 +166,38 @@ namespace configuration {
 void load_config(std::string config_file_path) {
 	const fs::path config_file = fs::absolute(utils::expand_env_vars(config_file_path));
 
-	editor = get_editor();
-	while (!fs::exists(config_file)) {
-		create_default_config(config_file);
-		utils::file::edit(config_file, editor);
+	opts.editor = get_editor();
+	utils::input_file config(config_file);
+
+	// default config
+	if (!fs::exists(config_file)) {
+		constexpr char DEFAULT_CONFIG_BYTES[] = {
+#embed "../assets/config.yaml"
+		};
+		constexpr size_t DEFAULT_CONFIG_SIZE = sizeof(DEFAULT_CONFIG_BYTES);
+		std::string default_config(DEFAULT_CONFIG_BYTES, DEFAULT_CONFIG_SIZE);
+
+		config.contents = default_config;
+		config.create();
+		config.edit();
 	}
 
+	// load config
 	std::optional<YAML::Node> userconfig = utils::yaml::load(config_file);
-	while (!userconfig || !is_valid(userconfig.value())) {
-	edit:
-		utils::file::edit(config_file, editor);
-		userconfig = utils::yaml::load(config_file);
-	}
+	while (true) {
+		while (!userconfig || !is_valid(userconfig.value())) {
+			config.edit();
+			userconfig = utils::yaml::load(config_file);
+		}
 
-	utils::yaml::merge_metadata(userconfig.value(), false);
-	add_defaults(userconfig.value());
-	try {
-		opts.update(userconfig.value());
-	} catch (const std::exception& e) {
-		Log::ERROR(e.what(), logopt::WAIT);
-		goto edit;
+		utils::yaml::merge_metadata(userconfig.value(), false);
+		add_defaults(userconfig.value());
+		try {
+			opts.update(userconfig.value());
+			break;
+		} catch (const std::exception& e) {
+			Log::ERROR(e.what(), logopt::WAIT);
+		}
 	}
 }
 } // namespace configuration

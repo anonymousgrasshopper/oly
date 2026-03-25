@@ -184,9 +184,12 @@ std::vector<std::string> prompt_user_for_problems() {
 	return result;
 }
 
+input_file::input_file(fs::path filepath, bool remove)
+    : filepath(filepath), remove(remove) {}
+
 input_file::input_file(fs::path filepath, std::string contents, bool remove)
-    : remove(remove), filepath(filepath), contents(contents) {
-	create_file();
+    : filepath(filepath), contents(contents), remove(remove) {
+	create();
 	edit();
 };
 input_file::~input_file() {
@@ -196,79 +199,54 @@ input_file::~input_file() {
 	}
 }
 
-void input_file::create_file() {
-	fs::create_directories(filepath.parent_path());
-	std::ofstream out(filepath);
-	out << contents;
-	out.close();
+void input_file::create() {
+	utils::file::create(filepath, contents);
 }
 
-std::deque<std::string> input_file::lines() {
-	std::ifstream file(filepath);
-	std::deque<std::string> lines;
-	std::string line;
-	if (!file.is_open())
-		Log::CRITICAL("unable to open " + filepath.string() + "!");
-
-	while (getline(file, line)) {
-		lines.push_back(line);
-	}
-	return lines;
+void input_file::edit() {
+	utils::file::edit(filepath);
 }
 
-std::string input_file::filter_top_lines(const std::regex& reg) {
+std::string input_file::lines(bool ignore_blank) {
 	std::ifstream file(filepath);
 	std::string lines;
 	std::string line;
 	if (!file.is_open())
 		Log::CRITICAL("unable to open " + filepath.string() + "!");
 
-	while (getline(file, line)) {
-		if (!regex_search(line, reg)) {
-			lines.append(line + '\n');
-			break;
+	if (ignore_blank) {
+		const std::regex reg("^\\s*$");
+		while (getline(file, line)) {
+			if (!regex_search(line, reg)) {
+				lines.append(line + '\n');
+				break;
+			}
 		}
 	}
+
 	while (getline(file, line)) {
 		lines.append(line + '\n');
 	}
 	return lines;
 }
 
-void input_file::edit() {
+namespace file {
+void create(const fs::path& filepath, const std::string& contents) {
+	fs::create_directories(filepath.parent_path());
+	std::ofstream out(filepath);
+	if (!out) {
+		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
+	}
+	out << contents;
+	out.close();
+}
+
+void edit(const fs::path& filepath) {
 	std::string cmd = opts.editor + " \"" + filepath.string() + "\"";
 	if (filepath.string().contains('"'))
 		throw std::invalid_argument("double quotes not allowed in file paths !");
 
 	std::system(cmd.c_str());
-}
-
-namespace file {
-void create(const fs::path& filepath, const std::string& contents) {
-	fs::create_directories(filepath.parent_path());
-	std::ofstream out(filepath);
-	out << contents;
-	out.close();
-}
-
-void edit(const fs::path& filepath, std::string editor) {
-	if (editor == "")
-		editor = opts.editor;
-	std::string cmd = editor + " \"" + filepath.string() + "\"";
-	if (filepath.string().contains('"'))
-		throw std::invalid_argument("double quotes not allowed in file paths !");
-
-	std::system(cmd.c_str());
-}
-
-void overwrite(const fs::path& filepath, const std::string& content) {
-	std::ofstream file(filepath, std::ios::trunc);
-	if (!file) {
-		Log::ERROR("Could not open file: " + filepath.string(), logopt::WAIT);
-	}
-
-	file << content;
-	file.close();
 }
 } // namespace file
 
@@ -323,21 +301,21 @@ namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path(opts.tmpdir / shared["source"] /
 	                           ("preview" + filetype_extension()));
+	std::string preview_contents;
 	if (opts.lang == configuration::lang::latex) {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/tex/preview.tex"
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
-		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-		utils::file::create(preview_file_path, utils::expand_vars(default_config));
+		std::string preview_contents(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
 	} else {
 		constexpr char PREVIEW_FILE_CONTENTS[] = {
 #embed "../assets/typst/preview.typ"
 		};
 		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
-		std::string default_config(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-		utils::file::create(preview_file_path, utils::expand_vars(default_config));
+		std::string preview_contents(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
 	}
+	utils::file::create(preview_file_path, utils::expand_vars(preview_contents));
 }
 } // namespace preview
 
