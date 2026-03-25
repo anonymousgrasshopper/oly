@@ -1,12 +1,9 @@
 #include <exception>
-#include <fcntl.h>
 #include <filesystem>
 #include <fstream>
 #include <optional>
 #include <stdexcept>
 #include <string>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <vector>
 
 #include "oly/cmds/generate.hpp"
@@ -24,41 +21,6 @@ Generate::Generate() {
 	add("--no-pdf", "only generate a source file", false);
 	add("--no-source", "remove the source file and induce --clean", false);
 	add("--cwd", "create the pdf in the current directory", false);
-}
-
-static int run(const std::vector<std::string>& args, bool silent = false) {
-	std::vector<char*> c_args;
-	for (const auto& s : args)
-		c_args.push_back(const_cast<char*>(s.c_str()));
-	c_args.push_back(nullptr);
-
-	pid_t pid = fork();
-
-	if (pid == 0) {
-		// child
-		if (silent) {
-			int devnull = open("/dev/null", O_WRONLY);
-			if (devnull != -1) {
-				dup2(devnull, STDOUT_FILENO);
-				dup2(devnull, STDERR_FILENO);
-				close(devnull);
-			}
-		}
-
-		execvp(c_args[0], c_args.data());
-		_exit(127); // exec failed
-	}
-
-	int status;
-	waitpid(pid, &status, 0);
-
-	if (WIFEXITED(status))
-		return WEXITSTATUS(status);
-
-	if (WIFSIGNALED(status))
-		return 128 + WTERMSIG(status);
-
-	return -1;
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -161,9 +123,9 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	if (run({"which", "latexmk"}, true))
+	if (utils::run({"which", "latexmk"}, true))
 		Log::CRITICAL("latexmk is not executable");
-	if (opts.preview && run({"which", opts.pdf_viewer}, true))
+	if (opts.preview && utils::run({"which", opts.pdf_viewer}, true))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	std::vector<std::string> cmd{
@@ -180,7 +142,7 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	                                        : latex_file_path.parent_path().string();
 	cmd.push_back("-outdir=" + outdir);
 	cmd.push_back(latex_file_path.string());
-	run(cmd);
+	utils::run(cmd);
 
 	// cleanup
 	if (get<bool>("--clean") || get<bool>("--cwd") || get<bool>("--no-source")) {
@@ -255,9 +217,9 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	if (run({"which", "typst"}, true))
+	if (utils::run({"which", "typst"}, true))
 		Log::CRITICAL("typst is not executable");
-	if (opts.preview && run({"which", opts.pdf_viewer}, true))
+	if (opts.preview && utils::run({"which", opts.pdf_viewer}, true))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	// BUG: unhandled conflicts (figures with the same name)
@@ -280,7 +242,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 		fs::path pdf = typst_file_path.filename().replace_extension("pdf");
 		cmd.push_back((fs::current_path() / pdf).string());
 	}
-	run(cmd);
+	utils::run(cmd);
 
 	if (get<bool>("--no-source")) {
 		fs::remove(typst_file_path);

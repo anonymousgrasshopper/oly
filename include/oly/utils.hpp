@@ -40,6 +40,8 @@ bool should_ignore(const std::string& line);
 
 bool copy_dir(const fs::path& from, const std::string& to);
 
+int run(const std::vector<std::string>& args, bool silent = false);
+
 [[nodiscard]]
 std::vector<std::string> prompt_user_for_problems();
 

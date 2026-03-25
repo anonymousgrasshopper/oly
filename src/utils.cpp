@@ -1,9 +1,12 @@
 #include <cstdlib>
+#include <fcntl.h>
 #include <filesystem>
 #include <fstream>
 #include <print>
 #include <regex>
 #include <stdexcept>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "oly/config.hpp"
 #include "oly/log.hpp"
@@ -147,9 +150,44 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	return true;
 }
 
+int run(const std::vector<std::string>& args, bool silent) {
+	std::vector<char*> c_args;
+	for (const auto& s : args)
+		c_args.push_back(const_cast<char*>(s.c_str()));
+	c_args.push_back(nullptr);
+
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		// child
+		if (silent) {
+			int devnull = open("/dev/null", O_WRONLY);
+			if (devnull != -1) {
+				dup2(devnull, STDOUT_FILENO);
+				dup2(devnull, STDERR_FILENO);
+				close(devnull);
+			}
+		}
+
+		execvp(c_args[0], c_args.data());
+		_exit(127); // exec failed
+	}
+
+	int status;
+	waitpid(pid, &status, 0);
+
+	if (WIFEXITED(status))
+		return WEXITSTATUS(status);
+
+	if (WIFSIGNALED(status))
+		return 128 + WTERMSIG(status);
+
+	return -1;
+}
+
 std::vector<std::string> prompt_user_for_problems() {
 	for (auto program : {std::string("fzf"), std::string("fd")})
-		if (std::system(("which " + program + " >/dev/null 2>&1").c_str()))
+		if (utils::run({"which" + program}, true))
 			Log::CRITICAL(program + " is not executable");
 
 	std::string cmd = "fd -tf . --base-directory " + opts.base_path.string() +
@@ -242,11 +280,7 @@ void create(const fs::path& filepath, const std::string& contents) {
 }
 
 void edit(const fs::path& filepath) {
-	std::string cmd = opts.editor + " \"" + filepath.string() + "\"";
-	if (filepath.string().contains('"'))
-		throw std::invalid_argument("double quotes not allowed in file paths !");
-
-	std::system(cmd.c_str());
+	utils::run({opts.editor, filepath.string()});
 }
 } // namespace file
 
