@@ -105,21 +105,21 @@ static void add_defaults(YAML::Node& config) {
 		}
 	}
 
-	if (!config["preamble"]) {
+	if (!config["preview"]) {
 		if (config["lang"].as<std::string>() == "latex") {
-			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
-#embed "../assets/tex/preamble.tex"
+			constexpr char DEFAULT_PREVIEW_BYTES[] = {
+#embed "../assets/tex/preview.tex"
 			};
-			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
-			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
-			config["preamble"] = preamble;
+			constexpr size_t DEFAULT_PREVIEW_SIZE = sizeof(DEFAULT_PREVIEW_BYTES);
+			std::string preview(DEFAULT_PREVIEW_BYTES, DEFAULT_PREVIEW_SIZE);
+			config["preview"] = preview;
 		} else {
-			constexpr char DEFAULT_PREAMBLE_BYTES[] = {
-#embed "../assets/typst/preamble.typ"
+			constexpr char DEFAULT_PREVIEW_BYTES[] = {
+#embed "../assets/typst/preview.typ"
 			};
-			constexpr size_t DEFAULT_PREAMBLE_SIZE = sizeof(DEFAULT_PREAMBLE_BYTES);
-			std::string preamble(DEFAULT_PREAMBLE_BYTES, DEFAULT_PREAMBLE_SIZE);
-			config["preamble"] = preamble;
+			constexpr size_t DEFAULT_PREVIEW_SIZE = sizeof(DEFAULT_PREVIEW_BYTES);
+			std::string preview(DEFAULT_PREVIEW_BYTES, DEFAULT_PREVIEW_SIZE);
+			config["preview"] = preview;
 		}
 	}
 

@@ -15,7 +15,7 @@ enum class lang { latex, typst };
 } // namespace configuration
 
 struct Options {
-	// the author's name in the preview and generated pdf
+	// the author's name in the preview and generated pdfs
 	std::string author;
 
 	// the base path where solutions are stored
@@ -40,7 +40,7 @@ struct Options {
 	std::string pdf_viewer;
 
 	// wether to open the generated pdf with pdf_viewer when running 'oly gen'
-	bool preview = true;
+	bool open = true;
 
 	// wether to confirm deletion or not in 'oly rm'
 	bool confirm = false;
@@ -95,10 +95,10 @@ struct Options {
 	// meant to specify which latex packages to use
 	std::string packages;
 
-	// preamble is what gets put in the preview file
-	// contents is the content that is already written in the file
+	// preview is what gets put in the preview file
+	// contents is the initial content in a file opened through 'oly add'
 	// metadata is the metadata you get prompted for in 'oly add'
-	std::string preamble;
+	std::string preview;
 	std::string contents;
 	std::string metadata;
 
@@ -124,8 +124,8 @@ struct Options {
 			editor = node["editor"].as<std::string>();
 		if (node["pdf_viewer"])
 			pdf_viewer = node["pdf_viewer"].as<std::string>();
-		if (node["preview"])
-			preview = node["preview"].as<bool>();
+		if (node["open"])
+			open = node["open"].as<bool>();
 		if (node["confirm"])
 			confirm = node["confirm"].as<bool>();
 		if (node["abbreviations"])
@@ -148,8 +148,8 @@ struct Options {
 			tmpdir = fs::path(node["tmpdir"].as<std::string>());
 		if (node["packages"])
 			packages = node["packages"].as<std::string>();
-		if (node["preamble"])
-			preamble = node["preamble"].as<std::string>();
+		if (node["preview"])
+			preview = node["preview"].as<std::string>();
 		if (node["contents"])
 			contents = node["contents"].as<std::string>();
 		if (node["metadata"])

@@ -335,21 +335,7 @@ namespace preview {
 void create_preview_file() {
 	fs::path preview_file_path(opts.tmpdir / shared["source"] /
 	                           ("preview" + filetype_extension()));
-	std::string preview_contents;
-	if (opts.lang == configuration::lang::latex) {
-		constexpr char PREVIEW_FILE_CONTENTS[] = {
-#embed "../assets/tex/preview.tex"
-		};
-		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
-		std::string preview_contents(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-	} else {
-		constexpr char PREVIEW_FILE_CONTENTS[] = {
-#embed "../assets/typst/preview.typ"
-		};
-		constexpr size_t PREVIEW_FILE_SIZE = sizeof(PREVIEW_FILE_CONTENTS);
-		std::string preview_contents(PREVIEW_FILE_CONTENTS, PREVIEW_FILE_SIZE);
-	}
-	utils::file::create(preview_file_path, utils::expand_vars(preview_contents));
+	utils::file::create(preview_file_path, utils::expand_vars(opts.preview));
 }
 } // namespace preview
 

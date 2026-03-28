@@ -15,8 +15,8 @@
 namespace fs = std::filesystem;
 
 Generate::Generate() {
-	add("--preview", "Open the generated pdf", [] { opts.preview = true; });
-	add("--no-preview", "Do not open the generated pdf", [] { opts.preview = false; });
+	add("--open", "Open the generated pdf", [] { opts.open = true; });
+	add("--no-open", "Do not open the generated pdf", [] { opts.open = false; });
 	add("--clean", "Remove auxiliary files", false);
 	add("--no-pdf", "Only generate a source file", false);
 	add("--no-source", "Remove the source file and induce --clean", false);
@@ -125,7 +125,7 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 
 	if (utils::run({"which", "latexmk"}, true))
 		Log::CRITICAL("latexmk is not executable");
-	if (opts.preview && utils::run({"which", opts.pdf_viewer}, true))
+	if (opts.open && utils::run({"which", opts.pdf_viewer}, true))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	std::vector<std::string> cmd{
@@ -133,7 +133,7 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	    "-pdf",
 	    "-silent",
 	};
-	if (opts.preview) {
+	if (opts.open) {
 		cmd.push_back("-pv");
 		cmd.push_back("-e");
 		cmd.push_back("'$pdf_previewer=q[" + opts.pdf_viewer + " %S];'");
@@ -160,11 +160,11 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 	fs::create_directories(typst_file_path.parent_path());
 	std::ofstream out(typst_file_path);
 
-	constexpr char LATEX_PREAMBLE[] = {
+	constexpr char TYPST_PREAMBLE[] = {
 #embed "../../assets/typst/preamble.typ"
 	};
-	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(LATEX_PREAMBLE);
-	std::string latex_preamble(LATEX_PREAMBLE, LATEX_PREAMBLE_SIZE);
+	constexpr size_t LATEX_PREAMBLE_SIZE = sizeof(TYPST_PREAMBLE);
+	std::string latex_preamble(TYPST_PREAMBLE, LATEX_PREAMBLE_SIZE);
 	if (positional_args.size() != 1) {
 		out << utils::expand_vars(latex_preamble);
 	}
@@ -219,7 +219,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 
 	if (utils::run({"which", "typst"}, true))
 		Log::CRITICAL("typst is not executable");
-	if (opts.preview && utils::run({"which", opts.pdf_viewer}, true))
+	if (opts.open && utils::run({"which", opts.pdf_viewer}, true))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	// BUG: unhandled conflicts (figures with the same name)
@@ -233,7 +233,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	    "--root",
 	    typst_file_path.parent_path().string(),
 	};
-	if (opts.preview) {
+	if (opts.open) {
 		cmd.push_back("--open");
 		cmd.push_back(opts.pdf_viewer);
 	}
