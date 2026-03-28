@@ -151,9 +151,9 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 
 int run(const std::vector<std::string>& args, bool silent) {
 	std::vector<char*> c_args(args.size() + 1);
-	for (const auto& s : args)
-		c_args.push_back(const_cast<char*>(s.c_str()));
-	c_args.push_back(nullptr);
+	for (size_t i = 0; i < args.size(); ++i)
+		c_args[i] = const_cast<char*>(args[i].c_str());
+	c_args[c_args.size() - 1] = nullptr;
 
 	pid_t pid = fork();
 
