@@ -70,7 +70,7 @@ _oly_problems() {
 local subcmd=""
 {
 	local i w
-	for ((i = 2; i <= $#words; ++i)); do
+	for ((i = 2; i <= ${#words}; ++i)); do
 		w=${words[i]}
 		[[ $w == -- ]] && break
 		if [[ $w != -* ]]; then
