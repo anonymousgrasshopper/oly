@@ -7,7 +7,7 @@
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
-Edit::Edit() {}
+Edit::Edit() = default;
 
 std::string Edit::parse_and_comment_metadata(const fs::path& solution_path) const {
 	std::ifstream solution_file(solution_path);
@@ -104,7 +104,7 @@ int Edit::execute(std::vector<std::string>& args) {
 		}
 	}
 
-	for (std::string source : positional_args)
+	for (const std::string& source : positional_args)
 		edit_problem(source);
 
 	return 0;

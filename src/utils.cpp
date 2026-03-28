@@ -4,7 +4,6 @@
 #include <fstream>
 #include <print>
 #include <regex>
-#include <stdexcept>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -46,7 +45,7 @@ std::string expand_vars(const std::string& str, bool expand_config_vars,
 			return metadata[match].as<std::string>();
 		} else if (expand_env_vars) {
 			const char* s = getenv(match.c_str());
-			return (s == NULL ? "" : s);
+			return (s == nullptr ? "" : s);
 		} else {
 			return "";
 		}
@@ -56,7 +55,7 @@ std::string expand_vars(const std::string& str, bool expand_config_vars,
 
 	if (expand_env_vars && fmt.starts_with("~/")) {
 		const char* home = getenv("HOME");
-		fmt = std::string(home == NULL ? "" : home) + fmt.substr(1);
+		fmt = std::string(home == nullptr ? "" : home) + fmt.substr(1);
 	}
 
 	return fmt;
@@ -71,8 +70,8 @@ std::string filetype_extension() {
 }
 
 void set_log_level(std::string level) {
-	std::transform(level.begin(), level.end(), level.begin(),
-	               [](unsigned char c) { return std::toupper(c); });
+	std::ranges::transform(level, level.begin(),
+	                       [](unsigned char c) { return std::toupper(c); });
 
 	if (level == "CRITICAL") {
 		Log::log_level = severity::CRITICAL;
@@ -151,7 +150,7 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 }
 
 int run(const std::vector<std::string>& args, bool silent) {
-	std::vector<char*> c_args;
+	std::vector<char*> c_args(args.size() + 1);
 	for (const auto& s : args)
 		c_args.push_back(const_cast<char*>(s.c_str()));
 	c_args.push_back(nullptr);
@@ -186,7 +185,7 @@ int run(const std::vector<std::string>& args, bool silent) {
 }
 
 std::vector<std::string> prompt_user_for_problems() {
-	for (auto program : {std::string("fzf"), std::string("fd")})
+	for (const auto& program : {std::string("fzf"), std::string("fd")})
 		if (utils::run({"which" + program}, true))
 			Log::CRITICAL(program + " is not executable");
 
@@ -306,7 +305,7 @@ std::optional<YAML::Node> load(const std::string& yaml, std::string source) noex
 	} catch (const YAML::ParserException& e) {
 		if (!source.empty())
 			source = " in file " + source;
-		Log::ERROR("YAML syntax error " + source + ": " + static_cast<std::string>(e.what()),
+		Log::ERROR("YAML syntax error" + source + ": " + static_cast<std::string>(e.what()),
 		           logopt::WAIT);
 	}
 	return std::nullopt;

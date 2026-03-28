@@ -6,6 +6,7 @@
 #include "oly/cmds/default.hpp"
 #include "oly/cmds/edit.hpp"
 #include "oly/cmds/generate.hpp"
+#include "oly/cmds/get_cmd.hpp"
 #include "oly/cmds/list.hpp"
 #include "oly/cmds/remove.hpp"
 #include "oly/cmds/rename.hpp"

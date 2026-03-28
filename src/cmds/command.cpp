@@ -55,7 +55,7 @@ void Command::add(std::string flags, std::string desc, void (*callback)(std::str
 }
 
 bool Command::has(const std::string& flag) const {
-	return lookup.find(flag) != lookup.end();
+	return lookup.contains(flag);
 }
 
 void Command::set(const std::string& flag, std::variant<bool, std::string> val) {
@@ -155,7 +155,7 @@ void Command::parse(const std::vector<std::string>& args) {
 
 void Command::load_config_file(const std::vector<std::string>& args) {
 	for (size_t i = 0; i < args.size(); ++i) {
-		const std::string flag = args[i];
+		const std::string& flag = args[i];
 		if (flag == "--config-file" || flag == "-c") {
 			if (i == args.size() - 1) {
 				Log::CRITICAL(args[i] + " requires an argument",

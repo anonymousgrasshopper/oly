@@ -21,7 +21,7 @@ void Default::print_version() {
 
 Default::Default() {
 	add("--version,-v", "print program version and related info",
-	    [this] { this->print_version(); });
+	    [] { Default::print_version(); });
 	add("--verify-config", "check config file", [this] {
 		configuration::load_config(get<std::string>("--config-file"));
 		std::println("All good !");
@@ -45,9 +45,10 @@ Default::Default() {
 			    Log::INFO("received request: " + request);
 		    }
 
-		    std::string url = request.substr(std::min(size_t(6), request.size()));
-		    size_t mark = url.find("?");
-		    size_t equals = url.find("=", mark);
+		    std::string url =
+		        request.substr(std::min(static_cast<size_t>(6), request.size()));
+		    size_t mark = url.find('?');
+		    size_t equals = url.find('=', mark);
 		    if (mark == std::string::npos || equals == std::string::npos)
 			    Log::CRITICAL("malformed query: expected format oly://cmd?name=<problem name>");
 

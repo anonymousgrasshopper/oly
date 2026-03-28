@@ -69,12 +69,12 @@ int Add::execute(std::vector<std::string>& args) {
 	load_config_file(args);
 	parse(args);
 
-	if (positional_args.size() == 0) {
+	if (positional_args.empty()) {
 		Log::ERROR("Expected problem name", logopt::HELP | logopt::NO_PREFIX);
 		return 1;
 	}
 
-	for (std::string source : positional_args)
+	for (const std::string& source : positional_args)
 		add_problem(source);
 
 	return 0;

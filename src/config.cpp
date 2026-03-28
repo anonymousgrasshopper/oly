@@ -95,7 +95,7 @@ static void add_defaults(YAML::Node& config) {
 	std::unordered_map<std::string, std::variant<bool, std::string>> default_options = {
 	    {"output_directory", cache_home + "/oly/${source}"},
 	    {"tmpdir", static_cast<std::string>(tmpdir) + "/oly/"}};
-	for (auto [key, value] : default_options) {
+	for (const auto& [key, value] : default_options) {
 		if (!config[key]) {
 			if (std::holds_alternative<bool>(value)) {
 				config[key] = std::get<bool>(value);

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <regex>
 #include <string>
@@ -41,8 +42,8 @@ static std::string get_contest(const std::string& source) {
 			contest = opts.abbreviations[contest];
 		} else {
 			if (!opts.contest_format.contains(contest)) {
-				if (contest.length() <= 4 && contest.find(' ') == std::string::npos) {
-					std::transform(contest.begin(), contest.end(), contest.begin(), ::toupper);
+				if (contest.length() <= 4 && !contest.contains(' ')) {
+					std::ranges::transform(contest, contest.begin(), ::toupper);
 					// } else {
 					// 	for (size_t i = 0; i < contest.length(); ++i) {
 					// 		if (i == 0 || contest[i - 1] == ' ') {
@@ -167,11 +168,11 @@ static fs::path get_path(const std::string& source) {
 			}
 		};
 		source_to_path[source] = utils::expand_vars(opts.contest_format[contest], expander);
-	} else if (contest.length()) {
+	} else if (!contest.empty()) {
 		std::string year{parsers::get_year(source)};
-		if (year.length()) {
+		if (!year.empty()) {
 			std::string problem{parsers::get_problem(source)};
-			if (problem.length()) {
+			if (!problem.empty()) {
 				source_to_path[source] = contest + "/" + contest + " " + year + "/" + contest +
 				                         " " + year + " " + problem;
 			} else {
@@ -261,11 +262,11 @@ std::string get_problem_name(const std::string& source) {
 
 		auto _ = utils::expand_vars(opts.contest_format[contest], expander);
 		source_to_name[source] = name;
-	} else if (contest.length()) {
+	} else if (!contest.empty()) {
 		std::string year{parsers::get_year(source)};
-		if (year.length()) {
+		if (!year.empty()) {
 			std::string problem{parsers::get_problem(source)};
-			if (problem.length()) {
+			if (!problem.empty()) {
 				source_to_name[source] = contest + " " + year + " " + problem;
 			}
 		}

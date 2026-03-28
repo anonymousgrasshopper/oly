@@ -3,7 +3,7 @@
 #include "oly/cmds/search.hpp"
 #include "oly/utils.hpp"
 
-Search::Search() {}
+Search::Search() = default;
 
 int Search::execute(std::vector<std::string>& args) {
 	load_config_file(args);

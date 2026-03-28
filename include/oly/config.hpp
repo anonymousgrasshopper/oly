@@ -11,7 +11,7 @@ namespace fs = std::filesystem;
 namespace configuration {
 void load_config(std::string config_file_path);
 
-enum class lang { latex, typst };
+enum class lang : std::uint8_t { latex, typst };
 } // namespace configuration
 
 struct Options {

@@ -99,7 +99,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		if (metadata["source"])
 			out << " [" + shared["source"] + "]";
 		out << "\n";
-		if (bodies.size() > 0)
+		if (!bodies.empty())
 			out << bodies[0];
 		if (positional_args.size() > 1)
 			out << "\\end{problem}";
@@ -107,7 +107,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 			out << "\\end{problem*}";
 		out << "\n\n";
 		if (metadata["url"] and !metadata["url"].IsNull())
-			out << "\\noindent\\emph{Link}: \\url{" << metadata["url"].as<std::string>() << "}"
+			out << R"(\noindent\emph{Link}: \url{)" << metadata["url"].as<std::string>() << "}"
 			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i)
 			out << "\\hrulebar" << "\n\n" << bodies[i];
@@ -134,14 +134,14 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	    "-silent",
 	};
 	if (opts.open) {
-		cmd.push_back("-pv");
-		cmd.push_back("-e");
-		cmd.push_back("'$pdf_previewer=q[" + opts.pdf_viewer + " %S];'");
+		cmd.emplace_back("-pv");
+		cmd.emplace_back("-e");
+		cmd.emplace_back("'$pdf_previewer=q[" + opts.pdf_viewer + " %S];'");
 	}
 	std::string outdir = get<bool>("--cwd") ? fs::current_path().string()
 	                                        : latex_file_path.parent_path().string();
-	cmd.push_back("-outdir=" + outdir);
-	cmd.push_back(latex_file_path.string());
+	cmd.emplace_back("-outdir=" + outdir);
+	cmd.emplace_back(latex_file_path.string());
 	utils::run(cmd);
 
 	// cleanup
@@ -149,7 +149,7 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 		std::error_code ec;
 		std::vector<std::string> exts{"aux", "fdb_latexmk", "fls", "log", "pre"};
 		if (get<bool>("--no-source"))
-			exts.push_back("tex");
+			exts.emplace_back("tex");
 
 		for (const std::string& ext : exts)
 			fs::remove(outdir / latex_file_path.filename().replace_extension(ext), ec);
@@ -187,7 +187,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 				out << "(\"" << get_problem_name(problem) << "\")";
 			out << "[\n";
 		}
-		if (bodies.size() > 0)
+		if (!bodies.empty())
 			out << bodies[0];
 		if (!metadata["title"]) {
 			out << "]";
@@ -234,13 +234,13 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	    typst_file_path.parent_path().string(),
 	};
 	if (opts.open) {
-		cmd.push_back("--open");
-		cmd.push_back(opts.pdf_viewer);
+		cmd.emplace_back("--open");
+		cmd.emplace_back(opts.pdf_viewer);
 	}
-	cmd.push_back(typst_file_path.string());
+	cmd.emplace_back(typst_file_path.string());
 	if (get<bool>("--cwd")) {
 		fs::path pdf = typst_file_path.filename().replace_extension("pdf");
-		cmd.push_back((fs::current_path() / pdf).string());
+		cmd.emplace_back((fs::current_path() / pdf).string());
 	}
 	utils::run(cmd);
 

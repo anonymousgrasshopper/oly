@@ -30,7 +30,7 @@ int Rename::execute(std::vector<std::string>& args) {
 	load_config_file(args);
 	parse(args);
 
-	if (positional_args.size() == 0) {
+	if (positional_args.empty()) {
 		Log::CRITICAL("missing file operand", logopt::HELP | logopt::NO_PREFIX);
 	} else if (positional_args.size() == 1) {
 		Log::CRITICAL("missing destination file operand after '" + positional_args[0] + "'",

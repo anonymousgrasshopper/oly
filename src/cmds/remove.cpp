@@ -28,10 +28,7 @@ bool Remove::prompt_before_deletion(const fs::path& path) {
 	}
 
 	char c = static_cast<char>(std::tolower(input[0]));
-	if (c == 'y')
-		return true;
-
-	return false;
+	return c == 'y';
 }
 
 void Remove::delete_problem(const fs::path& path) {

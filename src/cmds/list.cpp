@@ -8,7 +8,7 @@
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
-List::List() {}
+List::List() = default;
 
 std::optional<std::string> List::parse_metadata(const fs::path& solution_path) const {
 	std::ifstream solution_file(solution_path);

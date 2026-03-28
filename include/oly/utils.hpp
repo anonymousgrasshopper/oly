@@ -98,7 +98,7 @@ std::string utils::expand_vars(const std::string& str, auto&& f)
 {
 	std::string fmt = str;
 
-	static std::regex var("\\$\\{([^}]+)\\}");
+	static std::regex var(R"(\$\{([^}]+)\})");
 	std::smatch match;
 	while (std::regex_search(fmt, match, var)) {
 		fmt.replace(match[0].first, match[0].second, f(match[1].str()));

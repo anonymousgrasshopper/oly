@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-Alias::Alias() {}
+Alias::Alias() = default;
 
 void Alias::link(const fs::path& from, const fs::path& to) {
 	try {
@@ -21,7 +21,7 @@ int Alias::execute(std::vector<std::string>& args) {
 	load_config_file(args);
 	parse(args);
 
-	if (positional_args.size() == 0) {
+	if (positional_args.empty()) {
 		Log::ERROR("Expected source and at least one destination",
 		           logopt::HELP | logopt::NO_PREFIX);
 		return 1;

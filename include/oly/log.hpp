@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
-enum class severity {
+enum class severity : std::uint8_t {
 	TRACE,
 	DEBUG,
 	HINT,
@@ -17,7 +18,7 @@ bool operator>(severity a, severity b);
 bool operator<=(severity a, severity b);
 bool operator>=(severity a, severity b);
 
-enum class logopt : unsigned {
+enum class logopt : std::uint8_t {
 	NONE = 0,
 	WAIT = 1 << 0,     // Wait for user input
 	HELP = 1 << 1,     // Advise to use oly --help

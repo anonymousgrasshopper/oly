@@ -30,18 +30,18 @@ constexpr const char LATEX_QUERIES[] = {
 #embed "../../assets/tex/highlights.scm"
 };
 constexpr size_t LATEX_QUERIES_SIZE = sizeof(LATEX_QUERIES);
-std::string latex_queries(LATEX_QUERIES, LATEX_QUERIES_SIZE);
+static std::string latex_queries(LATEX_QUERIES, LATEX_QUERIES_SIZE);
 constexpr const char TYPST_QUERIES[] = {
 #embed "../../assets/typst/highlights.scm"
 };
 constexpr size_t TYPST_QUERIES_SIZE = sizeof(TYPST_QUERIES);
-std::string typst_queries(TYPST_QUERIES, TYPST_QUERIES_SIZE);
+static std::string typst_queries(TYPST_QUERIES, TYPST_QUERIES_SIZE);
 
 // escape sequences
 const std::string ANSI_BOLD = "\x1b[1m";
 const std::string ANSI_ITALIC = "\x1b[3m";
 
-std::string to_ansi(int color) {
+static std::string to_ansi(int color) {
 	uint8_t r, g, b;
 	r = (color >> 16) & 0xFF;
 	g = (color >> 8) & 0xFF;
@@ -50,7 +50,7 @@ std::string to_ansi(int color) {
 	return std::format("\x1b[38;2;{};{};{}m", r, g, b);
 }
 
-const static std::string map_capture(const std::string& name) {
+static std::string map_capture(const std::string& name) {
 	if (name == "markup.strong") {
 		return ANSI_BOLD;
 	} else if (name == "markup.italic") {
@@ -59,7 +59,7 @@ const static std::string map_capture(const std::string& name) {
 	return opts.colorscheme.contains(name) ? to_ansi(opts.colorscheme[name]) : "";
 }
 
-const static std::string colorize(const std::string& input) {
+static std::string colorize(const std::string& input) {
 	if (input.empty())
 		return input;
 
@@ -133,7 +133,7 @@ const static std::string colorize(const std::string& input) {
 	return result;
 }
 
-const static std::string trim_trailing_newlines(std::string& input) {
+static std::string trim_trailing_newlines(std::string& input) {
 	while (input.back() == '\n') {
 		input = input.substr(0, input.length() - 1);
 	}
