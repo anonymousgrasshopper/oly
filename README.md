@@ -3,18 +3,18 @@ A CLI for managing olympiad problem solutions.
 
 ## Installation
 You will need git and cmake to clone and build the project. Alternatively, you can
-grab an executable from [GitHub releases](https://github.com/anonymousgrasshopper/oly/releases).
+grab an executable from [GitHub releases](https://github.com/antinomie8/oly/releases).
 
 We provide an install script which will build the project, install the executable, the Zsh
 completion, the typst header, the desktop entry file and will register `oly`
 as a handler for its own URI scheme `oly://`.
 ```sh
-curl -fsSL https://raw.githubusercontent.com/anonymousgrasshopper/oly/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/antinomie8/oly/main/install.sh | bash
 ```
 
 To build the project yourself, you can
 ```sh
-git clone https://github.com/anonymousgrasshopper/oly
+git clone https://github.com/antinomie8/oly
 cd oly
 cmake -DCMAKE_BUILD_TYPE=Release -B build/Release
 cmake --build build/Release --parallel

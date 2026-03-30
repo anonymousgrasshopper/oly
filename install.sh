@@ -33,7 +33,7 @@ fi
 if [[ -z "$BUILD_DIR" ]]; then
 	BUILD_DIR="${TMPDIR:-/tmp}/oly_build"
 	if [[ ! -d "$BUILD_DIR/.git" ]]; then
-		git clone https://github.com/anonymousgrasshopper/oly "$BUILD_DIR"
+		git clone https://github.com/antinomie8/oly "$BUILD_DIR"
 	fi
 fi
 cd "$BUILD_DIR"
