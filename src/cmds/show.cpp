@@ -18,7 +18,7 @@
 namespace fs = std::filesystem;
 
 Show::Show() {
-	add("--color", "Wether to colorize ouput or not", "auto");
+	add("--color", "When to use terminal colours (always, auto, never)", "auto");
 }
 
 // external C symbols from the tree-sitter parsers

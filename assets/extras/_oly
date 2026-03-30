@@ -46,7 +46,7 @@ local -a opts_gen=(
 )
 
 local -a opts_show=(
-	'--color[Wether to colorize ouput or not]:color:(always never auto)'
+	'--color[When to use terminal colours (always, auto, never)]:color:(always never auto)'
 )
 
 local -a opts_rm=(
