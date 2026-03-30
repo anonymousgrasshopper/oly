@@ -87,8 +87,8 @@
 
 // main setup
 #let setup(
-	document_title: none,
-	author: none,
+	document_title: "",
+	author: "",
 	date: none,
 	maketitle: true,
 	body,
@@ -109,14 +109,23 @@
 			set text(size: 0.8em)
 			set align(left)
 			text(style: "normal", author)
-			h(0.2em)
-			sym.dash.em
-			h(0.2em)
-			context for (en, tr) in months.at(text.lang, default: months.at("en")) {
-				if (date.find(en) != none) {
-					show en: tr
-					text(style: "italic", date)
-					break
+			if (date != none) {
+				h(0.2em)
+				sym.dash.em
+				h(0.2em)
+				context {
+					let found = false
+					for (en, tr) in months.at(text.lang, default: months.at("en")) {
+						if (date.find(en) != none) {
+							found = true
+							show en: tr
+							text(style: "italic", date)
+							break
+						}
+					}
+					if not found {
+						text(style: "italic", date)
+					}
 				}
 			}
 			h(1fr)
