@@ -186,7 +186,7 @@ int run(const std::vector<std::string>& args, bool silent) {
 
 std::vector<std::string> prompt_user_for_problems() {
 	for (const auto& program : {std::string("fzf"), std::string("fd")})
-		if (utils::run({"which" + program}, true))
+		if (utils::run({"which", program}, true))
 			Log::CRITICAL(program + " is not executable");
 
 	std::string cmd = "fd -tf . --base-directory " + opts.base_path.string() +
