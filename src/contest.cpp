@@ -234,33 +234,39 @@ std::string get_problem_name(const std::string& source) {
 
 	std::string contest{parsers::get_contest(source)};
 	if (opts.contest_format.contains(contest)) {
-		std::string name = contest + " ";
-		auto expander = [&](std::string var) -> std::string {
-			bool space = false;
-			if (!var.empty() && var.back() == ' ') {
-				space = true;
-				var = var.substr(0, var.length() - 1);
+		std::string name = contest;
+
+		std::set<std::string> ignored;
+		std::string contest_format = opts.contest_format[contest];
+		if (contest_format.contains("${date}"))
+			// if date will be extracted, don't expand the year as well
+			ignored.insert("year");
+
+		static std::regex var(R"(\$\{([^}]+)\})");
+		std::sregex_iterator it(contest_format.begin(), contest_format.end(), var);
+		std::sregex_iterator end;
+
+		for (; it != end; ++it) {
+			const std::smatch& match = *it;
+			std::string str = match[1].str();
+
+			if (ignored.contains(str))
+				continue;
+			else
+				ignored.insert(str);
+
+			if (str == "date") {
+				name.append(" " + parsers::get_date(source));
+			} else if (str == "year") {
+				name.append(" " + parsers::get_year(source));
+			} else if (str == "problem") {
+				name.append(" " + parsers::get_problem(source));
+			} else if (str == "source") {
+				name = source;
+				break;
 			}
+		}
 
-			auto lookup = [&]() -> std::string {
-				if (var == "date") {
-					return parsers::get_date(source);
-				} else if (var == "contest") {
-					return contest;
-				} else if (var == "year") {
-					return parsers::get_year(source);
-				} else if (var == "problem") {
-					return parsers::get_problem(source);
-				} else {
-					return "";
-				}
-			};
-
-			name += space ? lookup() + " " : lookup();
-			return "";
-		};
-
-		auto _ = utils::expand_vars(opts.contest_format[contest], expander);
 		source_to_name[source] = name;
 	} else if (!contest.empty()) {
 		std::string year{parsers::get_year(source)};
