@@ -52,9 +52,10 @@ void Add::add_problem(const std::string& source) const {
 	const fs::path pb = get_problem_path(source);
 	std::string pb_name = get_problem_name(source);
 	if (!get<bool>("--overwrite") && fs::exists(pb)) {
-		Log::CRITICAL("cannot add " + pb_name + ": entry already present in database" + "\n" +
-		              "Use oly edit " + pb_name + " to edit it" + "\n" +
-		              "Or use --overwrite / -o to ignore this");
+		Log::ERROR("cannot add " + pb_name + ": entry already present in database" + "\n" +
+		           "Use oly edit " + pb_name + " to edit it" + "\n" +
+		           "Or use --overwrite / -o to ignore this");
+		return;
 	}
 	shared["source"] = pb_name;
 
