@@ -96,13 +96,24 @@ std::string utils::expand_vars(const std::string& str, auto&& f)
 	  { f(s) } -> std::convertible_to<std::string>;
   }
 {
-	std::string fmt = str;
+	std::string result;
 
 	static std::regex var(R"(\$\{([^}]+)\})");
-	std::smatch match;
-	while (std::regex_search(fmt, match, var)) {
-		fmt.replace(match[0].first, match[0].second, f(match[1].str()));
+	std::sregex_iterator it(str.begin(), str.end(), var);
+	std::sregex_iterator end;
+
+	size_t last = 0;
+
+	for (; it != end; ++it) {
+		const std::smatch& match = *it;
+
+		result.append(str, last, match.position() - last);
+		result.append(f(match[1].str()));
+
+		last = match.position() + match.length();
 	}
 
-	return fmt;
+	result.append(str, last, std::string::npos);
+
+	return result;
 }
