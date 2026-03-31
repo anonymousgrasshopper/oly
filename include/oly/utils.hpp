@@ -80,7 +80,7 @@ void merge_metadata(const YAML::Node& extend, bool override = true);
 } // namespace yaml
 
 namespace preview {
-void create_preview_file();
+void create_preview_file(const std::string& source);
 }
 
 namespace figures {

@@ -14,8 +14,9 @@ Add::Add() {
 	add("--overwrite,-o", "Overwrite previous database entry for the problem", false);
 }
 
-std::string Add::get_solution_body(const fs::path& base_path) const {
-	utils::preview::create_preview_file();
+std::string Add::get_solution_body(const fs::path& base_path,
+                                   const std::string& source) const {
+	utils::preview::create_preview_file(source);
 	std::string input =
 	    utils::input_file(base_path / ("solution" + utils::filetype_extension()),
 	                      utils::expand_vars(opts.contents), false)
@@ -58,7 +59,7 @@ void Add::add_problem(const std::string& source) const {
 	shared["source"] = pb_name;
 
 	const fs::path tmp_path = static_cast<fs::path>(opts.tmpdir / pb_name);
-	std::string body = get_solution_body(tmp_path);
+	std::string body = get_solution_body(tmp_path, pb_name);
 	YAML::Node metadata = get_solution_metadata(tmp_path);
 
 	utils::figures::save(tmp_path, pb);

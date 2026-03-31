@@ -66,31 +66,31 @@ std::string Edit::uncomment_metadata(std::string& input) const {
 	return input;
 }
 
-std::string Edit::get_solution(const fs::path& source) const {
-	std::string solution = parse_and_comment_metadata(source);
+std::string Edit::get_solution(const fs::path& solution_path,
+                               const std::string& source) const {
+	std::string solution = parse_and_comment_metadata(solution_path);
 
-	utils::preview::create_preview_file();
+	utils::preview::create_preview_file(source);
 
-	std::string pb_name = shared["source"];
+	const fs::path tmp_path = static_cast<fs::path>(opts.tmpdir / source);
 
-	const fs::path tmp_path = static_cast<fs::path>(opts.tmpdir / pb_name);
-
-	utils::figures::copy(tmp_path, source.parent_path());
+	utils::figures::copy(tmp_path, solution_path.parent_path());
 
 	std::string input =
 	    utils::input_file(tmp_path / ("solution" + utils::filetype_extension()), solution,
 	                      false)
 	        .lines(true);
 
-	utils::figures::save(tmp_path, source.parent_path());
+	utils::figures::save(tmp_path, solution_path.parent_path());
 
 	return uncomment_metadata(input);
 }
 
 void Edit::edit_problem(const std::string& pb) const {
-	const fs::path solution_path = get_problem_solution_path(pb);
-	shared["source"] = get_problem_name(pb);
-	std::string sol = get_solution(solution_path);
+	fs::path solution_path = get_problem_solution_path(pb);
+	std::string source = get_problem_name(pb);
+	shared["source"] = source;
+	std::string sol = get_solution(solution_path, source);
 	utils::file::create(solution_path, sol);
 }
 

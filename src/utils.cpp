@@ -331,9 +331,8 @@ void merge_metadata(const YAML::Node& extend, bool override) {
 } // namespace yaml
 
 namespace preview {
-void create_preview_file() {
-	fs::path preview_file_path(opts.tmpdir / shared["source"] /
-	                           ("preview" + filetype_extension()));
+void create_preview_file(const std::string& source) {
+	fs::path preview_file_path(opts.tmpdir / source / ("preview" + filetype_extension()));
 	utils::file::create(preview_file_path, utils::expand_vars(opts.preview));
 }
 } // namespace preview
