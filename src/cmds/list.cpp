@@ -17,7 +17,8 @@ List::List() {
 	    [] { opts.filter_lang = false; });
 };
 
-std::optional<std::string> List::parse_metadata(const fs::path& solution_path) const {
+std::optional<std::string>
+List::parse_metadata_from_file(const fs::path& solution_path) const {
 	std::ifstream solution_file(solution_path);
 	if (!solution_file.is_open())
 		Log::CRITICAL("Could not open " + solution_path.string() + "!");
@@ -54,11 +55,11 @@ int List::execute(std::vector<std::string>& args) {
 	try {
 		for (const auto& entry : fs::recursive_directory_iterator(base_path)) {
 			if (entry.is_regular_file()) {
-				std::optional<std::string> source = parse_metadata(entry.path());
 				if (get<bool>("--filter-lang") &&
 				    entry.path().extension().string() != utils::filetype_extension())
 					continue;
 
+				std::optional<std::string> source = parse_metadata_from_file(entry.path());
 				if (source.has_value()) {
 					if (not get<bool>("--test") or
 					    source.value() != get_problem_name(source.value())) {

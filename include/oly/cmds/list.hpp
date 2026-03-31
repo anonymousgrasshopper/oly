@@ -8,7 +8,8 @@ namespace fs = std::filesystem;
 
 class List : public Command {
 private:
-	std::optional<std::string> parse_metadata(const fs::path& solution_path) const;
+	std::optional<std::string>
+	parse_metadata_from_file(const fs::path& solution_path) const;
 
 public:
 	List();
