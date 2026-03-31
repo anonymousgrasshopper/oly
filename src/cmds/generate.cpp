@@ -97,7 +97,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		else
 			out << "\\begin{problem*}";
 		if (metadata["source"])
-			out << " [" + shared["source"] + "]";
+			out << " [" + metadata["source"].as<std::string>() + "]";
 		out << "\n";
 		if (!bodies.empty())
 			out << bodies[0];
@@ -184,7 +184,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 			else
 				out << "#_problem";
 			if (metadata["source"])
-				out << "(\"" << get_problem_name(problem) << "\")";
+				out << "(\"" << metadata["source"] << "\")";
 			out << "[\n";
 		}
 		if (!bodies.empty())
