@@ -45,6 +45,10 @@ struct Options {
 	// wether to confirm deletion or not in 'oly rm'
 	bool confirm = false;
 
+	// wether to only output the entries written in the current markup language in
+	// 'oly list'
+	bool filter_lang = true;
+
 	// map contest names to other ones
 	std::map<std::string, std::string> abbreviations{{"Shortlist", "ISL"}};
 
@@ -128,6 +132,8 @@ struct Options {
 			open = node["open"].as<bool>();
 		if (node["confirm"])
 			confirm = node["confirm"].as<bool>();
+		if (node["filter_lang"])
+			confirm = node["filter_lang"].as<bool>();
 		if (node["abbreviations"])
 			abbreviations = node["abbreviations"].as<std::map<std::string, std::string>>();
 		if (node["contest_format"])

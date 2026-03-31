@@ -59,6 +59,8 @@ local -a opts_mv=(
 
 local -a opts_list=(
 	'(-t --test)'{-t,--test}'[Test wether get_problem_name output matches the source]'
+	'(--filter-lang --no-filter-lang)--filter-lang[Only output the entries written in the current markup language]'
+	'(--filter-lang --no-filter-lang)--no-filter-lang[Ouput entries regardless of the markup language used]'
 )
 
 # Dynamic problem list
@@ -97,7 +99,9 @@ subcmd)
 args)
 	# After a subcommand (or while typing its args), offer that subcommand's options + globals.
 	case $subcmd in
-	add) _arguments $global_opts ${opts_add[@]} ;;
+	add)
+		_arguments $global_opts ${opts_add[@]}
+		;;
 	edit)
 		_arguments \
 			$global_opts \
@@ -110,13 +114,17 @@ args)
 			${opts_gen[@]} \
 			'*:problem:_oly_problems'
 		;;
-	search) _arguments $global_opts ${opts_search[@]} ;;
+	search)
+		_arguments $global_opts ${opts_search[@]}
+		;;
 	show)
 		_arguments \
 			$global_opts \
 			'*:problem:_oly_problems'
 		;;
-	list) _arguments $global_opts ${opts_list[@]} ;;
+	list)
+		_arguments $global_opts ${opts_list[@]}
+		;;
 	alias)
 		_arguments \
 			$global_opts \
