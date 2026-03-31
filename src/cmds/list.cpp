@@ -5,10 +5,13 @@
 
 #include "oly/cmds/list.hpp"
 #include "oly/config.hpp"
+#include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
 
-List::List() = default;
+List::List() {
+	add("--test,-t", "Test wether get_problem_name output matches the source", false);
+};
 
 std::optional<std::string> List::parse_metadata(const fs::path& solution_path) const {
 	std::ifstream solution_file(solution_path);
@@ -49,7 +52,10 @@ int List::execute(std::vector<std::string>& args) {
 			if (entry.is_regular_file()) {
 				std::optional<std::string> source = parse_metadata(entry.path());
 				if (source.has_value()) {
-					std::cout << source.value() << '\n';
+					if (not get<bool>("--test") or
+					    source.value() != get_problem_name(source.value())) {
+						std::cout << source.value() << '\n';
+					}
 				}
 			}
 		}

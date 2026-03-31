@@ -29,7 +29,6 @@ local -a subcommands=(
 # Subcommand-specific options
 local -a opts_edit=()   # no options
 local -a opts_search=() # no options
-local -a opts_list=()   # no options
 local -a opts_alias=()  # no options
 
 local -a opts_add=(
@@ -56,6 +55,10 @@ local -a opts_rm=(
 
 local -a opts_mv=(
 	'(-a --alias)'{-a,--alias}'[alias the new file to the old one]'
+)
+
+local -a opts_list=(
+	'(-t --test)'{-t,--test}'[Test wether get_problem_name output matches the source]'
 )
 
 # Dynamic problem list
