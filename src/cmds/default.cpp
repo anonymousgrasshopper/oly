@@ -62,12 +62,12 @@ Default::Default() {
 
 		    setenv("OLY", shared["cmd"].c_str(), 1);
 
-		    return cmd->execute(args);
+		    cmd->parse(args);
+		    return cmd->execute();
 	    },
 	    false);
 }
 
-int Default::execute(std::vector<std::string>& args) {
-	parse(args);
+int Default::execute() {
 	return 0;
 }

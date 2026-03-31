@@ -67,10 +67,7 @@ void Add::add_problem(const std::string& source) const {
 	create_solution_file(get_problem_solution_path(source), body, metadata);
 }
 
-int Add::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Add::execute() {
 	if (positional_args.empty()) {
 		Log::ERROR("Expected problem name", logopt::HELP | logopt::NO_PREFIX);
 		return 1;

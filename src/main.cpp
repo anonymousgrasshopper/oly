@@ -22,11 +22,14 @@ int main(int argc, char* argv[]) {
 	if (!args[0].starts_with('-')) {
 		shared["cmd"] = args[0];
 		args.erase(args.begin());
+		cmd->load_config_file(args);
+		cmd->parse(args);
 	} else {
 		shared["cmd"] = "default";
+		cmd->parse(args);
 	}
 
 	setenv("OLY", shared["cmd"].c_str(), 1);
 
-	return cmd->execute(args);
+	return cmd->execute();
 }

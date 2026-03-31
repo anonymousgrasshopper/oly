@@ -249,10 +249,7 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	}
 }
 
-int Generate::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Generate::execute() {
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {
 			positional_args.push_back(problem);

@@ -94,10 +94,7 @@ void Edit::edit_problem(const std::string& pb) const {
 	utils::file::create(solution_path, sol);
 }
 
-int Edit::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Edit::execute() {
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {
 			positional_args.push_back(problem);

@@ -45,7 +45,7 @@ public:
 
 	virtual ~Command();
 
-	virtual int execute(std::vector<std::string>& args);
+	virtual int execute();
 
 	template <typename T>
 	  requires((std::same_as<std::remove_cvref_t<T>, bool> ||

@@ -42,7 +42,7 @@ Command::Command() {
 
 Command::~Command() = default;
 
-int Command::execute(std::vector<std::string>&) {
+int Command::execute() {
 	return 0;
 }
 

@@ -26,10 +26,7 @@ void Rename::move(const fs::path& from, const fs::path& to) {
 	}
 }
 
-int Rename::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Rename::execute() {
 	if (positional_args.empty()) {
 		Log::CRITICAL("missing file operand", logopt::HELP | logopt::NO_PREFIX);
 	} else if (positional_args.size() == 1) {

@@ -5,10 +5,7 @@
 
 Search::Search() = default;
 
-int Search::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Search::execute() {
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {
 			std::cout << problem << '\n';

@@ -47,10 +47,7 @@ List::parse_metadata_from_file(const fs::path& solution_path) const {
 	return std::nullopt;
 }
 
-int List::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int List::execute() {
 	fs::path base_path = opts.base_path;
 	try {
 		for (const auto& entry : fs::recursive_directory_iterator(base_path)) {

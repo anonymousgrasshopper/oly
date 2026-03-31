@@ -200,10 +200,7 @@ bool Show::print_statement(const fs::path& source_path) const {
 	}
 }
 
-int Show::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Show::execute() {
 	if (positional_args.empty()) {
 		for (const std::string& problem : utils::prompt_user_for_problems()) {
 			positional_args.push_back(problem);

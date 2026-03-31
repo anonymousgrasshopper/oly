@@ -17,10 +17,7 @@ void Alias::link(const fs::path& from, const fs::path& to) {
 	}
 }
 
-int Alias::execute(std::vector<std::string>& args) {
-	load_config_file(args);
-	parse(args);
-
+int Alias::execute() {
 	if (positional_args.empty()) {
 		Log::ERROR("Expected source and at least one destination",
 		           logopt::HELP | logopt::NO_PREFIX);
