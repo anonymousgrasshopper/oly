@@ -97,7 +97,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 		else
 			out << "\\begin{problem*}";
 		if (metadata["source"])
-			out << " [" + metadata["source"].as<std::string>() + "]";
+			out << " [" << metadata["source"] << "]";
 		out << "\n";
 		if (!bodies.empty())
 			out << bodies[0];
@@ -107,7 +107,7 @@ void Generate::create_latex_file(const fs::path& latex_file_path) {
 			out << "\\end{problem*}";
 		out << "\n\n";
 		if (metadata["url"] and !metadata["url"].IsNull())
-			out << R"(\noindent\emph{Link}: \url{)" << metadata["url"].as<std::string>() << "}"
+			out << R"(\noindent\emph{Link}: \url{)" << metadata["url"] << "}"
 			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i)
 			out << "\\hrulebar" << "\n\n" << bodies[i];
@@ -194,8 +194,7 @@ void Generate::create_typst_file(const fs::path& typst_file_path) {
 		}
 		out << "\n\n";
 		if (metadata["url"] and !metadata["url"].IsNull())
-			out << "#link(\"" << metadata["url"].as<std::string>() << "\")[_"
-			    << metadata["url"].as<std::string>() << " _]"
+			out << "#link(\"" << metadata["url"] << "\")[_" << metadata["url"] << " _]"
 			    << "\n\n";
 		for (size_t i = 1; i < bodies.size(); ++i) {
 			if (i == 1) {
