@@ -83,12 +83,12 @@ static std::string get_year(const std::string& source) {
 }
 
 static std::string get_problem(const std::string& source) {
-	// Problem: single digit, possibly preceded by a letter or a slash, followed by
-	// whitespace or end of string
+	// Problem: single digit, possibly preceded by a letter among
+	// P, A, C, G, N or a slash, followed by whitespace or end of string
 	std::string problem;
 	std::smatch match;
 
-	static std::regex problem_regex(R"((^|\s)(([A-Za-z]|/)?(\d))(?=\s|$))");
+	static std::regex problem_regex(R"((^|\s)(([PACGN]|/)?(\d))(?=\s|$))");
 	if (std::regex_search(source, match, problem_regex)) {
 		if (!match[3].matched) {
 			problem = "P" + match[4].str();
