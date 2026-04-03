@@ -256,7 +256,7 @@ int Generate::execute() {
 	}
 
 	std::string source;
-	for (std::string problem : positional_args) {
+	for (const std::string& problem : positional_args) {
 		source += get_problem_name(problem) + " - ";
 	}
 	source = source.substr(0, source.length() - 3);
