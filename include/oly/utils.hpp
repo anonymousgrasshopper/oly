@@ -113,7 +113,7 @@ std::string utils::expand_vars(const std::string& str, auto&& f)
 		last = match.position() + match.length();
 	}
 
-	result.append(str, last, std::string::npos);
+	result.append(str, last, std::string::npos); // NOLINT
 
 	return result;
 }
