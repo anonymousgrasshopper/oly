@@ -1,6 +1,10 @@
 # oly
 A CLI for managing olympiad problem solutions.
 
+![Example using Neovim and oly](./assets/app/demo1.png)
+![Example using Neovim and oly](./assets/app/demo2.png)
+![Example using Neovim and oly](./assets/app/demo3.png)
+
 ## Installation
 You will need git and cmake to clone and build the project. Alternatively, you can
 grab an executable from [GitHub releases](https://github.com/antinomie8/oly/releases).
