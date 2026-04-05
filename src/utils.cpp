@@ -184,9 +184,25 @@ int run(const std::vector<std::string>& args, bool silent) {
 	return -1;
 }
 
+bool is_executable(const std::string& cmd) {
+	const char* path_env = std::getenv("PATH");
+	if (!path_env)
+		return false;
+
+	std::stringstream ss(path_env);
+	std::string dir;
+
+	while (std::getline(ss, dir, ':')) {
+		std::string full = dir + "/" + cmd;
+		if (access(full.c_str(), X_OK) == 0)
+			return true;
+	}
+	return false;
+}
+
 std::vector<std::string> prompt_user_for_problems() {
 	for (const auto& program : {std::string("fzf"), std::string("fd")})
-		if (utils::run({"which", program}, true))
+		if (!utils::is_executable(program))
 			Log::CRITICAL(program + " is not executable");
 
 	std::string cmd = "fd -tf . --base-directory " + opts.base_path.string() +

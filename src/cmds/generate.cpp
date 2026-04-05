@@ -123,9 +123,9 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	if (utils::run({"which", "latexmk"}, true))
+	if (!utils::is_executable("latexmk"))
 		Log::CRITICAL("latexmk is not executable");
-	if (opts.open && utils::run({"which", opts.pdf_viewer}, true))
+	if (opts.open && !utils::is_executable(opts.pdf_viewer))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	std::vector<std::string> cmd{
@@ -216,9 +216,9 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 	if (get<bool>("--no-pdf"))
 		return;
 
-	if (utils::run({"which", "typst"}, true))
+	if (!utils::is_executable("typst"))
 		Log::CRITICAL("typst is not executable");
-	if (opts.open && utils::run({"which", opts.pdf_viewer}, true))
+	if (opts.open && !utils::is_executable(opts.pdf_viewer))
 		Log::CRITICAL(opts.pdf_viewer + " is not executable");
 
 	// BUG: unhandled conflicts (figures with the same name)

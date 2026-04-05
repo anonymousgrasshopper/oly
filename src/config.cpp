@@ -19,9 +19,18 @@ static std::string get_editor() {
 	const char* editor = std::getenv("EDITOR");
 	if (!editor)
 		editor = std::getenv("VISUAL");
+	if (!editor) {
+		for (const char* cand : {"vim", "nvim", "nano", "helix"}) {
+			if (utils::is_executable(cand)) {
+				editor = cand;
+				break;
+			}
+		}
+	}
 	if (!editor)
-		editor = "vim";
-	return editor;
+		Log::CRITICAL("No editor found ! Set the $EDITOR or $VISUAL environment variable");
+
+	return static_cast<std::string>(editor);
 }
 
 static bool is_valid(const YAML::Node& config) {
