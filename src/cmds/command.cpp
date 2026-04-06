@@ -69,8 +69,15 @@ void Command::parse(const std::vector<std::string>& args) {
 	for (size_t i = 0; i < args.size(); ++i) {
 		const std::string& arg = args[i];
 
+		// stop parsing after '--'
+		if (arg == "--") {
+			for (size_t j = i + 1; j < args.size(); ++j)
+				positional_args.push_back(args[j]);
+			return;
+		}
+
 		// Long option: --flag, --flag=value or --flag:value
-		if (arg.starts_with("--")) {
+		else if (arg.starts_with("--")) {
 			auto eq_pos = arg.find('=');
 			if (eq_pos == std::string::npos)
 				eq_pos = arg.find(':');
@@ -156,12 +163,17 @@ void Command::parse(const std::vector<std::string>& args) {
 void Command::load_config_file(const std::vector<std::string>& args) {
 	for (size_t i = 0; i < args.size(); ++i) {
 		const std::string& flag = args[i];
+
+		if (flag == "--")
+			break; // stop parsing
+
 		if (flag == "--config-file" || flag == "-c") {
 			if (i == args.size() - 1) {
 				Log::CRITICAL(args[i] + " requires an argument",
 				              logopt::HELP | logopt::NO_PREFIX);
 			} else {
 				set(flag, args[++i]);
+				break;
 			}
 		}
 	}
