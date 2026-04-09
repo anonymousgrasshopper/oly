@@ -10,7 +10,7 @@ local RESET = "\27[0m"
 ---@class OlyOpts
 ---@field silent? boolean
 
----@brief runs an oly command
+---Runs an oly command
 ---@param cmd string[]
 ---@param opts OlyOpts?
 ---@return file*?
