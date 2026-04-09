@@ -55,19 +55,19 @@ static constexpr std::string severity_name(severity lvl) {
 static constexpr std::string severity_color(severity lvl) {
 	switch (lvl) {
 	case severity::CRITICAL:
-		return "\x1b[38;2;0;0;0m\x1b[48;2;232;36;36m";
+		return "\x1b[30m\x1b[48;5;196m";
 	case severity::ERROR:
-		return "\x1b[38;2;232;36;36m";
+		return "\x1b[38;5;196m";
 	case severity::WARNING:
-		return "\x1b[38;2;255;158;59m";
+		return "\x1b[38;5;226m";
 	case severity::INFO:
-		return "\x1b[38;2;106;149;137m";
+		return "\x1b[38;5;39m";
 	case severity::HINT:
-		return "\x1b[38;2;101;133;148m";
+		return "\x1b[38;5;46m";
 	case severity::DEBUG:
-		return "\x1b[38;2;113;124;124m";
+		return "\x1b[38;5;245m";
 	case severity::TRACE:
-		return "\x1b[38;2;220;215;186m";
+		return "\x1b[38;5;250m";
 	default:
 		return "";
 	}
