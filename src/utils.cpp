@@ -201,16 +201,13 @@ bool is_executable(const std::string& cmd) {
 }
 
 std::vector<std::string> prompt_user_for_problems() {
-	for (const auto& program : {std::string("fzf"), std::string("fd")})
+	for (const auto& program : {std::string("fzf"), std::string("oly")})
 		if (!utils::is_executable(program))
 			Log::CRITICAL(program + " is not executable");
 
-	std::string cmd = "fd -tf . --base-directory " + opts.base_path.string() +
-	                  " --print0 --color=never --strip-cwd-prefix=always --extension=typ "
-	                  "--extension=tex"
-	                  "| fzf --read0 --print0 --multi" +
-	                  " --preview 'oly show --color=always '" + opts.base_path.string() +
-	                  "/{}''";
+	// TODO: don't spawn an oly process
+	std::string cmd = "oly list --print0 | \
+	                  fzf --read0 --print0 --multi --preview 'oly show --color=always {}'";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe)
@@ -225,7 +222,7 @@ std::vector<std::string> prompt_user_for_problems() {
 	while ((n = fread(buf, 1, sizeof(buf), pipe)) > 0) {
 		for (size_t i = 0; i < n; ++i) {
 			if (buf[i] == '\0') {
-				result.push_back(opts.base_path.string() + "/" + current);
+				result.push_back(current);
 				current.clear();
 			} else {
 				current.push_back(buf[i]);
