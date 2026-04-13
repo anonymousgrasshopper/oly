@@ -11,26 +11,17 @@ while [[ $# -gt 0 ]]; do
 	shift
 done
 
+# get the build directory
 BUILD_DIR="${BUILD_DIR:-}"
-if [[ -z "$GLOBAL" ]]; then
-	INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
-	SHARE_DIR="${SHARE_DIR:-$HOME/.local/share}"
-	ZSH_SITE_FUNCTIONS="${ZSH_SITE_FUNCTIONS:-$HOME/.local/share/zsh/completions}"
-	SUDO=""
-else
-	INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
-	SHARE_DIR="${SHARE_DIR:-/usr/share}"
-	ZSH_SITE_FUNCTIONS="${ZSH_SITE_FUNCTIONS:-/usr/local/share/zsh/site-functions}"
-	SUDO="sudo"
-fi
-
 if [[ -z "$BUILD_DIR" && -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
-	SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-	if git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-		BUILD_DIR="$SCRIPT_DIR"
+	script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+	if git -C "$script_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+		# the script is in a git repo: assume it's the right one
+		BUILD_DIR="$script_dir"
 	fi
 fi
 if [[ -z "$BUILD_DIR" ]]; then
+	# not runned as a file (e.g. with curl) or not in a git repo: clone it unless it's already here
 	BUILD_DIR="${TMPDIR:-/tmp}/oly_build"
 	if [[ ! -d "$BUILD_DIR/.git" ]]; then
 		git clone https://github.com/antinomie8/oly "$BUILD_DIR"
@@ -38,9 +29,23 @@ if [[ -z "$BUILD_DIR" ]]; then
 fi
 cd "$BUILD_DIR"
 
+# build the executable
 cmake -S . -B build/Release -DCMAKE_BUILD_TYPE=Release
 cmake --build build/Release --parallel
 
+# set the installation locations
+if [[ -z "$GLOBAL" ]]; then
+	data_home=${XDG_DATA_HOME:-$HOME/.local/share}
+	INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
+	SHARE_DIR="${SHARE_DIR:-$data_home}"
+	ZSH_SITE_FUNCTIONS="${ZSH_SITE_FUNCTIONS:-$data_home/zsh/completions}"
+	sudo=""
+else
+	INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+	SHARE_DIR="${SHARE_DIR:-/usr/share}"
+	ZSH_SITE_FUNCTIONS="${ZSH_SITE_FUNCTIONS:-/usr/local/share/zsh/site-functions}"
+	sudo="sudo"
+fi
 declare -A files
 files["build/Release/oly"]="$INSTALL_DIR"
 files["assets/typst/packages/local/oly"]="$SHARE_DIR/typst/packages/local"
@@ -50,27 +55,27 @@ files["assets/app/oly.png"]="$SHARE_DIR/icons/hicolor/48x48/apps"
 for file in "${!files[@]}"; do
 	dir="${files["$file"]}"
 	if [[ ! -d "$dir" ]]; then
-		$SUDO mkdir -p "$dir"
+		$sudo mkdir -p "$dir"
 	fi
-	$SUDO cp -r "$file" "$dir"
+	$sudo cp -r "$file" "$dir"
 done
 
+# register scheme handler
 xdg-mime default oly.desktop x-scheme-handler/oly
 
 # $PATH and $fpath check
-if [[ -z "$GLOBAL" && ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+if [[ -z "$GLOBAL" && ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
 	echo
-	echo "⚠️ ~/.local/bin is not in your PATH."
-	echo "Add this to your shell config:"
-	echo 'export PATH="$HOME/.local/bin:$PATH"'
+	echo '⚠️ Installation directory is not in your $PATH.'
+	echo 'Add this to your shell config:'
+	echo 'export PATH="'"$INSTALL_DIR"':$PATH"'
 fi
-if [[ -z "$GLOBAL" && "${SHELL:-}" = *zsh ]]; then
+if [[ -z "$GLOBAL" && "${SHELL:-}" = */zsh ]]; then
 	if ! zsh -ic 'print -l $fpath' 2>/dev/null |
-		grep -qx "$HOME/.local/share/zsh/completions"; then
+		grep -qx "$ZSH_SITE_FUNCTIONS"; then
 		echo
-		echo "⚠️  Zsh completion directory not in fpath."
-		echo "Add this to your .zshrc:"
-		echo 'fpath=("$HOME/.local/share/zsh/completions" $fpath)'
-		echo 'autoload -Uz compinit && compinit'
+		echo '⚠️ Zsh completion directory not in your $fpath.'
+		echo 'Add this to your .zshrc:'
+		echo 'fpath=("$'"$ZSH_SITE_FUNCTIONS"'" $fpath)'
 	fi
 fi
