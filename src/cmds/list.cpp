@@ -13,8 +13,9 @@ List::List() {
 	add("--test,-t", "Test wether get_problem_name output matches the source", false);
 	add("--filter-lang", "Only output the entries written in the current markup language",
 	    [] { opts.filter_lang = true; });
-	add("--no-filter-lang", "Ouput entries regardless of the markup language used",
+	add("--no-filter-lang", "Output entries regardless of the markup language used",
 	    [] { opts.filter_lang = false; });
+	add("--print0", "Output entries separated by NUL bytes", false);
 };
 
 std::optional<std::string>
@@ -50,6 +51,7 @@ List::parse_metadata_from_file(const fs::path& solution_path) const {
 int List::execute() {
 	fs::path base_path = opts.base_path;
 	try {
+		char separator = get<bool>("--print0") ? '\0' : '\n';
 		for (const auto& entry : fs::recursive_directory_iterator(base_path)) {
 			if (entry.is_regular_file()) {
 				if (get<bool>("--filter-lang") &&
@@ -60,7 +62,7 @@ int List::execute() {
 				if (source.has_value()) {
 					if (not get<bool>("--test") or
 					    source.value() != get_problem_name(source.value())) {
-						std::cout << source.value() << '\n';
+						std::cout << source.value() << separator;
 					}
 				}
 			}
