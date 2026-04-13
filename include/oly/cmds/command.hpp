@@ -43,8 +43,6 @@ protected:
 public:
 	Command();
 
-	virtual ~Command();
-
 	virtual int execute();
 
 	template <typename T>

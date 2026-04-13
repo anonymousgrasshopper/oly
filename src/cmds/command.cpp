@@ -40,8 +40,6 @@ Command::Command() {
 	    [&](std::string language) { opts.language = language; });
 }
 
-Command::~Command() = default;
-
 int Command::execute() {
 	return 0;
 }
