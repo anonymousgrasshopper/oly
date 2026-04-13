@@ -209,7 +209,8 @@ std::vector<std::string> prompt_user_for_problems() {
 	                  " --print0 --color=never --strip-cwd-prefix=always --extension=typ "
 	                  "--extension=tex"
 	                  "| fzf --read0 --print0 --multi" +
-	                  " --preview 'oly show '" + opts.base_path.string() + "/{}''";
+	                  " --preview 'oly show --color=always '" + opts.base_path.string() +
+	                  "/{}''";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 	if (!pipe)
