@@ -7,25 +7,79 @@ local BOLD = "\27[1m"
 local RESET = "\27[0m"
 
 -- helpers
----@class OlyOpts
----@field silent? boolean
-
 ---Runs an oly command
 ---@param cmd string[]
----@param opts OlyOpts?
----@return file*?
+---@param opts {silent: boolean?}?
+---@return {success: boolean, lines: string[]?}?
 local function oly(cmd, opts)
-	local cmd = "build/Debug/oly " .. table.concat(cmd, " ")
+	local uv = require("luv")
+
 	opts = opts or {}
-	if opts.silent then
-		cmd = cmd .. " >/dev/null 2>&1"
-	end
-	local out = io.popen(cmd, "r")
-	if out then
-		return out
-	else
-		io.write(ERROR .. "popen failed !" .. RESET)
+
+	local stdout = uv.new_pipe(false)
+	local stderr = uv.new_pipe(false)
+
+	local output = {}
+	local exit_code = nil
+
+	local handle
+	handle = uv.spawn("build/Debug/oly", {
+		args = cmd,
+		stdio = { nil, stdout, stderr },
+	}, function(code, signal)
+		exit_code = code
+
+		stdout:read_stop()
+		stderr:read_stop()
+		stdout:close()
+		stderr:close()
+		handle:close()
+	end)
+
+	if not handle then
+		io.write("uv.spawn failed !")
 		return nil
+	end
+
+	if not opts.silent then
+		stdout:read_start(function(err, data)
+			assert(not err, err)
+			if data then table.insert(output, data) end
+		end)
+	else
+		stdout:read_start(function() end)
+	end
+
+	stderr:read_start(function(err, data)
+		assert(not err, err)
+	end)
+
+	uv.run()
+
+	local lines = {}
+	if not opts.silent then
+		local full_output = table.concat(output)
+		for line in full_output:gmatch("[^\n]+") do
+			table.insert(lines, line)
+		end
+	end
+
+	return {
+		success = exit_code == 0,
+		lines = opts.silent and nil or lines,
+	}
+end
+
+---@param lines string[]
+local function list_failed(lines)
+	local first = true
+	for _, pb in ipairs(lines) do
+		if first then
+			first = false
+		else
+			io.write(", ")
+		end
+		io.write(ERROR .. pb .. RESET)
 	end
 end
 
@@ -37,28 +91,17 @@ local tests = {
 			local failed = {}
 			for _, lang in ipairs({ "latex", "typst" }) do
 				local handle = oly({ "list", "--filter-lang", "--lang", lang })
-				if not handle then return end
-				for pb in handle:lines() do
-					local show = oly({ "show", '"' .. pb .. '"', "--lang", lang }, { silent = true })
-					if not show then return end
-					local ok, reason, code = show:close()
-					if not ok and code ~= 134 then -- ignore aborts
+				if not handle then return 2 end
+				for _, pb in ipairs(handle.lines) do
+					local show = oly({ "show", pb, "--lang", lang, "--color", "never" }, { silent = true })
+					if not show or not show.success then
 						table.insert(failed, pb)
 					end
 				end
-				handle:close()
 			end
 
-			local first = true
-			for _, pb in ipairs(failed) do
-				if first then
-					first = false
-				else
-					io.write(", ")
-				end
-				io.write(ERROR .. pb .. RESET)
-			end
 			if #failed > 0 then
+				list_failed(failed)
 				io.write(" failed !\n")
 				return 1
 			end
@@ -68,17 +111,15 @@ local tests = {
 		name = "problem naming",
 		test = function()
 			local handle = oly({ "list", "--test" })
-			if not handle then return end
-			local out = handle:read("*a")
-			if out ~= "" then
+			if not handle then return 2 end
+			if #handle.lines > 0 then
 				io.write("Problem names not matching their source:\n")
-				io.write(ERROR .. out .. RESET)
+				list_failed(handle.lines)
 				return 1
 			end
-			handle:close()
 		end,
 	},
-}
+} --[[@as table<{name: string, test: fun():nil|integer}>]]
 
 -- run tests
 for i, test in ipairs(tests) do
