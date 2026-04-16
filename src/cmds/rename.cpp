@@ -1,8 +1,10 @@
 #include <filesystem>
 
 #include "oly/cmds/rename.hpp"
+#include "oly/config.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 namespace fs = std::filesystem;
 
@@ -14,6 +16,7 @@ void Rename::move(const fs::path& from, const fs::path& to) {
 	try {
 		fs::create_directories(to.parent_path());
 		fs::rename(from, to);
+		utils::file::remove_empty_parents(from.parent_path(), opts.base_path);
 	} catch (const std::filesystem::filesystem_error& e) {
 		Log::CRITICAL(e.what());
 	}

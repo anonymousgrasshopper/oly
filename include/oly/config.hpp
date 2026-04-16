@@ -110,9 +110,9 @@ struct Options {
 		if (node["author"])
 			author = node["author"].as<std::string>();
 		if (node["base_path"])
-			base_path = fs::path(node["base_path"].as<std::string>());
+			base_path = fs::weakly_canonical(node["base_path"].as<std::string>());
 		if (node["figures_dir"])
-			figures_dir = fs::path(node["figures_dir"].as<std::string>());
+			figures_dir = fs::weakly_canonical(node["figures_dir"].as<std::string>());
 		if (node["lang"]) {
 			auto s = node["lang"].as<std::string>();
 			if (s == "latex")
@@ -149,9 +149,9 @@ struct Options {
 			}
 		}
 		if (node["output_directory"])
-			output_directory = fs::path(node["output_directory"].as<std::string>());
+			output_directory = fs::weakly_canonical(node["output_directory"].as<std::string>());
 		if (node["tmpdir"])
-			tmpdir = fs::path(node["tmpdir"].as<std::string>());
+			tmpdir = fs::weakly_canonical(node["tmpdir"].as<std::string>());
 		if (node["packages"])
 			packages = node["packages"].as<std::string>();
 		if (node["preview"])

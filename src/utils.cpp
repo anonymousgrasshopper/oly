@@ -295,6 +295,23 @@ void create(const fs::path& filepath, const std::string& contents) {
 void edit(const fs::path& filepath) {
 	utils::run({opts.editor, filepath.string()});
 }
+
+void remove_empty_parents(fs::path path, const fs::path& base_path) {
+	std::error_code ec;
+
+	while (!path.empty() && path != base_path) {
+		if (!fs::exists(path, ec) || !fs::is_directory(path, ec))
+			break;
+
+		if (!fs::is_empty(path, ec))
+			break;
+
+		if (!fs::remove(path, ec))
+			break;
+
+		path = path.parent_path();
+	}
+}
 } // namespace file
 
 namespace yaml {

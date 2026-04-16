@@ -68,6 +68,8 @@ namespace file {
 void create(const fs::path& filepath, const std::string& contents = "");
 
 void edit(const fs::path& filepath);
+
+void remove_empty_parents(fs::path path, const fs::path& base_path);
 } // namespace file
 
 namespace yaml {

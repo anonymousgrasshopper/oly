@@ -15,7 +15,7 @@ Remove::Remove() {
 	add("--force,-f", "Do not prompt before deleting file", [] { opts.confirm = false; });
 }
 
-bool Remove::prompt_before_deletion(const fs::path& path) {
+static bool prompt_before_deletion(const fs::path& path) {
 	std::print("Are you sure you want to remove '{}' ? [y/n] ", path.string());
 
 	std::string input;
@@ -31,13 +31,15 @@ bool Remove::prompt_before_deletion(const fs::path& path) {
 	return c == 'y';
 }
 
-void Remove::delete_problem(const fs::path& path) {
+static void delete_problem(const fs::path& path) {
 	if (!fs::exists(path)) {
 		Log::ERROR(path.string() + " doesn't exist !");
 	} else {
 		if (!opts.confirm || prompt_before_deletion(path)) {
 			if (!fs::remove_all(path)) {
 				Log::ERROR(path.string() + " couldn't be removed...");
+			} else {
+				utils::file::remove_empty_parents(path.parent_path(), opts.base_path);
 			}
 		}
 	}
