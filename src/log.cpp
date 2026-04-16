@@ -5,6 +5,7 @@
 #include <string>
 
 #include "oly/config.hpp"
+#include "oly/constants.hpp"
 #include "oly/log.hpp"
 
 bool operator<(severity a, severity b) {
@@ -57,22 +58,21 @@ static constexpr std::string severity_color(severity lvl) {
 	case severity::CRITICAL:
 		return "\x1b[30m\x1b[48;5;196m";
 	case severity::ERROR:
-		return "\x1b[38;5;196m";
+		return Color::RED;
 	case severity::WARNING:
-		return "\x1b[38;5;226m";
+		return Color::YELLOW;
 	case severity::INFO:
-		return "\x1b[38;5;39m";
+		return Color::BLUE;
 	case severity::HINT:
-		return "\x1b[38;5;46m";
+		return Color::GREEN;
 	case severity::DEBUG:
-		return "\x1b[38;5;245m";
+		return Color::GRAY;
 	case severity::TRACE:
-		return "\x1b[38;5;250m";
+		return Color::FAINT;
 	default:
 		return "";
 	}
 }
-constexpr const std::string COLOR_RESET = "\x1b[0m";
 
 namespace Log {
 static void Log(severity level, const std::string& message, logopt opts) {
@@ -81,7 +81,7 @@ static void Log(severity level, const std::string& message, logopt opts) {
 
 	if (!has_option(opts, logopt::NO_PREFIX))
 		std::print(std::cerr, "{}{}{}: ", severity_color(level), severity_name(level),
-		           COLOR_RESET);
+		           Color::RESET);
 
 	std::println(std::cerr, "{}", message);
 

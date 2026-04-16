@@ -11,6 +11,7 @@
 
 #include "oly/cmds/show.hpp"
 #include "oly/config.hpp"
+#include "oly/constants.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
@@ -37,10 +38,6 @@ constexpr const char TYPST_QUERIES[] = {
 constexpr size_t TYPST_QUERIES_SIZE = sizeof(TYPST_QUERIES);
 static std::string typst_queries(TYPST_QUERIES, TYPST_QUERIES_SIZE);
 
-// escape sequences
-const std::string ANSI_BOLD = "\x1b[1m";
-const std::string ANSI_ITALIC = "\x1b[3m";
-
 static std::string to_ansi(int color) {
 	uint8_t r, g, b;
 	r = (color >> 16) & 0xFF;
@@ -52,9 +49,9 @@ static std::string to_ansi(int color) {
 
 static std::string map_capture(const std::string& name) {
 	if (name == "markup.strong") {
-		return ANSI_BOLD;
+		return Color::BOLD;
 	} else if (name == "markup.italic") {
-		return ANSI_ITALIC;
+		return Color::ITALIC;
 	}
 	return opts.colorscheme.contains(name) ? to_ansi(opts.colorscheme[name]) : "";
 }
@@ -121,12 +118,12 @@ static std::string colorize(const std::string& input) {
 	std::string last_color = "";
 	for (size_t i = 0; i < input.length(); ++i) {
 		if (color_buffer[i] != last_color) {
-			result += color_buffer[i].empty() ? "\x1b[0m" : color_buffer[i];
+			result += color_buffer[i].empty() ? Color::RESET : color_buffer[i];
 			last_color = color_buffer[i];
 		}
 		result += input[i];
 	}
-	result += "\x1b[0m";
+	result += Color::RESET;
 
 	ts_query_cursor_delete(cursor);
 	ts_tree_delete(tree);

@@ -4,6 +4,7 @@
 
 #include "oly/cmds/remove.hpp"
 #include "oly/config.hpp"
+#include "oly/constants.hpp"
 #include "oly/contest.hpp"
 #include "oly/log.hpp"
 #include "oly/utils.hpp"
@@ -16,7 +17,8 @@ Remove::Remove() {
 }
 
 static bool prompt_before_deletion(const fs::path& path) {
-	std::print("Are you sure you want to remove '{}' ? [y/n] ", path.string());
+	std::print("Are you sure you want to remove {}{}{} ? [y/n] ", Color::GREEN,
+	           path.string(), Color::RESET);
 
 	std::string input;
 	if (!std::getline(std::cin, input)) {
