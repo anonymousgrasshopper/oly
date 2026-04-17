@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <limits>
@@ -7,6 +8,7 @@
 #include "oly/config.hpp"
 #include "oly/constants.hpp"
 #include "oly/log.hpp"
+#include "oly/utils.hpp"
 
 bool operator<(severity a, severity b) {
 	return static_cast<unsigned>(a) < static_cast<unsigned>(b);
@@ -75,10 +77,7 @@ static constexpr std::string severity_color(severity lvl) {
 }
 
 namespace Log {
-static void Log(severity level, const std::string& message, logopt opts) {
-	if (level < log_level)
-		return;
-
+static void log_stderr(severity level, const std::string& message, logopt opts) {
 	if (!has_option(opts, logopt::NO_PREFIX))
 		std::print(std::cerr, "{}{}{}: ", severity_color(level), severity_name(level),
 		           Color::RESET);
@@ -92,6 +91,46 @@ static void Log(severity level, const std::string& message, logopt opts) {
 		    shared.contains("cmd") && shared["cmd"] != "default" ? shared["cmd"] + " " : "";
 		std::println(std::cerr, "{:{}}use oly {}--help for more information", "", padding,
 		             cmd_str);
+	}
+}
+static void notify_send(severity level, const std::string& message, logopt opts) {
+	std::string severity = severity_name(level);
+	std::ranges::transform(severity, severity.begin(), ::tolower);
+
+	static std::string data_home;
+	if (data_home.empty()) {
+		char* xdg_data_home = std::getenv("XDG_DATA_HOME");
+		if (xdg_data_home) {
+			data_home = static_cast<std::string>(xdg_data_home);
+		} else {
+			const char* home = std::getenv("HOME");
+			if (xdg_data_home) {
+				data_home = static_cast<std::string>(home) + "/.local/share";
+			}
+		}
+	}
+
+	std::string cmd_str =
+	    shared.contains("cmd") && shared["cmd"] != "default" ? shared["cmd"] + " " : "";
+	utils::run({
+	    "notify-send",
+	    "--app-name",
+	    "oly",
+	    "--icon=" + data_home + "/icons/hicolor/48x48/apps/oly.png",
+	    "--category=" + severity,
+	    cmd_str + severity,
+	    message,
+	});
+}
+
+static void Log(severity level, const std::string& message, logopt opts) {
+	if (level < log_level)
+		return;
+
+	if (!shared.contains("scheme")) {
+		log_stderr(level, message, opts);
+	} else {
+		notify_send(level, message, opts);
 	}
 
 	if (has_option(opts, logopt::WAIT)) {

@@ -54,13 +54,13 @@ Default::Default() {
 
 		    std::string cmd_name = url.substr(0, mark);
 		    std::string pb_name = url.substr(equals + 1);
-		    // std::system(("notify-send '" + cmd + "'").c_str());
-		    // std::system(("notify-send '" + pb_name + "'").c_str());
 
 		    std::vector<std::string> args{pb_name};
 		    std::unique_ptr<Command> cmd = get_cmd(cmd_name);
 
-		    setenv("OLY", shared["cmd"].c_str(), 1);
+		    shared["cmd"] = cmd_name;
+		    shared["scheme"] = "true";
+		    setenv("OLY", cmd_name.c_str(), 1);
 
 		    cmd->parse(args);
 		    return cmd->execute();
