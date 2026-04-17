@@ -22,8 +22,8 @@ install: release
 sync_assets:
 	rsync -r ~/.local/share/typst/packages/local/oly ./assets/typst/packages/local/
 
-	rsync ~/.config/nvim/after/ftplugin/typst/oly.lua ./assets/extras/typst.lua
-	rsync ~/.config/nvim/after/ftplugin/tex.lua ./assets/extras/tex.lua
+	rsync ~/.config/nvim/ftplugin/typst/oly.lua ./assets/extras/typst.lua
+	rsync ~/.config/nvim/ftplugin/tex.lua ./assets/extras/tex.lua
 
 lint:
 	@-run-clang-tidy                           \
