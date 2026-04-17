@@ -41,6 +41,8 @@
 		"solution": "Solution",
 		"conjecture": "Conjecture",
 		"problem": "Problème",
+		"algorithm": "Algorithme",
+    "reformulation": "Reformulation",
 		"toc": "Table des matières",
 	),
 	"en": (
@@ -56,11 +58,16 @@
 		"solution": "Solution",
 		"conjecture": "Conjecture",
 		"problem": "Problem",
+    "algorithm": "Algorithm",
+    "reformulation": "Reformulation",
 		"toc": "Table of contents",
 	),
 )
 #let get_env_name(env) = {
-	return context env_names.at(text.lang, default: env_names.at("en")).at(env)
+	return context env_names.at(
+    text.lang,
+    default: env_names.at("en"),
+  ).at(env, default: env)
 }
 
 #let months = (
