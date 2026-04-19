@@ -247,7 +247,7 @@
 	shadow: true,
 ))
 #let (theorem, _theorem) = un-numbered(thm-box("theorem", linebreak: true, ..colors.env.theorems))
-#let (corollary, _corollary) = un-numbered(thm-box("corollary", fill: rgb("#e8e8f8")))
+#let (corollary, _corollary) = un-numbered(thm-box("corollary", ..colors.env.theorems))
 #let (proposition, _proposition) = un-numbered(thm-box("proposition", fill: rgb("#e8e8f8")))
 #let (example, _example) = un-numbered(thm-box("example", ..colors.env.examples))
 
