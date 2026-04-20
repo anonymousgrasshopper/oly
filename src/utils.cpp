@@ -31,7 +31,7 @@ void print_help() {
 	std::println(R"(Arguments:
     --help              -h       - Show this help message
     --config-file FILE  -c FILE  - Specify config file to use
-    --verify-config              - Check wether the config has any errors
+    --verify-config              - Check whether the config has any errors
     --version           -v       - Print this binary's version
     --log-level LEVEL            - Set the log level)");
 }

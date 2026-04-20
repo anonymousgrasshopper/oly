@@ -58,7 +58,7 @@ local -a opts_mv=(
 )
 
 local -a opts_list=(
-	'(-t --test)'{-t,--test}'[Test wether get_problem_name output matches the source]'
+	'(-t --test)'{-t,--test}'[Test whether get_problem_name output matches the source]'
 	'(--filter-lang --no-filter-lang)--filter-lang[Only output the entries written in the current markup language]'
 	'(--filter-lang --no-filter-lang)--no-filter-lang[Output entries regardless of the markup language used]'
 	'--print0[Output entries separated by NUL bytes]'

@@ -39,13 +39,13 @@ struct Options {
 	// the pdf viewer used for 'oly gen'
 	std::string pdf_viewer;
 
-	// wether to open the generated pdf with pdf_viewer when running 'oly gen'
+	// whether to open the generated pdf with pdf_viewer when running 'oly gen'
 	bool open = true;
 
-	// wether to confirm deletion or not in 'oly rm'
+	// whether to confirm deletion or not in 'oly rm'
 	bool confirm = false;
 
-	// wether to only output the entries written in the current markup language in
+	// whether to only output the entries written in the current markup language in
 	// 'oly list'
 	bool filter_lang = true;
 

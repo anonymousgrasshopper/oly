@@ -10,7 +10,7 @@
 #include "oly/utils.hpp"
 
 List::List() {
-	add("--test,-t", "Test wether get_problem_name output matches the source", false);
+	add("--test,-t", "Test whether get_problem_name output matches the source", false);
 	add("--filter-lang", "Only output the entries written in the current markup language",
 	    [] { opts.filter_lang = true; });
 	add("--no-filter-lang", "Output entries regardless of the markup language used",
