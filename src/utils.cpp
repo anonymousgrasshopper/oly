@@ -142,8 +142,8 @@ bool copy_dir(const fs::path& from, const std::string& to) {
 	         ec);
 
 	if (ec) {
-		// only INFO because it can be some mundane error like 'dir exists'
-		Log::INFO("utils::copy_dir: Error copying: " + ec.message());
+		// only DEBUG because it can be some useless error like 'file exists'
+		Log::DEBUG("utils::copy_dir: Error copying: " + ec.message());
 		return false;
 	}
 
