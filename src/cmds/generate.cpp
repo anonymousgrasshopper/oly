@@ -1,6 +1,7 @@
 #include <exception>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -21,6 +22,8 @@ Generate::Generate() {
 	add("--no-pdf", "Only generate a source file", false);
 	add("--no-source", "Remove the source file and induce --clean", false);
 	add("--cwd", "Create the pdf in the current directory", false);
+	add("--print-path,-p",
+	    "Print the path of the directory where the pdf will be generated", false);
 }
 
 std::vector<std::string> Generate::get_solution_bodies(const fs::path& source) {
@@ -138,9 +141,9 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 		cmd.emplace_back("-e");
 		cmd.emplace_back("'$pdf_previewer=q[" + opts.pdf_viewer + " %S];'");
 	}
-	std::string outdir = get<bool>("--cwd") ? fs::current_path().string()
-	                                        : latex_file_path.parent_path().string();
-	cmd.emplace_back("-outdir=" + outdir);
+	fs::path outdir =
+	    get<bool>("--cwd") ? fs::current_path() : latex_file_path.parent_path();
+	cmd.emplace_back("-outdir=" + outdir.string());
 	cmd.emplace_back(latex_file_path.string());
 	utils::run(cmd);
 
@@ -153,6 +156,10 @@ void Generate::create_pdf_from_latex(fs::path latex_file_path) {
 
 		for (const std::string& ext : exts)
 			fs::remove(outdir / latex_file_path.filename().replace_extension(ext), ec);
+	}
+
+	if (get<bool>("--print-path")) {
+		std::cout << outdir.string() << '\n';
 	}
 }
 
@@ -246,6 +253,13 @@ void Generate::create_pdf_from_typst(const fs::path& typst_file_path) {
 
 	if (get<bool>("--no-source")) {
 		fs::remove(typst_file_path);
+	}
+
+	if (get<bool>("--print-path")) {
+		if (get<bool>("--cwd"))
+			std::cout << fs::current_path().string() << '\n';
+		else
+			std::cout << typst_file_path.parent_path().string() << '\n';
 	}
 }
 
