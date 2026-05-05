@@ -115,6 +115,7 @@ local tests = {
 			if #handle.lines > 0 then
 				io.write("Problem names not matching their source:\n")
 				list_failed(handle.lines)
+				io.write("\n")
 				return 1
 			end
 		end,
