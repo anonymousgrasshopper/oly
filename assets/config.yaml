@@ -47,6 +47,9 @@ abbreviations:
 contest_format:
     Club: "Club/${date}"
     Test: "POFM/Tests/${year}/${contest} ${year} ${problem}"
+# you can also use prefixes if the contest parser doesn't give the result you want
+contest_format_prefix:
+    some-prefix: "somedir/${source}"
 
 # customize the colors used by the show command
 # see there for the full list of options:

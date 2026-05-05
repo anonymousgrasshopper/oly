@@ -28,19 +28,32 @@ static std::string get_topic(const char& letter) {
 	}
 }
 
+static std::optional<std::string> get_contest_format(std::string contest) {
+	if (opts.contest_format.contains(contest)) {
+		return opts.contest_format[contest];
+	} else {
+		for (const auto& [k, v] : opts.contest_format_prefix) {
+			if (contest.starts_with(k)) {
+				return v;
+			}
+		}
+	}
+	return std::nullopt;
+}
+
 namespace parsers {
 static std::string get_contest(const std::string& source) {
 	// Contest name: a string of letters and spaces beginning and ending with letters
 	std::string contest;
 	std::smatch match;
 
-	static std::regex contest_regex(R"(\b([^0-9/\-_ ](?:[^0-9/\-_]*)[^0-9/\-_ ])\b)");
+	static std::regex contest_regex(R"(\b([^0-9/\-_ ](?:[^0-9/_]*)[^0-9/\-_ ])\b)");
 	if (std::regex_search(source, match, contest_regex)) {
 		contest = match.str(1);
 		if (opts.abbreviations.contains(contest)) {
 			contest = opts.abbreviations[contest];
 		} else {
-			if (!opts.contest_format.contains(contest)) {
+			if (!get_contest_format(contest)) {
 				if (contest.length() <= 4 && !contest.contains(' ')) {
 					std::ranges::transform(contest, contest.begin(), ::toupper);
 					// } else {
@@ -150,7 +163,8 @@ static fs::path get_path(const std::string& source) {
 		return source_to_path[source];
 
 	std::string contest{parsers::get_contest(source)};
-	if (opts.contest_format.contains(contest)) {
+	std::optional<std::string> contest_format = get_contest_format(contest);
+	if (contest_format) {
 		auto expander = [&](const std::string& var) -> std::string {
 			if (var == "date") {
 				return parsers::get_date(source);
@@ -166,7 +180,7 @@ static fs::path get_path(const std::string& source) {
 				return "";
 			}
 		};
-		source_to_path[source] = utils::expand_vars(opts.contest_format[contest], expander);
+		source_to_path[source] = utils::expand_vars(contest_format.value(), expander);
 	} else if (!contest.empty()) {
 		std::string year{parsers::get_year(source)};
 		if (!year.empty()) {
@@ -205,17 +219,18 @@ std::string get_problem_name(const std::string& source) {
 		return source_to_name[source];
 
 	std::string contest{parsers::get_contest(source)};
-	if (opts.contest_format.contains(contest)) {
+	std::optional<std::string> contest_format = get_contest_format(contest);
+	if (contest_format) {
 		std::string name = contest;
 
 		std::set<std::string> ignored;
-		std::string contest_format = opts.contest_format[contest];
-		if (contest_format.contains("${date}"))
+		std::string format = contest_format.value();
+		if (format.contains("${date}"))
 			// if date will be extracted, don't expand the year as well
 			ignored.insert("year");
 
 		static std::regex var(R"(\$\{([^}]+)\})");
-		std::sregex_iterator it(contest_format.begin(), contest_format.end(), var);
+		std::sregex_iterator it(format.begin(), format.end(), var);
 		std::sregex_iterator end;
 
 		for (; it != end; ++it) {

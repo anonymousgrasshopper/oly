@@ -56,6 +56,8 @@ struct Options {
 	// available variables are: date, contest, year, problem and source
 	std::map<std::string, std::string> contest_format{};
 
+	std::map<std::string, std::string> contest_format_prefix{};
+
 	// customize the colors used by the show command
 	std::map<std::string, int> colorscheme{
 	    {"punctuation.special", 0x7fb4ca},
@@ -138,6 +140,9 @@ struct Options {
 			abbreviations = node["abbreviations"].as<std::map<std::string, std::string>>();
 		if (node["contest_format"])
 			contest_format = node["contest_format"].as<std::map<std::string, std::string>>();
+		if (node["contest_format_prefix"])
+			contest_format_prefix =
+			    node["contest_format_prefix"].as<std::map<std::string, std::string>>();
 		if (node["colorscheme"]) {
 			auto user_colors = node["colorscheme"].as<std::map<std::string, std::string>>();
 			for (auto& [key, hex_str] : user_colors) {
