@@ -31,5 +31,5 @@ lint:
 		-source-filter='^.*/oly/(src|include).*' \
 		-quiet
 
-test:
+test: debug
 	-./test.lua
