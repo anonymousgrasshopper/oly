@@ -230,7 +230,6 @@
 
 #let (definition, _definition) = un-numbered(thm-plain("definition"))
 #let (notation, _notation) = un-numbered(thm-plain("notation"))
-#let (lemma, _lemma) = un-numbered(thm-plain("lemma", style: "italic"))
 #let (conjecture, _conjecture) = un-numbered(thm-plain("conjecture", style: "italic"))
 #let (remark, _remark) = un-numbered(thm-plain("remark", box: true))
 #let (exercise, _exercise) = un-numbered(thm-plain("exercise", box: true))
@@ -248,8 +247,9 @@
 ))
 #let (theorem, _theorem) = un-numbered(thm-box("theorem", linebreak: true, ..colors.env.theorems))
 #let (corollary, _corollary) = un-numbered(thm-box("corollary", ..colors.env.theorems))
-#let (proposition, _proposition) = un-numbered(thm-box("proposition", fill: rgb("#e8e8f8")))
-#let (example, _example) = un-numbered(thm-box("example", ..colors.env.examples))
+#let (proposition, _proposition) = un-numbered(thm-box("proposition", linebreak:true, ..colors.env.theorems))
+#let (lemma, _lemma) = un-numbered(thm-plain("lemma", box: true, accent-color: rgb("#009a55")))
+#let (example, _example) = un-numbered(thm-box("example", radius: 0em, ..colors.env.examples))
 
 #let reformulation = thm-plain("reformulation", box: true, accent-color: rgb("#009a55")).with(numbering: none)
 #let algorithm = thm-plain("algorithm", box: true, accent-color: rgb("#8839ee")).with(numbering: none)

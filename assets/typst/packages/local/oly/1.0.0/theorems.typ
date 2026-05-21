@@ -152,7 +152,7 @@
 #let thmplain = thmbox.with(
 	padding: (top: 0em, bottom: 0em),
 	breakable: true,
-	inset: (top: 0em, left: 1.2em, right: 1.2em),
+	inset: (top: 0em, left: 0em, right: 0em),
 	namefmt: name => emph([(#name)]),
 	titlefmt: emph,
 )
